@@ -1,0 +1,16 @@
+# 缓存目录
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.cache/
+
+# 日志
+logs/
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 环境变量
+.env

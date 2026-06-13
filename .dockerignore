@@ -1,0 +1,88 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Virtual environments
+.venv
+venv
+env
+
+# IDE
+.vscode
+.idea
+
+# Environment files
+.env
+backend/.env
+
+# Logs
+logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache
+backend/.cache
+backend/app/utils/.cache
+
+# Data (large files)
+data
+
+# Tests (exclude from production image)
+backend/tests
+
+# Alembic migrations (not needed at runtime if tables are pre-created)
+backend/alembic
+
+# Alembic config
+backend/alembic.ini
+
+# Ruff issues report
+backend/ruff_issues.txt
+
+# Documentation
+docs
+*.md
+README.md
+CODING_STANDARDS.md
+INSTALLATION.md
+
+# Pre-commit config
+.pre-commit-config.yaml
+.cz.toml
+
+# Project tooling
+.trae
+
+# Frontend (built separately)
+frontend/node_modules
+
+# Demo cases
+demo_cases
+
+# Docker files (not needed in build context)
+Dockerfile
+docker-compose.yml
+.dockerignore

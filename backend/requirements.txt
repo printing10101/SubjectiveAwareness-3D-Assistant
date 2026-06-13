@@ -1,0 +1,36 @@
+# 此文件由 pyproject.toml 自动生成，请勿手动编辑。
+# 生成命令: python generate_requirements.py --extras ocr,dev
+# 如需修改依赖，请编辑 pyproject.toml 中的 [project].dependencies
+# 和 [project.optional-dependencies] 配置。
+fastapi[all]>=0.100.0
+uvicorn[standard]>=0.23.2
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+sqlalchemy[asyncio]>=2.0.0
+alembic>=1.12.0
+asyncpg>=0.29.0
+aiosqlite>=0.20.0
+psycopg2-binary>=2.9.9
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+PyJWT>=2.8.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0
+loguru>=0.7.0
+redis>=5.0.0
+httpx>=0.24.1
+PyMuPDF>=1.23.0
+python-docx>=1.1.0
+cryptography>=41.0.0
+tenacity>=8.2.3
+slowapi>=0.1.9
+prometheus-client>=0.19.0
+neo4j>=5.14.0
+sentry-sdk[fastapi]>=2.0.0
+paddlepaddle>=2.6.0
+paddleocr>=2.8.0
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+fakeredis[lua]>=2.20.0
+pytest-mock>=3.12.0
+pytest-benchmark>=4.0.0

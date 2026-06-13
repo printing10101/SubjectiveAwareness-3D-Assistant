@@ -1,0 +1,299 @@
+# ================================================================
+# 依赖管理工作流说明
+# ================================================================
+# 1. 修改 pyproject.toml 中的 [project].dependencies 或 optional-dependencies
+# 2. 更新 requirements.in（高层依赖声明）以反映变更
+# 3. 生成精确版本锁定文件：
+#    pip-compile requirements.in --output-file requirements.lock --generate-hashes
+# 4. 升级所有依赖到最新兼容版本：
+#    pip-compile requirements.in --output-file requirements.lock --generate-hashes --upgrade
+# 5. 安装锁定依赖：
+#    pip install -r requirements.lock --require-hashes
+# 6. 生产环境安装（不含开发依赖）：
+#    pip install -r requirements-prod.txt
+# 7. 安全检查：
+#    pip install safety && safety check -r requirements.lock
+# ================================================================
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "legal-judgment-analysis"
+version = "1.0.0"
+description = "帮信罪主观明知智能分析系统"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[all]>=0.100.0",
+    "uvicorn[standard]>=0.23.2",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "alembic>=1.12.0",
+    "asyncpg>=0.29.0",
+    "aiosqlite>=0.20.0",
+    "psycopg2-binary>=2.9.9",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+    "PyJWT>=2.8.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.0.0",
+    "loguru>=0.7.0",
+    "redis>=5.0.0",
+    "httpx>=0.24.1",
+    "PyMuPDF>=1.23.0",
+    "python-docx>=1.1.0",
+    "cryptography>=41.0.0",
+    "tenacity>=8.2.3",
+    "slowapi>=0.1.9",
+    "prometheus-client>=0.19.0",
+    "neo4j>=5.14.0",
+    "sentry-sdk[fastapi]>=2.0.0",
+]
+
+[project.optional-dependencies]
+ocr = [
+    "paddlepaddle>=2.6.0",
+    "paddleocr>=2.8.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "fakeredis[lua]>=2.20.0",
+    "pytest-mock>=3.12.0",
+    "pytest-benchmark>=4.0.0",
+]
+all = [
+    "legal-judgment-analysis[ocr,dev]",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+indent-width = 4
+
+# 包含的文件路径
+include = [
+    "*.py",
+    "*.pyi",
+    "**/pyproject.toml",
+]
+
+# 排除的目录
+exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "alembic",
+    "unsloth_compiled_cache",
+]
+
+[tool.ruff.lint]
+# 启用规则集
+select = [
+    # Pyflakes - Python语法错误和未定义名称
+    "F",
+    # pycodestyle - PEP 8风格指南
+    "E",
+    "W",
+    # isort - 导入排序
+    "I",
+    # pydocstyle - 文档字符串规范
+    "D",
+    # pyupgrade - Python升级检查
+    "UP",
+    # flake8-bugbear - 潜在bug检测
+    "B",
+    # flake8-blind-except - 盲异常捕获检测
+    "BLE",
+    # flake8-simplify - 代码简化建议
+    "SIM",
+    # flake8-comprehensions - 推导式优化
+    "C4",
+    # flake8-return - 返回值优化
+    "RET",
+    # flake8-unused-arguments - 未使用参数
+    "ARG",
+    # flake8-datetimez - datetime时区检查
+    "DTZ",
+    # flake8-errmsg - 错误消息最佳实践
+    "EM",
+    # flake8-bandit - 安全检查
+    "S",
+    # flake8-annotations - 类型注解
+    "ANN",
+    # Ruff-specific rules
+    "RUF",
+    # Perflint - 性能优化
+    "PERF",
+    # Refurb - 代码现代化
+    "FURB",
+    # Pylint - Python代码分析
+    "PL",
+]
+
+# 忽略的规则
+ignore = [
+    # 允许行长度超过限制（我们使用line-length=100）
+    "E501",
+    # 允许缺少文档字符串（对于简单函数）
+    "D100",  # 模块文档字符串
+    "D104",  # 包文档字符串
+    "D105",  # 魔术方法文档字符串
+    "D107",  # __init__文档字符串
+    # 允许TODO注释
+    "FIX002",
+    # 允许print语句（我们使用loguru）
+    "T201",
+    # 允许隐式可选（与FastAPI兼容）
+    "RUF013",
+    # 允许断言（测试代码中常用）
+    "S101",
+    # 允许硬编码临时字符串（用于默认值）
+    "S105", "S106", "S107",
+    # 允许 pickle（在受控环境中）
+    "S301",
+    # 允许subprocess（在受控环境中）
+    "S603", "S607",
+    # 允许requests无超时（httpx有默认超时）
+    "S113",
+    # 允许相对导入（项目结构需要）
+    "TID252",
+    # 允许动态表达式（f-string在日志中）
+    "G004",
+    # 允许复杂函数（分析逻辑需要）
+    "C901",
+    # 允许布尔位置参数（FastAPI依赖注入）
+    "FBT001", "FBT002", "FBT003",
+    # 允许任何类型（与SQLAlchemy兼容）
+    "ANN401",
+    # 允许缺少类型注解self/cls (rules removed in recent ruff)
+    # 允许可选类型使用 | None 语法
+    "UP007",
+    # 允许RUF001-RUF003（中文项目中的全角字符是合法的）
+    "RUF001", "RUF002", "RUF003",
+]
+
+# 每个文件允许的最大复杂度
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+# 导入排序配置
+known-first-party = ["app", "backend"]
+known-third-party = ["fastapi", "pydantic", "sqlalchemy", "loguru", "httpx"]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+combine-as-imports = true
+split-on-trailing-comma = true
+lines-after-imports = 2
+
+[tool.ruff.lint.flake8-annotations]
+# 忽略未注解的函数（允许渐进式添加类型）
+suppress-none-returning = true
+
+[tool.ruff.lint.per-file-ignores]
+# 测试文件的特殊规则
+"tests/**/*.py" = [
+    "S",        # 安全规则
+    "ANN",      # 类型注解
+    "D",        # 文档字符串
+    "PLR2004",  # 魔法值
+]
+# Alembic迁移文件
+"alembic/**/*.py" = [
+    "D",        # 文档字符串
+    "ANN",      # 类型注解
+]
+# 脚本文件
+"scripts/**/*.py" = [
+    "D",        # 文档字符串
+    "T201",     # print语句
+]
+# 数据文件（JSON等非Python文件被误解析）
+"app/data/**" = [
+    "ALL",      # 忽略所有规则
+]
+
+[tool.ruff.format]
+# 使用双引号
+quote-style = "double"
+# 使用空格缩进
+indent-style = "space"
+# 跳过魔法尾随逗号检测
+skip-magic-trailing-comma = false
+# 行尾字符
+line-ending = "lf"
+# 文档字符串格式
+docstring-code-format = true
+docstring-code-line-length = 80
+
+[tool.ruff.lint.pycodestyle]
+# 最大行长度
+max-line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+explicit_package_bases = true
+warn_return_any = false
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["app", "backend"]
+omit = [
+    "*/tests/*",
+    "*/alembic/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

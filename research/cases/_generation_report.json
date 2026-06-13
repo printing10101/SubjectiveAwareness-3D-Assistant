@@ -1,0 +1,11 @@
+{
+  "generation_time": "2026-05-24T19:20:00",
+  "total_cases": 25,
+  "categories": {
+    "明知": 15,
+    "不明知": 5,
+    "边缘": 5
+  },
+  "ratio": "6:2:2",
+  "status": "generated"
+}

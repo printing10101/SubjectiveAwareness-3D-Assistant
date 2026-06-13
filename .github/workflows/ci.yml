@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  schedule:
+    - cron: '0 0 * * 0'  # 每周日凌晨全量质量扫描
+  workflow_dispatch:       # 支持手动触发评测
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Log environment info
+        run: |
+          echo "::group::Environment"
+          echo "Python version: $(python --version)"
+          echo "Pip version: $(pip --version)"
+          echo "Working directory: $(pwd)"
+          echo "::endgroup::"
+
+      - name: Install dependencies
+        run: |
+          echo "::group::Install dependencies"
+          python -m pip install --upgrade pip pip-tools
+          pip install -r backend/requirements.lock --require-hashes
+          pip install pre-commit
+          echo "::endgroup::"
+
+      - name: Verify dependency lock consistency
+        run: |
+          echo "::group::Dependency lock consistency check"
+          pip-compile backend/requirements.in --output-file backend/requirements.lock --generate-hashes --dry-run || {
+            echo "::error::requirements.lock 与 requirements.in 不一致！请运行 pip-compile requirements.in --output-file requirements.lock --generate-hashes 重新生成。"
+            exit 1
+          }
+          echo "::endgroup::"
+
+      - name: Run pre-commit hooks
+        run: |
+          echo "::group::Pre-commit checks"
+          pre-commit run --all-files --show-diff-on-failure
+          echo "::endgroup::"
+
+      - name: Run linting
+        run: |
+          echo "::group::Lint check"
+          echo "Ruff version: $(ruff --version)"
+          ruff check .
+          echo "::endgroup::"
+
+      - name: Type check
+        run: |
+          echo "::group::Type check"
+          echo "Mypy version: $(mypy --version)"
+          mypy app/
+          echo "::endgroup::"
+
+      - name: Run tests
+        run: |
+          echo "::group::Run tests"
+          pytest --cov=app --cov-report=xml --cov-fail-under=80
+          echo "::endgroup::"
+
+  eval:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          echo "::group::Install dependencies"
+          python -m pip install --upgrade pip pip-tools
+          pip install -r backend/requirements.lock --require-hashes
+          echo "::endgroup::"
+
+      - name: Download previous eval report
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: eval-report
+          path: backend/tests/reports/previous/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run evaluation runner
+        working-directory: backend/tests
+        run: |
+          echo "::group::Running eval_runner"
+          python eval_runner.py
+          echo "::endgroup::"
+
+      - name: Run ablation runner
+        working-directory: backend/tests
+        run: |
+          echo "::group::Running ablation_runner"
+          python ablation_runner.py
+          echo "::endgroup::"
+
+      - name: Run competitor runner
+        working-directory: backend/tests
+        run: |
+          echo "::group::Running competitor_runner"
+          python competitor_runner.py
+          echo "::endgroup::"
+
+      - name: Check metric degradation
+        run: |
+          echo "::group::Checking metric degradation"
+          python -c "
+import json
+import os
+from pathlib import Path
+
+current_report = Path('backend/tests/reports/eval_v1.0.json')
+previous_report = Path('backend/tests/reports/previous/eval_v1.0.json')
+
+if not current_report.exists():
+    print('::error::当前评估报告不存在')
+    exit(1)
+
+with open(current_report, 'r', encoding='utf-8') as f:
+    current = json.load(f)
+
+if previous_report.exists():
+    with open(previous_report, 'r', encoding='utf-8') as f:
+        previous = json.load(f)
+    
+    current_metrics = current.get('metrics', {})
+    previous_metrics = previous.get('metrics', {})
+    
+    alerts = []
+    for key in ['dimension_accuracy', 'verdict_accuracy', 'sentencing_accuracy', 'f1_score']:
+        curr_val = current_metrics.get(key, 0)
+        prev_val = previous_metrics.get(key, 0)
+        
+        if prev_val > 0:
+            drop = (prev_val - curr_val) / prev_val
+            if drop > 0.05:
+                alerts.append(f'{key}: {prev_val:.2%} -> {curr_val:.2%} (下降 {drop:.2%})')
+    
+    if alerts:
+        print('::warning::检测到关键指标下降超过5%:')
+        for alert in alerts:
+            print(f'  - {alert}')
+        print('::endgroup::')
+        exit(1)
+    else:
+        print('所有指标稳定，无显著下降')
+else:
+    print('无历史评估报告，跳过对比')
+print('::endgroup::')
+"
+
+      - name: Upload eval report
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: backend/tests/reports/eval_v1.0.json
+          retention-days: 90
+
+      - name: Upload ablation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ablation-report
+          path: backend/tests/reports/ablation_v1.0.json
+          retention-days: 90
+
+      - name: Upload competitor report
+        uses: actions/upload-artifact@v4
+        with:
+          name: competitor-report
+          path: backend/tests/reports/competitor_v1.0.json
+          retention-days: 90
