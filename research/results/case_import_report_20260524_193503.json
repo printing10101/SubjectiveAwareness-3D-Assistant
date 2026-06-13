@@ -1,0 +1,177 @@
+{
+  "report_title": "实验案例数据导入报告",
+  "generated_at": "2026-05-24 19:35:03",
+  "data_source": "C:\\Users\\Lenovo\\Desktop\\微信程序开发\\research\\cases",
+  "validation": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "failure_details": {}
+  },
+  "import": {
+    "total": 25,
+    "success": 0,
+    "failed": 25,
+    "skipped": 0,
+    "success_rate": "0.0%",
+    "details": [
+      {
+        "file": "GZ2023BX001.json",
+        "case_id": "GZ2023BX001",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX001%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX002.json",
+        "case_id": "GZ2023BX002",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX002%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX003.json",
+        "case_id": "GZ2023BX003",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX003%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX004.json",
+        "case_id": "GZ2023BX004",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX004%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX005.json",
+        "case_id": "GZ2023BX005",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX005%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX006.json",
+        "case_id": "GZ2023BX006",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX006%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX007.json",
+        "case_id": "GZ2023BX007",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX007%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX008.json",
+        "case_id": "GZ2023BX008",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX008%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX009.json",
+        "case_id": "GZ2023BX009",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX009%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX010.json",
+        "case_id": "GZ2023BX010",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX010%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX011.json",
+        "case_id": "GZ2023BX011",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX011%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX012.json",
+        "case_id": "GZ2023BX012",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX012%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX013.json",
+        "case_id": "GZ2023BX013",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX013%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX014.json",
+        "case_id": "GZ2023BX014",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX014%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX015.json",
+        "case_id": "GZ2023BX015",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX015%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX016.json",
+        "case_id": "GZ2023BX016",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX016%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX017.json",
+        "case_id": "GZ2023BX017",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX017%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX018.json",
+        "case_id": "GZ2023BX018",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX018%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX019.json",
+        "case_id": "GZ2023BX019",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX019%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX020.json",
+        "case_id": "GZ2023BX020",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX020%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX021.json",
+        "case_id": "GZ2023BX021",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX021%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX022.json",
+        "case_id": "GZ2023BX022",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX022%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX023.json",
+        "case_id": "GZ2023BX023",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX023%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX024.json",
+        "case_id": "GZ2023BX024",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX024%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      },
+      {
+        "file": "GZ2023BX025.json",
+        "case_id": "GZ2023BX025",
+        "status": "failed",
+        "reason": "数据库写入失败: (sqlite3.OperationalError) no such table: cases\n[SQL: SELECT cases.id AS cases_id, cases.title AS cases_title, cases.description AS cases_description, cases.case_text AS cases_case_text, cases.status AS cases_status, cases.created_at AS cases_created_at, cases.updated_at AS cases_updated_at \nFROM cases \nWHERE cases.title LIKE ?\n LIMIT ? OFFSET ?]\n[parameters: ('GZ2023BX025%', 1, 0)]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+      }
+    ]
+  },
+  "categories": {
+    "明知": 15,
+    "不明知": 5,
+    "边缘": 5,
+    "total": 25,
+    "ratio": "6:2:2"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description": "刑事案件分析提示词模板配置",
+    "updated_at": "2026-05-28T00:00:00+00:00"
+  },
+  "system": {
+    "description": "系统级别的分析提示词，定义整体分析框架和输出格式要求",
+    "content": "你是一个专业的刑事案件分析助手。请对案件进行三维度分析：\n\n维度1 - 事实知识审查：\n- 审查案件事实与法律要件的匹配度\n- 分析主观明知程度\n- 评估证据链条完整性\n\n维度2 - 模式匹配分析：\n- 匹配典型犯罪模式\n- 分析行为异常程度\n- 评估犯罪手法特征\n\n维度3 - 矛盾分析：\n- 识别嫌疑人辩解与证据的矛盾\n- 分析逻辑不一致之处\n- 评估辩解的可信度\n\n请以JSON格式返回分析结果，包含：\n{\n  \"subjective_knowledge\": \"主观明知程度\",\n  \"sentence\": \"量刑建议\",\n  \"court\": \"建议法院\",\n  \"ground_truth_analysis\": {\n    \"dimension1\": {\n      \"score\": 数值(0-10),\n      \"reasoning\": \"分析理由\",\n      \"key_indicators\": [\"关键指标\"]\n    },\n    \"dimension2\": {\n      \"score\": 数值(0-10),\n      \"reasoning\": \"分析理由\",\n      \"pattern_match\": \"模式匹配结果\"\n    },\n    \"dimension3\": {\n      \"score\": 数值(0-10),\n      \"reasoning\": \"分析理由\",\n      \"contradictions\": [\"矛盾点\"]\n    }\n  }\n}\n"
+  },
+  "dimensions": {
+    "dimension1": {
+      "description": "维度1 - 事实知识审查：审查案件事实与法律要件的匹配度，分析主观明知程度，评估证据链条完整性",
+      "content": "请分析以下案件的事实知识维度：\n1. 审查案件事实与法律要件的匹配度\n2. 分析主观明知程度\n3. 评估证据链条完整性\n\n返回JSON格式：\n{\n  \"score\": 数值(0-10),\n  \"reasoning\": \"详细分析理由\",\n  \"key_indicators\": [\"关键指标列表\"],\n  \"sentence_suggestion\": \"量刑建议\"\n}\n"
+    },
+    "dimension2": {
+      "description": "维度2 - 模式匹配分析：匹配典型犯罪模式，分析行为异常程度，评估犯罪手法特征",
+      "content": "请分析以下案件的模式匹配维度：\n1. 匹配典型犯罪模式\n2. 分析行为异常程度\n3. 评估犯罪手法特征\n\n返回JSON格式：\n{\n  \"score\": 数值(0-10),\n  \"reasoning\": \"详细分析理由\",\n  \"pattern_match\": \"模式匹配结果\"\n}\n"
+    },
+    "dimension3": {
+      "description": "维度3 - 矛盾分析：识别嫌疑人辩解与证据的矛盾，分析逻辑不一致之处，评估辩解的可信度",
+      "content": "请分析以下案件的矛盾分析维度：\n1. 识别嫌疑人辩解与证据的矛盾\n2. 分析逻辑不一致之处\n3. 评估辩解的可信度\n\n返回JSON格式：\n{\n  \"score\": 数值(0-10),\n  \"reasoning\": \"详细分析理由\",\n  \"contradictions\": [\"矛盾点列表\"]\n}\n"
+    }
+  },
+  "specialized": {
+    "similar_cases": {
+      "description": "相似案例推荐提示词",
+      "content": "请根据以下案件描述，推荐3个相似的案例：\n\n案件：{case_text}\n\n返回JSON格式：\n{{\n  \"similar_cases\": [\n    {{\n      \"case_id\": \"案例ID\",\n      \"similarity\": 相似度(0-1),\n      \"title\": \"案例标题\",\n      \"summary\": \"简要摘要\"\n    }}\n  ]\n}}\n"
+    },
+    "sentencing": {
+      "description": "量刑建议生成提示词",
+      "content": "请根据以下案件分析结果，给出量刑建议：\n\n案件分析：\n{analysis_result}\n\n参考法律规则：\n{legal_rules}\n\n返回JSON格式：\n{{\n  \"suggested_sentence\": \"量刑建议\",\n  \"reasoning\": \"量刑理由\",\n  \"legal_basis\": [\"法律依据\"],\n  \"aggravating_factors\": [\"加重情节\"],\n  \"mitigating_factors\": [\"从轻情节\"]\n}}\n"
+    }
+  }
+}

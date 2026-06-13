@@ -1,0 +1,295 @@
+"""报告路由模块.
+
+提供分析报告相关的 API 端点，包括报告生成、查询、导出和审查。
+"""
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import Response
+from pydantic import BaseModel, Field
+from sqlalchemy import select
+
+from app.database import get_async_db_session
+from app.models.analysis import Analysis
+from app.models.case import Case
+from app.models.report import Report
+from app.services.report_exporter import export_docx, export_pdf
+from app.services.report_generator import generate_report
+from app.services.report_service import list_reports
+from app.services.review_checklist import (
+    complete_review,
+    create_review,
+    get_review_by_report_id,
+)
+
+
+router = APIRouter(prefix="/api/reports", tags=["reports"])
+
+
+# ---------------------------------------------------------------------------
+# 请求/响应模型
+# ---------------------------------------------------------------------------
+
+
+class GenerateReportRequest(BaseModel):
+    """生成报告请求模型."""
+
+    analysis_id: int = Field(..., description="分析结果ID")
+
+
+class GenerateReportResponse(BaseModel):
+    """生成报告响应模型."""
+
+    report_id: int = Field(..., description="报告ID")
+    message: str = Field(default="报告生成成功", description="消息")
+
+
+class ReviewRequest(BaseModel):
+    """审查请求模型."""
+
+    items: dict[str, bool] = Field(default_factory=dict, description="审查项状态")
+    comments: str | None = Field(default=None, description="审查意见")
+
+
+class ReviewResponse(BaseModel):
+    """审查响应模型."""
+
+    review_id: int = Field(..., description="审查记录ID")
+    message: str = Field(default="审查保存成功", description="消息")
+
+
+@router.get("/")
+async def get_reports(
+    page: int = Query(1, ge=1, description="页码"),
+    page_size: int = Query(20, ge=1, le=100, description="每页条数"),
+) -> dict:
+    """分页获取分析报告列表.
+
+    Args:
+        page: 页码（从 1 开始，默认 1）
+        page_size: 每页条数（默认 20，最大 100）
+
+    Returns:
+        dict: 包含 total、page、page_size、total_pages、reports
+    """
+    async with get_async_db_session() as db:
+        return await list_reports(db, page=page, page_size=page_size)
+
+
+@router.post("/generate", response_model=GenerateReportResponse)
+async def generate_report_endpoint(
+    request: GenerateReportRequest,
+) -> GenerateReportResponse:
+    """生成分析报告.
+
+    Args:
+        request: 生成报告请求，包含 analysis_id
+
+    Returns:
+        GenerateReportResponse: 包含生成的 report_id
+
+    Raises:
+        HTTPException: 当分析结果不存在或生成失败时
+    """
+    async with get_async_db_session() as db:
+        # 查询分析结果
+        result = await db.execute(
+            select(Analysis).where(Analysis.id == request.analysis_id)
+        )
+        analysis = result.scalar_one_or_none()
+
+        if not analysis:
+            raise HTTPException(status_code=404, detail="分析结果不存在")
+
+        # 查询关联案件
+        case_result = await db.execute(select(Case).where(Case.id == analysis.case_id))
+        case = case_result.scalar_one_or_none()
+
+        if not case:
+            raise HTTPException(status_code=404, detail="关联案件不存在")
+
+        try:
+            # 生成报告内容
+            report_content = generate_report(
+                analysis_result=analysis.result_data,
+                case=case,
+                rule_hits=analysis.result_data.get("triggered_rules", []),
+                tags=analysis.result_data.get("matched_tags", []),
+                similar_cases=analysis.result_data.get("similar_cases", []),
+            )
+
+            # 创建报告记录
+            report = Report(
+                case_id=case.id,
+                analysis_id=analysis.id,
+                content_json=report_content,
+                version="1.0.0",
+            )
+            db.add(report)
+            await db.commit()
+            await db.refresh(report)
+
+            # 更新 report_id 到内容中
+            report_content["report_id"] = report.id
+            report.content_json = report_content
+            await db.commit()
+
+            return GenerateReportResponse(
+                report_id=report.id,
+                message="报告生成成功",
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"报告生成失败: {e!s}")
+
+
+@router.get("/{report_id}")
+async def get_report(report_id: int) -> dict:
+    """获取报告详情.
+
+    Args:
+        report_id: 报告ID
+
+    Returns:
+        dict: 报告内容
+
+    Raises:
+        HTTPException: 当报告不存在时
+    """
+    async with get_async_db_session() as db:
+        result = await db.execute(select(Report).where(Report.id == report_id))
+        report = result.scalar_one_or_none()
+
+        if not report:
+            raise HTTPException(status_code=404, detail="报告不存在")
+
+        return {
+            "id": report.id,
+            "case_id": report.case_id,
+            "analysis_id": report.analysis_id,
+            "content": report.content_json,
+            "generated_at": report.generated_at.isoformat(),
+            "version": report.version,
+        }
+
+
+@router.get("/{report_id}/pdf")
+async def download_report_pdf(report_id: int) -> Response:
+    """下载报告 PDF 文件.
+
+    Args:
+        report_id: 报告ID
+
+    Returns:
+        Response: PDF 文件流
+
+    Raises:
+        HTTPException: 当报告不存在或导出失败时
+    """
+    async with get_async_db_session() as db:
+        result = await db.execute(select(Report).where(Report.id == report_id))
+        report = result.scalar_one_or_none()
+
+        if not report:
+            raise HTTPException(status_code=404, detail="报告不存在")
+
+        try:
+            pdf_bytes = export_pdf(
+                report_content=report.content_json,
+                case_id=report.case_id,
+                generated_at=report.generated_at,
+            )
+
+            return Response(
+                content=pdf_bytes,
+                media_type="application/pdf",
+                headers={
+                    "Content-Disposition": f'attachment; filename="report_{report_id}.pdf"'
+                },
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"PDF 导出失败: {e!s}")
+
+
+@router.get("/{report_id}/docx")
+async def download_report_docx(report_id: int) -> Response:
+    """下载报告 DOCX 文件.
+
+    Args:
+        report_id: 报告ID
+
+    Returns:
+        Response: DOCX 文件流
+
+    Raises:
+        HTTPException: 当报告不存在或导出失败时
+    """
+    async with get_async_db_session() as db:
+        result = await db.execute(select(Report).where(Report.id == report_id))
+        report = result.scalar_one_or_none()
+
+        if not report:
+            raise HTTPException(status_code=404, detail="报告不存在")
+
+        try:
+            docx_bytes = export_docx(
+                report_content=report.content_json,
+                case_id=report.case_id,
+                generated_at=report.generated_at,
+            )
+
+            return Response(
+                content=docx_bytes,
+                media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                headers={
+                    "Content-Disposition": f'attachment; filename="report_{report_id}.docx"'
+                },
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"DOCX 导出失败: {e!s}")
+
+
+@router.post("/{report_id}/review", response_model=ReviewResponse)
+async def submit_review(
+    report_id: int,
+    request: ReviewRequest,
+) -> ReviewResponse:
+    """提交报告审查结果.
+
+    Args:
+        report_id: 报告ID
+        request: 审查请求，包含审查项状态和意见
+
+    Returns:
+        ReviewResponse: 包含审查记录ID
+
+    Raises:
+        HTTPException: 当报告不存在或保存失败时
+    """
+    async with get_async_db_session() as db:
+        # 检查报告是否存在
+        result = await db.execute(select(Report).where(Report.id == report_id))
+        report = result.scalar_one_or_none()
+
+        if not report:
+            raise HTTPException(status_code=404, detail="报告不存在")
+
+        try:
+            # 查询或创建审查记录
+            review = await get_review_by_report_id(db, report_id)
+
+            if not review:
+                review = await create_review(db, report_id)
+
+            # 更新审查内容
+            review = await complete_review(
+                db,
+                review.id,
+                items=request.items,
+                comments=request.comments,
+            )
+
+            return ReviewResponse(
+                review_id=review.id,
+                message="审查保存成功",
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"审查保存失败: {e!s}")

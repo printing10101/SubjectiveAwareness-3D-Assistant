@@ -1,0 +1,230 @@
+{
+  "total_cases": 25,
+  "consistent_count": 22,
+  "inconsistent_count": 3,
+  "agreement_rate_pct": 88.0,
+  "confusion_matrix": {
+    "labels": [
+      "认定明知 (正类)",
+      "不认定明知 (负类)"
+    ],
+    "matrix": [
+      [
+        18,
+        2
+      ],
+      [
+        1,
+        4
+      ]
+    ],
+    "tp": 4,
+    "fp": 2,
+    "tn": 18,
+    "fn": 1
+  },
+  "classification_metrics": {
+    "precision": 0.9474,
+    "recall": 0.9,
+    "f1_score": 0.9231,
+    "specificity": 0.9,
+    "accuracy": 0.88
+  },
+  "by_difficulty": {
+    "难": {
+      "total": 5,
+      "consistent": 4,
+      "inconsistent": 1,
+      "agreement_rate_pct": 80.0
+    },
+    "中": {
+      "total": 6,
+      "consistent": 5,
+      "inconsistent": 1,
+      "agreement_rate_pct": 83.3
+    },
+    "易": {
+      "total": 14,
+      "consistent": 13,
+      "inconsistent": 1,
+      "agreement_rate_pct": 92.9
+    }
+  },
+  "case_details": [
+    {
+      "case_id": "GZ2023BX001",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX002",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX003",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX004",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX005",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX006",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "难"
+    },
+    {
+      "case_id": "GZ2023BX007",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX008",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX009",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX010",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX011",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX012",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX013",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX014",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": false,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX015",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "难"
+    },
+    {
+      "case_id": "GZ2023BX016",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": false,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX017",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX018",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "难"
+    },
+    {
+      "case_id": "GZ2023BX019",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "难"
+    },
+    {
+      "case_id": "GZ2023BX020",
+      "ground_truth": "认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX021",
+      "ground_truth": "不认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": true,
+      "difficulty": "中"
+    },
+    {
+      "case_id": "GZ2023BX022",
+      "ground_truth": "不认定明知",
+      "ai_conclusion": "认定明知",
+      "is_consistent": false,
+      "difficulty": "难"
+    },
+    {
+      "case_id": "GZ2023BX023",
+      "ground_truth": "不认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX024",
+      "ground_truth": "不认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    },
+    {
+      "case_id": "GZ2023BX025",
+      "ground_truth": "不认定明知",
+      "ai_conclusion": "不认定明知",
+      "is_consistent": true,
+      "difficulty": "易"
+    }
+  ]
+}

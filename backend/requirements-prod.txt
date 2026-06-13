@@ -1,0 +1,5 @@
+# requirements-prod.txt - 生产环境依赖（不包含开发/测试依赖）
+# 安装方式：pip install -r requirements-prod.txt
+# 此文件通过 -c 约束版本与 requirements.lock 保持一致
+-c requirements.lock
+-r requirements.in

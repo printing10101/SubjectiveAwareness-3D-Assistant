@@ -1,0 +1,53 @@
+# 此文件声明项目的所有高层（直接）依赖
+# 使用 pip-compile 生成精确版本锁定的 requirements.lock：
+#   pip-compile requirements.in --output-file requirements.lock --generate-hashes
+# 同步已安装的包到锁定文件：
+#   pip-compile requirements.in --output-file requirements.lock --generate-hashes --upgrade
+# 天生包含开发依赖：
+#   pip-compile requirements.in requirements-dev.in --output-file requirements-dev.lock --generate-hashes
+
+# ---- 核心框架 ----
+fastapi[all]>=0.100.0
+uvicorn[standard]>=0.23.2
+
+# ---- 数据验证和配置 ----
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# ---- 数据库 ----
+sqlalchemy[asyncio]>=2.0.0
+alembic>=1.12.0
+asyncpg>=0.29.0
+aiosqlite>=0.20.0
+psycopg2-binary>=2.9.9
+
+# ---- 安全和认证 ----
+PyJWT>=2.8.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0
+cryptography>=41.0.0
+
+# ---- HTTP 客户端 ----
+httpx>=0.24.1
+
+# ---- 文档处理 ----
+PyMuPDF>=1.23.0
+python-docx>=1.1.0
+python-multipart>=0.0.6
+
+# ---- 缓存和队列 ----
+redis>=5.0.0
+
+# ---- 日志 ----
+loguru>=0.7.0
+
+# ---- 工具 ----
+python-dotenv>=1.0.0
+tenacity>=8.2.3
+slowapi>=0.1.9
+prometheus-client>=0.19.0
+neo4j>=5.14.0
+
+# ---- OCR（可选，Linux/macOS 环境可用） ----
+# paddlepaddle>=2.6.0
+# paddleocr>=2.8.0

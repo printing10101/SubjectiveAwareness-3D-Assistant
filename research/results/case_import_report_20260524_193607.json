@@ -1,0 +1,202 @@
+{
+  "report_title": "实验案例数据导入报告",
+  "generated_at": "2026-05-24 19:36:07",
+  "data_source": "C:\\Users\\Lenovo\\Desktop\\微信程序开发\\research\\cases",
+  "validation": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "failure_details": {}
+  },
+  "import": {
+    "total": 25,
+    "success": 25,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": "100.0%",
+    "details": [
+      {
+        "file": "GZ2023BX001.json",
+        "case_id": "GZ2023BX001",
+        "status": "success",
+        "reason": "",
+        "db_id": 1
+      },
+      {
+        "file": "GZ2023BX002.json",
+        "case_id": "GZ2023BX002",
+        "status": "success",
+        "reason": "",
+        "db_id": 2
+      },
+      {
+        "file": "GZ2023BX003.json",
+        "case_id": "GZ2023BX003",
+        "status": "success",
+        "reason": "",
+        "db_id": 3
+      },
+      {
+        "file": "GZ2023BX004.json",
+        "case_id": "GZ2023BX004",
+        "status": "success",
+        "reason": "",
+        "db_id": 4
+      },
+      {
+        "file": "GZ2023BX005.json",
+        "case_id": "GZ2023BX005",
+        "status": "success",
+        "reason": "",
+        "db_id": 5
+      },
+      {
+        "file": "GZ2023BX006.json",
+        "case_id": "GZ2023BX006",
+        "status": "success",
+        "reason": "",
+        "db_id": 6
+      },
+      {
+        "file": "GZ2023BX007.json",
+        "case_id": "GZ2023BX007",
+        "status": "success",
+        "reason": "",
+        "db_id": 7
+      },
+      {
+        "file": "GZ2023BX008.json",
+        "case_id": "GZ2023BX008",
+        "status": "success",
+        "reason": "",
+        "db_id": 8
+      },
+      {
+        "file": "GZ2023BX009.json",
+        "case_id": "GZ2023BX009",
+        "status": "success",
+        "reason": "",
+        "db_id": 9
+      },
+      {
+        "file": "GZ2023BX010.json",
+        "case_id": "GZ2023BX010",
+        "status": "success",
+        "reason": "",
+        "db_id": 10
+      },
+      {
+        "file": "GZ2023BX011.json",
+        "case_id": "GZ2023BX011",
+        "status": "success",
+        "reason": "",
+        "db_id": 11
+      },
+      {
+        "file": "GZ2023BX012.json",
+        "case_id": "GZ2023BX012",
+        "status": "success",
+        "reason": "",
+        "db_id": 12
+      },
+      {
+        "file": "GZ2023BX013.json",
+        "case_id": "GZ2023BX013",
+        "status": "success",
+        "reason": "",
+        "db_id": 13
+      },
+      {
+        "file": "GZ2023BX014.json",
+        "case_id": "GZ2023BX014",
+        "status": "success",
+        "reason": "",
+        "db_id": 14
+      },
+      {
+        "file": "GZ2023BX015.json",
+        "case_id": "GZ2023BX015",
+        "status": "success",
+        "reason": "",
+        "db_id": 15
+      },
+      {
+        "file": "GZ2023BX016.json",
+        "case_id": "GZ2023BX016",
+        "status": "success",
+        "reason": "",
+        "db_id": 16
+      },
+      {
+        "file": "GZ2023BX017.json",
+        "case_id": "GZ2023BX017",
+        "status": "success",
+        "reason": "",
+        "db_id": 17
+      },
+      {
+        "file": "GZ2023BX018.json",
+        "case_id": "GZ2023BX018",
+        "status": "success",
+        "reason": "",
+        "db_id": 18
+      },
+      {
+        "file": "GZ2023BX019.json",
+        "case_id": "GZ2023BX019",
+        "status": "success",
+        "reason": "",
+        "db_id": 19
+      },
+      {
+        "file": "GZ2023BX020.json",
+        "case_id": "GZ2023BX020",
+        "status": "success",
+        "reason": "",
+        "db_id": 20
+      },
+      {
+        "file": "GZ2023BX021.json",
+        "case_id": "GZ2023BX021",
+        "status": "success",
+        "reason": "",
+        "db_id": 21
+      },
+      {
+        "file": "GZ2023BX022.json",
+        "case_id": "GZ2023BX022",
+        "status": "success",
+        "reason": "",
+        "db_id": 22
+      },
+      {
+        "file": "GZ2023BX023.json",
+        "case_id": "GZ2023BX023",
+        "status": "success",
+        "reason": "",
+        "db_id": 23
+      },
+      {
+        "file": "GZ2023BX024.json",
+        "case_id": "GZ2023BX024",
+        "status": "success",
+        "reason": "",
+        "db_id": 24
+      },
+      {
+        "file": "GZ2023BX025.json",
+        "case_id": "GZ2023BX025",
+        "status": "success",
+        "reason": "",
+        "db_id": 25
+      }
+    ]
+  },
+  "categories": {
+    "明知": 15,
+    "不明知": 5,
+    "边缘": 5,
+    "total": 25,
+    "ratio": "6:2:2"
+  }
+}

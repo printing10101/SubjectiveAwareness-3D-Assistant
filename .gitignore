@@ -1,0 +1,116 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+*.cover
+.hypothesis/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# Linting
+.ruff_cache/
+
+# Environment variables - CRITICAL: Never commit these!
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+app.db
+
+# Cache directories
+.cache/
+cache/
+
+# Logs
+logs/
+*.log
+
+# Build outputs
+frontend/dist/
+
+# Frontend
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.zip
+*.tar.gz
+*.rar
+
+# Tool outputs
+pyright_output.txt
+ruff_issues.txt
+test_*.py.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project specific
+legal_judgment_analysis_system.zip
+legal_judgment_analysis_system.zip.sha256
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Model files (large)
+*.pth
+*.pt
+*.bin
+*.safetensors
+models/
+checkpoints/
+
+# Unsloth compiled cache (if exists)
+unsloth_compiled_cache/
+
+# Cleaned/anonymized data (must not be committed)
+data/cleaned/

@@ -1,0 +1,48 @@
+{
+  "A": {
+    "n_raters": 10,
+    "n_records": 250,
+    "n_cases": 25,
+    "time_cost_minutes": {
+      "mean": 17.42,
+      "std": 5.89,
+      "median": 16.95,
+      "min": 3.9,
+      "max": 36.1,
+      "q1": 13.47,
+      "q3": 21.75,
+      "iqr": 8.28
+    },
+    "confidence": {
+      "mean": 3.49,
+      "std": 1.14
+    },
+    "conclusion_distribution": {
+      "不认定明知": 94,
+      "认定明知": 156
+    }
+  },
+  "B": {
+    "n_raters": 10,
+    "n_records": 250,
+    "n_cases": 25,
+    "time_cost_minutes": {
+      "mean": 9.74,
+      "std": 3.71,
+      "median": 9.9,
+      "min": 2.0,
+      "max": 21.5,
+      "q1": 6.9,
+      "q3": 12.1,
+      "iqr": 5.2
+    },
+    "confidence": {
+      "mean": 4.06,
+      "std": 0.8
+    },
+    "conclusion_distribution": {
+      "不认定明知": 74,
+      "认定明知": 176
+    }
+  }
+}

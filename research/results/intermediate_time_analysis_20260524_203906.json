@@ -1,0 +1,33 @@
+{
+  "test_name": "Welch's t-test (独立样本)",
+  "group_a": {
+    "mean": 17.42,
+    "std": 5.89,
+    "median": 16.95,
+    "count": 250
+  },
+  "group_b": {
+    "mean": 9.74,
+    "std": 3.71,
+    "median": 9.9,
+    "count": 250
+  },
+  "mean_difference": 7.68,
+  "mean_difference_pct": 44.1,
+  "statistic": 17.4491,
+  "p_value": 0.0,
+  "is_significant": true,
+  "effect_size_cohens_d": 1.5607,
+  "effect_size_interpretation": "大效应 (large)",
+  "ci_95_mean_diff": [
+    6.82,
+    8.54
+  ],
+  "normality_test": {
+    "group_a_w_stat": 0.9912,
+    "group_a_p_value": 0.13552,
+    "group_b_w_stat": 0.9918,
+    "group_b_p_value": 0.18123,
+    "use_parametric": true
+  }
+}
