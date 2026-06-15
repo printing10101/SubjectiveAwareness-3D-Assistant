@@ -1,0 +1,344 @@
+import torch
+import torch.nn as nn
+from ncps.torch import CfC
+import numpy as np
+import matplotlib.pyplot as plt
+import webbrowser
+import os
+
+# ==========================================
+# 1. 数据加载
+# ==========================================
+desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+data_file = os.path.join(desktop_path, "contract_data.pt")
+
+if os.path.exists(data_file):
+    print("加载已有数据集...")
+    X, y, input_dim = torch.load(data_file)
+else:
+    print("生成新数据集...")
+    torch.manual_seed(42)
+    np.random.seed(42)
+    num_samples = 5000
+    seq_len = 30
+    
+    clause_dist = torch.tensor([0.25, 0.20, 0.15, 0.25, 0.15])
+    clause_type = torch.multinomial(clause_dist, num_samples * seq_len, replacement=True).reshape(num_samples, seq_len)
+    clause_onehot = nn.functional.one_hot(clause_type, num_classes=5).float()
+    
+    sent_len = torch.normal(80, 40, (num_samples, seq_len, 1)).clamp(5, 200) / 200.0
+    legal_density = torch.normal(0.25, 0.08, (num_samples, seq_len, 1)).clamp(0.05, 0.5)
+    money_count = torch.poisson(torch.tensor(1.5)).expand(num_samples, seq_len, 1).clamp(0, 3).float() / 3.0
+    long_dep_signal = (torch.rand(num_samples, seq_len, 1) < 0.3).float()
+    keyword_features = torch.normal(0, 1, (num_samples, seq_len, 5))
+    
+    X = torch.cat([clause_onehot, sent_len, legal_density, money_count, long_dep_signal, keyword_features], dim=-1)
+    
+    has_penalty = (clause_type == 2).any(dim=1)
+    has_dispute = (clause_type == 3).any(dim=1)
+    has_high_amount = (money_count.mean(dim=1) > 0.5).squeeze()
+    
+    high_risk = (
+        (has_penalty & ~has_dispute) | 
+        (has_penalty & has_high_amount) |
+        (long_dep_signal[:, 5, 0] > 0.5) |
+        ((legal_density.mean(dim=1) > 0.3).squeeze() & ~has_dispute)
+    )
+    y = high_risk.float()
+    input_dim = X.shape[-1]
+    
+    torch.save((X, y, input_dim), data_file)
+    print(f"数据集已保存至：{data_file}")
+
+num_samples = X.shape[0]
+train_X, test_X = X[:4000], X[4000:]
+train_y, test_y = y[:4000], y[4000:]
+
+print(f"\n数据统计:")
+print(f"  总样本数: {num_samples}")
+print(f"  输入维度: {input_dim}")
+print(f"  训练集: {train_X.shape}")
+print(f"  测试集: {test_X.shape}")
+print(f"  高风险合同比例: {y.mean().item():.2%}")
+
+# ==========================================
+# 2. 定义模型（统一128维隐藏层，单向LSTM）
+# ==========================================
+HIDDEN_DIM = 128
+
+class LSTMModel(nn.Module):
+    def __init__(self, input_dim, hidden_dim=HIDDEN_DIM):
+        super().__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim, 64),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(64, 1),
+            nn.Sigmoid()
+        )
+        
+    def forward(self, x):
+        out, _ = self.lstm(x)
+        return self.classifier(out[:, -1, :]).squeeze()
+
+class PureLNN(nn.Module):
+    def __init__(self, input_dim, hidden_dim=HIDDEN_DIM):
+        super().__init__()
+        self.lnn = CfC(input_dim, hidden_dim)
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim, 64),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(64, 1),
+            nn.Sigmoid()
+        )
+        
+    def forward(self, x):
+        out = self.lnn(x)
+        if isinstance(out, tuple):
+            out = out[0]
+        return self.classifier(out[:, -1, :]).squeeze()
+
+class HybridGateFusion(nn.Module):
+    def __init__(self, input_dim, hidden_dim=HIDDEN_DIM):
+        super().__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.lnn = CfC(input_dim, hidden_dim)
+        # 门控输入是128+128=256维
+        self.gate = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 2),
+            nn.Softmax(dim=-1)
+        )
+        self.classifier = nn.Linear(hidden_dim, 1)
+    
+    def forward(self, x):
+        lstm_out, _ = self.lstm(x)
+        lstm_last = lstm_out[:, -1, :]  # (batch, 128)
+        
+        lnn_out = self.lnn(x)
+        if isinstance(lnn_out, tuple):
+            lnn_out = lnn_out[0]
+        lnn_last = lnn_out[:, -1, :]  # (batch, 128)
+        
+        gate_input = torch.cat([lstm_last, lnn_last], dim=-1)  # (batch, 256)
+        gate_weights = self.gate(gate_input)  # (batch, 2)
+        fused = gate_weights[:, 0:1] * lstm_last + gate_weights[:, 1:2] * lnn_last  # (batch, 128)
+        
+        return torch.sigmoid(self.classifier(fused)).squeeze()
+    # ==========================================
+# 3. 训练与评估
+# ==========================================
+def train_and_eval(model, train_X, train_y, test_X, test_y, epochs=100, lr=0.001, batch_size=64):
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=40, gamma=0.5)
+    loss_fn = nn.BCELoss()
+    
+    dataset = torch.utils.data.TensorDataset(train_X, train_y)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    
+    test_acc_history = []
+    
+    for epoch in range(epochs):
+        model.train()
+        for batch_x, batch_y in loader:
+            optimizer.zero_grad()
+            pred = model(batch_x)
+            loss = loss_fn(pred, batch_y)
+            loss.backward()
+            optimizer.step()
+        scheduler.step()
+        
+        model.eval()
+        with torch.no_grad():
+            test_pred = model(test_X)
+            test_acc = ((test_pred > 0.5) == test_y).float().mean().item()
+            test_acc_history.append(test_acc)
+            
+    return test_acc_history
+
+# ==========================================
+# 4. 遗忘性测试
+# ==========================================
+def catastrophic_forgetting_test(model_class, input_dim, seq_len=30, hidden_dim=HIDDEN_DIM, epochs_per_task=40):
+    torch.manual_seed(123)
+    X_A = torch.rand(500, seq_len, input_dim) * 0.4
+    y_A = (X_A[:, -1, 0] > 0.2).float()
+    
+    torch.manual_seed(456)
+    X_B = torch.rand(500, seq_len, input_dim) * 0.6 + 0.4
+    y_B = (X_B[:, -1, 0] > 0.7).float()
+    
+    model = model_class(input_dim, hidden_dim)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    loss_fn = nn.BCELoss()
+    
+    dataset_A = torch.utils.data.TensorDataset(X_A, y_A)
+    loader_A = torch.utils.data.DataLoader(dataset_A, batch_size=32, shuffle=True)
+    
+    for _ in range(epochs_per_task):
+        model.train()
+        for bx, by in loader_A:
+            optimizer.zero_grad()
+            loss = loss_fn(model(bx), by)
+            loss.backward()
+            optimizer.step()
+    
+    model.eval()
+    with torch.no_grad():
+        acc_before = ((model(X_A) > 0.5) == y_A).float().mean().item()
+    
+    dataset_B = torch.utils.data.TensorDataset(X_B, y_B)
+    loader_B = torch.utils.data.DataLoader(dataset_B, batch_size=32, shuffle=True)
+    for _ in range(epochs_per_task):
+        model.train()
+        for bx, by in loader_B:
+            optimizer.zero_grad()
+            loss = loss_fn(model(bx), by)
+            loss.backward()
+            optimizer.step()
+    
+    model.eval()
+    with torch.no_grad():
+        acc_after = ((model(X_A) > 0.5) == y_A).float().mean().item()
+        
+    return acc_before, acc_after
+
+# ==========================================
+# 5. 主实验
+# ==========================================
+seq_len = 30
+
+print("\n" + "="*50)
+print("开始训练三大模型...")
+print("="*50)
+
+print("\n[1/3] 训练 LSTM ...")
+lstm_model = LSTMModel(input_dim)
+lstm_acc = train_and_eval(lstm_model, train_X, train_y, test_X, test_y, epochs=100)
+torch.save(lstm_model.state_dict(), os.path.join(desktop_path, "lstm_model_5000.pth"))
+
+print("[2/3] 训练 纯LNN ...")
+lnn_model = PureLNN(input_dim)
+lnn_acc = train_and_eval(lnn_model, train_X, train_y, test_X, test_y, epochs=100)
+torch.save(lnn_model.state_dict(), os.path.join(desktop_path, "pure_lnn_model_5000.pth"))
+
+print("[3/3] 训练 混合模型 (LSTM+LNN) ...")
+hybrid_model = HybridGateFusion(input_dim)
+hybrid_acc = train_and_eval(hybrid_model, train_X, train_y, test_X, test_y, epochs=100)
+torch.save(hybrid_model.state_dict(), os.path.join(desktop_path, "hybrid_model_5000.pth"))
+
+# ==========================================
+# 6. 遗忘性测试
+# ==========================================
+print("\n进行灾难性遗忘测试...")
+lstm_before, lstm_after = catastrophic_forgetting_test(LSTMModel, input_dim, seq_len)
+lnn_before, lnn_after = catastrophic_forgetting_test(PureLNN, input_dim, seq_len)
+hybrid_before, hybrid_after = catastrophic_forgetting_test(HybridGateFusion, input_dim, seq_len)
+
+lstm_forget = (lstm_before - lstm_after) / lstm_before * 100
+lnn_forget = (lnn_before - lnn_after) / lnn_before * 100
+hybrid_forget = (hybrid_before - hybrid_after) / hybrid_before * 100
+
+# ==========================================
+# 7. 可视化
+# ==========================================
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+
+# 图1：准确率曲线
+ax1 = axes[0, 0]
+ax1.plot(lstm_acc, label='LSTM', linestyle='--')
+ax1.plot(lnn_acc, label='Pure LNN', linestyle='-.')
+ax1.plot(hybrid_acc, label='Hybrid (LSTM+LNN)', linestyle='-', linewidth=2)
+ax1.set_xlabel('Epoch')
+ax1.set_ylabel('Test Accuracy')
+ax1.set_title('Accuracy Comparison (5000 Samples)')
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+# 图2：遗忘率对比
+ax2 = axes[0, 1]
+models = ['LSTM', 'Pure LNN', 'Hybrid']
+before = [lstm_before, lnn_before, hybrid_before]
+after = [lstm_after, lnn_after, hybrid_after]
+forget_rates = [lstm_forget, lnn_forget, hybrid_forget]
+
+x = np.arange(len(models))
+width = 0.3
+ax2.bar(x - width/2, before, width, label='Before Task B', color='steelblue')
+ax2.bar(x + width/2, after, width, label='After Task B', color='lightcoral')
+for i, rate in enumerate(forget_rates):
+    ax2.text(x[i], max(before[i], after[i]) + 0.02, f'Forget: {rate:.1f}%', ha='center', fontweight='bold', fontsize=9)
+ax2.set_ylabel('Accuracy on Task A')
+ax2.set_title('Catastrophic Forgetting Test')
+ax2.set_xticks(x)
+ax2.set_xticklabels(models)
+ax2.legend()
+ax2.grid(axis='y', alpha=0.3)
+
+# 图3：最终准确率柱状图
+ax3 = axes[1, 0]
+final_acc = [lstm_acc[-1], lnn_acc[-1], hybrid_acc[-1]]
+colors = ['#3498db', '#2ecc71', '#e74c3c']
+bars = ax3.bar(models, final_acc, color=colors)
+for bar, acc in zip(bars, final_acc):
+    ax3.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01, f'{acc:.3f}', ha='center', fontweight='bold')
+ax3.set_ylabel('Final Accuracy')
+ax3.set_title('Final Test Accuracy Comparison')
+ax3.set_ylim(0, 1)
+ax3.grid(axis='y', alpha=0.3)
+
+# 图4：综合性能雷达图
+ax4 = axes[1, 1]
+categories = ['Accuracy', 'Anti-Forgetting', 'Stability']
+num_cats = len(categories)
+
+def normalize(scores):
+    arr = np.array(scores)
+    if arr.max() - arr.min() > 0:
+        return list((arr - arr.min()) / (arr.max() - arr.min()))
+    return [0.5] * len(scores)
+
+lstm_scores = normalize([lstm_acc[-1], 1 - lstm_forget/100, 1 - np.std(lstm_acc[-20:])])
+lnn_scores = normalize([lnn_acc[-1], 1 - lnn_forget/100, 1 - np.std(lnn_acc[-20:])])
+hybrid_scores = normalize([hybrid_acc[-1], 1 - hybrid_forget/100, 1 - np.std(hybrid_acc[-20:])])
+
+angles = np.linspace(0, 2 * np.pi, num_cats, endpoint=False).tolist()
+angles += angles[:1]
+
+ax4.set_xticks(angles[:-1])
+ax4.set_xticklabels(categories)
+ax4.plot(angles, lstm_scores + lstm_scores[:1], 'o--', label='LSTM', color='#3498db')
+ax4.fill(angles, lstm_scores + lstm_scores[:1], alpha=0.1, color='#3498db')
+ax4.plot(angles, lnn_scores + lnn_scores[:1], 'o--', label='Pure LNN', color='#2ecc71')
+ax4.fill(angles, lnn_scores + lnn_scores[:1], alpha=0.1, color='#2ecc71')
+ax4.plot(angles, hybrid_scores + hybrid_scores[:1], 'o-', label='Hybrid', color='#e74c3c', linewidth=2)
+ax4.fill(angles, hybrid_scores + hybrid_scores[:1], alpha=0.1, color='#e74c3c')
+ax4.set_title('Comprehensive Performance Radar')
+ax4.legend(loc='upper right')
+
+plt.tight_layout()
+save_path = os.path.join(desktop_path, "final_comparison_5000.png")
+plt.savefig(save_path, dpi=200)
+
+print(f"\n{'='*50}")
+print(f"实验结果汇总 (5000样本)")
+print(f"{'='*50}")
+print(f"最终准确率:")
+print(f"  LSTM:     {lstm_acc[-1]:.4f}")
+print(f"  纯LNN:    {lnn_acc[-1]:.4f}")
+print(f"  混合模型:  {hybrid_acc[-1]:.4f}")
+print(f"\n遗忘率 (越低越好):")
+print(f"  LSTM:     {lstm_forget:.2f}%")
+print(f"  纯LNN:    {lnn_forget:.2f}%")
+print(f"  混合模型:  {hybrid_forget:.2f}%")
+print(f"\n所有文件已保存至桌面:")
+print(f"  - lstm_model_5000.pth")
+print(f"  - pure_lnn_model_5000.pth")
+print(f"  - hybrid_model_5000.pth")
+print(f"  - final_comparison_5000.png")
+print(f"  - contract_data.pt")
+
+webbrowser.open('file://' + save_path)
