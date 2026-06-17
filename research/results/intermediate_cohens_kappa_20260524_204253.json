@@ -1,0 +1,635 @@
+{
+  "A": {
+    "group": "A",
+    "mean_kappa": 0.256,
+    "median_kappa": 0.2475,
+    "std_kappa": 0.1813,
+    "min_kappa": -0.1589,
+    "max_kappa": 0.7331,
+    "ci_95": [
+      0.2031,
+      0.3092
+    ],
+    "kappa_above_065_pct": 2.2,
+    "pair_count": 45,
+    "distribution_by_level": {
+      "低于随机": {
+        "threshold": 0.0,
+        "count": 42,
+        "pct": 93.3
+      },
+      "极低": {
+        "threshold": 0.2,
+        "count": 25,
+        "pct": 55.6
+      },
+      "较低": {
+        "threshold": 0.4,
+        "count": 10,
+        "pct": 22.2
+      },
+      "中等": {
+        "threshold": 0.6,
+        "count": 1,
+        "pct": 2.2
+      },
+      "良好": {
+        "threshold": 0.8,
+        "count": 0,
+        "pct": 0.0
+      }
+    },
+    "pair_details": [
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-002",
+        "kappa": 0.5552,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-003",
+        "kappa": 0.1993,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-004",
+        "kappa": 0.0803,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-005",
+        "kappa": 0.0214,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-006",
+        "kappa": 0.2475,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-007",
+        "kappa": 0.2647,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-008",
+        "kappa": 0.2647,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-009",
+        "kappa": 0.1993,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-001",
+        "rater2": "PA-010",
+        "kappa": 0.1883,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-003",
+        "kappa": 0.3056,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-004",
+        "kappa": -0.1589,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-005",
+        "kappa": -0.0417,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-006",
+        "kappa": 0.1722,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-007",
+        "kappa": 0.3772,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-008",
+        "kappa": 0.1993,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-009",
+        "kappa": 0.1319,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-002",
+        "rater2": "PA-010",
+        "kappa": -0.0518,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-004",
+        "kappa": 0.0066,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-005",
+        "kappa": 0.1319,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-006",
+        "kappa": 0.1722,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-007",
+        "kappa": 0.7331,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-008",
+        "kappa": 0.1993,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-009",
+        "kappa": 0.3056,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-003",
+        "rater2": "PA-010",
+        "kappa": 0.2718,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-005",
+        "kappa": 0.5033,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-006",
+        "kappa": 0.513,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-007",
+        "kappa": 0.2475,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-008",
+        "kappa": 0.2475,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-009",
+        "kappa": 0.1722,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-004",
+        "rater2": "PA-010",
+        "kappa": 0.4373,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-005",
+        "rater2": "PA-006",
+        "kappa": 0.3377,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-005",
+        "rater2": "PA-007",
+        "kappa": 0.3772,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-005",
+        "rater2": "PA-008",
+        "kappa": 0.3772,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-005",
+        "rater2": "PA-009",
+        "kappa": 0.1319,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-005",
+        "rater2": "PA-010",
+        "kappa": 0.4337,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-006",
+        "rater2": "PA-007",
+        "kappa": 0.4147,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-006",
+        "rater2": "PA-008",
+        "kappa": 0.4147,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-006",
+        "rater2": "PA-009",
+        "kappa": 0.0066,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-006",
+        "rater2": "PA-010",
+        "kappa": 0.1158,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-007",
+        "rater2": "PA-008",
+        "kappa": 0.4485,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-007",
+        "rater2": "PA-009",
+        "kappa": 0.3772,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-007",
+        "rater2": "PA-010",
+        "kappa": 0.3506,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-008",
+        "rater2": "PA-009",
+        "kappa": 0.3772,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-008",
+        "rater2": "PA-010",
+        "kappa": 0.026,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PA-009",
+        "rater2": "PA-010",
+        "kappa": 0.4337,
+        "n_cases": 25
+      }
+    ]
+  },
+  "B": {
+    "group": "B",
+    "mean_kappa": 0.5418,
+    "median_kappa": 0.5614,
+    "std_kappa": 0.1461,
+    "min_kappa": 0.183,
+    "max_kappa": 0.8016,
+    "ci_95": [
+      0.496,
+      0.5822
+    ],
+    "kappa_above_065_pct": 24.4,
+    "pair_count": 45,
+    "distribution_by_level": {
+      "低于随机": {
+        "threshold": 0.0,
+        "count": 45,
+        "pct": 100.0
+      },
+      "极低": {
+        "threshold": 0.2,
+        "count": 43,
+        "pct": 95.6
+      },
+      "较低": {
+        "threshold": 0.4,
+        "count": 38,
+        "pct": 84.4
+      },
+      "中等": {
+        "threshold": 0.6,
+        "count": 22,
+        "pct": 48.9
+      },
+      "良好": {
+        "threshold": 0.8,
+        "count": 1,
+        "pct": 2.2
+      }
+    },
+    "pair_details": [
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-002",
+        "kappa": 0.43,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-003",
+        "kappa": 0.4813,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-004",
+        "kappa": 0.5247,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-005",
+        "kappa": 0.6032,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-006",
+        "kappa": 0.4813,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-007",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-008",
+        "kappa": 0.8016,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-009",
+        "kappa": 0.6032,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-001",
+        "rater2": "PB-010",
+        "kappa": 0.7148,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-003",
+        "kappa": 0.183,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-004",
+        "kappa": 0.3506,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-005",
+        "kappa": 0.2671,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-006",
+        "kappa": 0.183,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-007",
+        "kappa": 0.3464,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-008",
+        "kappa": 0.2671,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-009",
+        "kappa": 0.43,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-002",
+        "rater2": "PB-010",
+        "kappa": 0.3506,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-004",
+        "kappa": 0.4094,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-005",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-006",
+        "kappa": 0.5614,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-007",
+        "kappa": 0.5614,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-008",
+        "kappa": 0.4813,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-009",
+        "kappa": 0.4813,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-003",
+        "rater2": "PB-010",
+        "kappa": 0.6063,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-005",
+        "kappa": 0.5247,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-006",
+        "kappa": 0.6063,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-007",
+        "kappa": 0.6063,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-008",
+        "kappa": 0.7148,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-009",
+        "kappa": 0.5247,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-004",
+        "rater2": "PB-010",
+        "kappa": 0.6324,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-005",
+        "rater2": "PB-006",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-005",
+        "rater2": "PB-007",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-005",
+        "rater2": "PB-008",
+        "kappa": 0.6032,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-005",
+        "rater2": "PB-009",
+        "kappa": 0.6032,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-005",
+        "rater2": "PB-010",
+        "kappa": 0.5247,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-006",
+        "rater2": "PB-007",
+        "kappa": 0.5614,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-006",
+        "rater2": "PB-008",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-006",
+        "rater2": "PB-009",
+        "kappa": 0.4813,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-006",
+        "rater2": "PB-010",
+        "kappa": 0.6063,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-007",
+        "rater2": "PB-008",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-007",
+        "rater2": "PB-009",
+        "kappa": 0.6888,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-007",
+        "rater2": "PB-010",
+        "kappa": 0.6063,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-008",
+        "rater2": "PB-009",
+        "kappa": 0.6032,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-008",
+        "rater2": "PB-010",
+        "kappa": 0.7148,
+        "n_cases": 25
+      },
+      {
+        "rater1": "PB-009",
+        "rater2": "PB-010",
+        "kappa": 0.5247,
+        "n_cases": 25
+      }
+    ]
+  },
+  "comparison": {
+    "group_a_kappa": 0.256,
+    "group_b_kappa": 0.5418,
+    "delta": 0.2858,
+    "delta_pct": 111.64,
+    "interpretation": "B组Kappa(0.5418)较A组(0.2560)提升0.2858(111.6%)"
+  }
+}

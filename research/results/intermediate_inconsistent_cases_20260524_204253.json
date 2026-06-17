@@ -1,0 +1,55 @@
+{
+  "total_inconsistent": 3,
+  "inconsistent_rate_pct": 12.0,
+  "by_type": {
+    "false_positive": {
+      "label": "假阳性（AI高估明知）",
+      "description": "AI分析结论为'认定明知'，但实际判决为'不认定明知'",
+      "count": 1,
+      "pct": 33.3,
+      "case_ids": [
+        "GZ2023BX022"
+      ]
+    },
+    "false_negative": {
+      "label": "假阴性（AI低估明知）",
+      "description": "AI分析结论为'不认定明知'，但实际判决为'认定明知'",
+      "count": 2,
+      "pct": 66.7,
+      "case_ids": [
+        "GZ2023BX014",
+        "GZ2023BX016"
+      ]
+    }
+  },
+  "by_difficulty": {
+    "易": {
+      "count": 1,
+      "pct": 33.3,
+      "case_ids": [
+        "GZ2023BX014"
+      ]
+    },
+    "中": {
+      "count": 1,
+      "pct": 33.3,
+      "case_ids": [
+        "GZ2023BX016"
+      ]
+    },
+    "难": {
+      "count": 1,
+      "pct": 33.3,
+      "case_ids": [
+        "GZ2023BX022"
+      ]
+    }
+  },
+  "possible_reasons": [
+    "AI对间接证据的权重判断与司法实践存在偏差",
+    "案件事实中'推定明知'的成立条件判断差异",
+    "AI对辩解合理性的评估与法官裁量不一致",
+    "部分边缘案件中证据链完整度影响判断",
+    "AI对特殊情境（如胁迫、被欺骗）的识别能力有限"
+  ]
+}

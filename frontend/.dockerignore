@@ -1,0 +1,95 @@
+# ============================================================
+# Frontend .dockerignore
+# Keeps the build context small and the build deterministic.
+# ============================================================
+
+# --- Node / build artefacts ---
+node_modules
+dist
+dist-ssr
+build
+coverage
+*.local
+.pnp
+.pnp.js
+
+# --- Vite cache ---
+.vite
+.vite-cache
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+
+# --- Testing / E2E ---
+cypress/videos
+cypress/screenshots
+cypress/fixtures
+.nyc_output
+
+# --- TypeScript / lint artefacts ---
+*.tsbuildinfo
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs
+*.log
+
+# --- Environment files (never bake secrets into an image) ---
+.env
+.env.*
+!.env.example
+.env.development
+.env.production
+.env.local
+.env.*.local
+
+# --- Git ---
+.git
+.gitignore
+.gitattributes
+.gitkeep
+
+# --- Editor / IDE ---
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Docker artefacts (avoid recursive build contexts) ---
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+.docker
+
+# --- Project tooling / docs ---
+.trae
+.github
+docs
+*.md
+README.md
+LICENSE
+LICENSE.*
+Makefile
+.eslintignore
+.eslintrc*
+.prettierignore
+.prettierrc*
+.babelrc*
+.postcssrc*
+.vitestrc*
+cypress.config.*
+vitest.config.*
+vite.config.*

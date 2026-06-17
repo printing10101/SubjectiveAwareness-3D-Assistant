@@ -1,0 +1,378 @@
+[
+  {
+    "tag_id": "F001",
+    "name": "开卡",
+    "category": "客观行为",
+    "description": "为他人办理银行卡（含借记卡、信用卡）",
+    "extraction_hints": ["办卡", "开卡", "办银行卡", "申办银行卡", "开账户", "代为开卡"],
+    "mutually_exclusive_with": ["F002"]
+  },
+  {
+    "tag_id": "F002",
+    "name": "卖卡",
+    "category": "客观行为",
+    "description": "将自己持有的银行卡出售给他人",
+    "extraction_hints": ["卖卡", "出售银行卡", "售卡", "将卡卖", "卖出卡", "转让银行卡"],
+    "mutually_exclusive_with": ["F001"]
+  },
+  {
+    "tag_id": "F003",
+    "name": "提供U盾",
+    "category": "客观行为",
+    "description": "为他人提供U盾、数字证书、网银K宝、密码器等",
+    "extraction_hints": ["U盾", "K宝", "密码器", "数字证书", "网银盾", "E盾", "动态令牌"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F004",
+    "name": "提供支付接口",
+    "category": "客观行为",
+    "description": "为他人提供支付结算通道、二维码收款码、第三方支付账户等",
+    "extraction_hints": ["支付接口", "收款码", "二维码", "商户码", "POS机", "第三方支付", "代收", "跑分"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F005",
+    "name": "提供技术支持",
+    "category": "客观行为",
+    "description": "为他人提供互联网接入、服务器托管、网络存储、通讯传输、软件开发、技术维护等",
+    "extraction_hints": ["技术支持", "服务器", "云服务", "VPS", "VPN", "翻墙软件", "GOIP", "VOIP", "虚拟号", "短信群发"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F006",
+    "name": "提供广告推广",
+    "category": "客观行为",
+    "description": "为他人提供广告推广、引流、SEO、刷量等服务",
+    "extraction_hints": ["广告推广", "引流", "刷量", "刷单", "SEO", "竞价排名", "群发推广", "信息流"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F007",
+    "name": "提供场所",
+    "category": "客观行为",
+    "description": "为他人实施信息网络犯罪提供办公场所、住所、机房等",
+    "extraction_hints": ["提供场所", "提供住所", "出租场所", "出租房间", "出租房屋", "办公场地", "机房托管"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F008",
+    "name": "介绍帮助",
+    "category": "客观行为",
+    "description": "居间介绍、牵线搭桥、撮合他人达成帮信交易",
+    "extraction_hints": ["介绍", "牵线", "居间", "撮合", "中介", "引荐", "拉群介绍", "熟人介绍"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F009",
+    "name": "收购",
+    "category": "客观行为",
+    "description": "以支付对价方式收购他人银行卡、U盾、支付账户、公民个人信息等",
+    "extraction_hints": ["收购", "买入", "买卡", "买U盾", "购买", "收卡", "回收"],
+    "mutually_exclusive_with": ["F010"]
+  },
+  {
+    "tag_id": "F010",
+    "name": "借用/其他",
+    "category": "客观行为",
+    "description": "以借用、出租、免费提供等其他方式交付物品或服务",
+    "extraction_hints": ["借出", "借用", "出租", "免费提供", "交给", "交付", "递送"],
+    "mutually_exclusive_with": ["F009"]
+  },
+  {
+    "tag_id": "F011",
+    "name": "异常时间",
+    "category": "认知线索",
+    "description": "行为发生于凌晨、夜间、节假日等异常时段",
+    "extraction_hints": ["凌晨", "深夜", "夜间", "午夜", "半夜", "凌晨X点", "下班后", "节假日"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F012",
+    "name": "异常价格",
+    "category": "认知线索",
+    "description": "交易对价显著高于/低于正常市场价",
+    "extraction_hints": ["高价", "低价", "高于市场", "低于市场", "几百元收", "几千元卖", "远超正常", "明显异常"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F013",
+    "name": "异常对手",
+    "category": "认知线索",
+    "description": "交易对象为陌生人、远房亲戚、临时结识人员、网络结识等",
+    "extraction_hints": ["陌生人", "不认识", "网友", "网络认识", "临时认识", "远房亲戚", "偶然遇到", "第一次见面"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F014",
+    "name": "异常流水",
+    "category": "认知线索",
+    "description": "账户短时间内出现大量、密集、跨地区、有规律的资金流动",
+    "extraction_hints": ["流水异常", "大额流水", "密集交易", "快进快出", "大量转账", "短时间多次", "多地转账"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F015",
+    "name": "异常通信",
+    "category": "认知线索",
+    "description": "通讯方式使用小号、虚拟号、加密聊天等规避手段",
+    "extraction_hints": ["小号", "虚拟号", "Telegram", "电报", "Signal", "加密聊天", "阅后即焚", "境外通讯", "蝙蝠"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F016",
+    "name": "规避行为",
+    "category": "认知线索",
+    "description": "采取隐蔽手段规避调查、销毁证据、隐匿身份",
+    "extraction_hints": ["规避", "隐蔽", "销毁", "丢弃", "烧毁", "格式化", "丢卡", "藏匿", "逃避调查", "换号"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F017",
+    "name": "反常交付",
+    "category": "认知线索",
+    "description": "通过邮寄、跑腿、放置特定地点等非正常方式交付",
+    "extraction_hints": ["邮寄", "快递", "跑腿", "放置", "门口取", "柜子放", "约定地点", "代收点", "丰巢"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F018",
+    "name": "账户分散",
+    "category": "认知线索",
+    "description": "同时持有、提供或使用多张银行卡、多账户",
+    "extraction_hints": ["多张卡", "多张银行卡", "几张卡", "五张卡", "三张卡", "多个账户", "分散持有", "名下多张"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F019",
+    "name": "曾受处理",
+    "category": "认知线索",
+    "description": "曾因类似行为被银行、电信、公安、监管机构处理",
+    "extraction_hints": ["曾因", "曾被处理", "曾被处罚", "曾被警告", "曾被冻结", "曾被止付", "曾被封卡", "前科"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F020",
+    "name": "高额获利",
+    "category": "认知线索",
+    "description": "报酬显著高于正常水平（万元、几万元、几十万元）",
+    "extraction_hints": ["万元", "几万元", "十万元", "百万元", "高额报酬", "重金", "巨额", "几万好处费", "几千元抽成"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F021",
+    "name": "完全不知情",
+    "category": "辩解模式",
+    "description": "行为人辩解完全不知道对方用于犯罪",
+    "extraction_hints": ["不知道", "不清楚", "不晓得", "完全不知道", "根本不知情", "不知情", "不知是诈骗", "不知是犯罪"],
+    "mutually_exclusive_with": ["F022", "F024", "F025"]
+  },
+  {
+    "tag_id": "F022",
+    "name": "被告知合法用途",
+    "category": "辩解模式",
+    "description": "行为人辩解对方告知用于合法用途（走账、避税、刷流水等）",
+    "extraction_hints": ["对方说", "告知合法", "走流水", "走账", "刷流水", "避税", "做生意", "正常用途", "办公司"],
+    "mutually_exclusive_with": ["F021", "F025"]
+  },
+  {
+    "tag_id": "F023",
+    "name": "被欺骗",
+    "category": "辩解模式",
+    "description": "行为人辩解被对方欺骗，陷入错误认识",
+    "extraction_hints": ["被骗", "受欺骗", "被忽悠", "上当", "被蒙蔽", "虚假宣传", "以为是真的", "骗局", "套路"],
+    "mutually_exclusive_with": ["F024"]
+  },
+  {
+    "tag_id": "F024",
+    "name": "被胁迫",
+    "category": "辩解模式",
+    "description": "行为人辩解被对方胁迫、威胁实施行为",
+    "extraction_hints": ["被胁迫", "被威胁", "被逼", "逼我", "恐吓", "不合作就打", "拿家人威胁", "胁迫"],
+    "mutually_exclusive_with": ["F023"]
+  },
+  {
+    "tag_id": "F025",
+    "name": "主动询问",
+    "category": "辩解模式",
+    "description": "行为人主动询问、探知、确认对方用途",
+    "extraction_hints": ["主动问", "询问用途", "问来干嘛", "问对方", "问清楚", "确认用途", "核实", "调查"],
+    "mutually_exclusive_with": ["F021", "F022"]
+  },
+  {
+    "tag_id": "F026",
+    "name": "事后获利",
+    "category": "辩解模式",
+    "description": "行为人承认行为后收取好处费、抽成、回扣等",
+    "extraction_hints": ["事后", "事后给", "拿到好处费", "收了钱", "抽成", "回扣", "分红", "事后才知道"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F027",
+    "name": "辩解前后不一",
+    "category": "辩解模式",
+    "description": "行为人供述与辩解前后矛盾，避重就轻",
+    "extraction_hints": ["前后矛盾", "前后不一", "避重就轻", "翻供", "供述反复", "改变说法", "不老实", "态度反复"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F028",
+    "name": "承认明知",
+    "category": "辩解模式",
+    "description": "行为人明确承认知道对方用于犯罪",
+    "extraction_hints": ["知道", "明白", "清楚是", "明知", "心知肚明", "心里清楚", "认了", "承认"],
+    "mutually_exclusive_with": ["F021", "F023"]
+  },
+  {
+    "tag_id": "F029",
+    "name": "辩解推卸责任",
+    "category": "辩解模式",
+    "description": "行为人将责任推卸给他人、不知情或环境",
+    "extraction_hints": ["不怪我", "怪我吗", "都怪", "怪社会", "他让我", "受人指使", "受人指派", "老板让我"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F030",
+    "name": "无辩解",
+    "category": "辩解模式",
+    "description": "行为人未作辩解或保持沉默",
+    "extraction_hints": ["沉默", "不回答", "拒绝回答", "不辩解", "无异议", "认罪", "无话可说"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F031",
+    "name": "自首",
+    "category": "情节",
+    "description": "犯罪后自动投案，如实供述自己的罪行",
+    "extraction_hints": ["自首", "主动投案", "自动投案", "主动到案", "投案自首", "主动交代"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F032",
+    "name": "立功",
+    "category": "情节",
+    "description": "揭发他人犯罪或提供重要线索协助破案",
+    "extraction_hints": ["立功", "揭发", "提供线索", "协助破案", "举报", "立功表现"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F033",
+    "name": "退赃/退赔",
+    "category": "情节",
+    "description": "主动退赃退赔，挽回被害人损失",
+    "extraction_hints": ["退赃", "退赔", "退缴", "返还", "退赔被害人", "退赔违法所得", "退赃款"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F034",
+    "name": "在校生",
+    "category": "情节",
+    "description": "行为人为在校学生",
+    "extraction_hints": ["学生", "在校", "大学生", "中学生", "小学生", "高校", "中学", "学校"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F035",
+    "name": "初犯/偶犯",
+    "category": "情节",
+    "description": "无前科记录的初犯或偶犯",
+    "extraction_hints": ["初犯", "偶犯", "无前科", "首次", "第一次", "无违法记录"],
+    "mutually_exclusive_with": ["F037"]
+  },
+  {
+    "tag_id": "F036",
+    "name": "认罪认罚",
+    "category": "情节",
+    "description": "行为人自愿认罪认罚，签署具结书",
+    "extraction_hints": ["认罪认罚", "具结书", "自愿认罪", "认罚", "签具结书", "认可指控"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F037",
+    "name": "累犯/再犯",
+    "category": "情节",
+    "description": "曾因犯罪受过刑事处罚",
+    "extraction_hints": ["累犯", "再犯", "前科", "曾因犯罪", "曾被判处", "刑事处罚记录", "5年内"],
+    "mutually_exclusive_with": ["F035"]
+  },
+  {
+    "tag_id": "F038",
+    "name": "共同犯罪",
+    "category": "情节",
+    "description": "多人共同实施帮信行为",
+    "extraction_hints": ["共同犯罪", "同案犯", "共犯", "团伙", "多人参与", "分工"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F039",
+    "name": "未成年人",
+    "category": "情节",
+    "description": "行为人为已满16周岁未成年人",
+    "extraction_hints": ["未成年人", "未成年", "16岁", "17岁", "刚成年", "青少年", "未满18"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F040",
+    "name": "数额/情节特别严重",
+    "category": "情节",
+    "description": "支付结算金额特别巨大、违法所得特别巨大或者造成特别严重后果",
+    "extraction_hints": ["特别巨大", "数额特别", "情节特别严重", "500万", "1000万", "上千万", "重大损失", "重大后果"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F041",
+    "name": "直接非法性认知供述",
+    "category": "认知线索",
+    "description": "行为人直接供述明知行为的非法性",
+    "extraction_hints": ["明知违法", "知道是犯罪", "承认非法", "清楚违法性", "知道不合法", "明知故犯", "知道是违法的"],
+    "mutually_exclusive_with": ["F021", "F023"]
+  },
+  {
+    "tag_id": "F042",
+    "name": "虚拟币转换/隐匿资金流向",
+    "category": "客观行为",
+    "description": "通过虚拟货币转换或其他方式隐匿资金流向",
+    "extraction_hints": ["虚拟币", "数字货币", "比特币", "以太坊", "USDT", "资金隐匿", "洗钱", "转换", "变现"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F043",
+    "name": "按比例计酬",
+    "category": "认知线索",
+    "description": "按交易金额比例获取报酬",
+    "extraction_hints": ["按比例", "抽成", "提成", "点数", "百分比", "千分之", "按流水", "按金额比例"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F044",
+    "name": "长期取现分工",
+    "category": "客观行为",
+    "description": "长期分工负责取现",
+    "extraction_hints": ["取现", "取款", "ATM", "自动取款机", "分工", "长期", "专门取钱", "负责取现"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F045",
+    "name": "上线安排",
+    "category": "客观行为",
+    "description": "由上线人员安排、指挥",
+    "extraction_hints": ["上线", "安排", "指挥", "指派", "老板", "头目", "组织", "受命", "听命", "服从安排"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F046",
+    "name": "每日验卡",
+    "category": "客观行为",
+    "description": "每日验证银行卡状态",
+    "extraction_hints": ["验卡", "检查卡", "每日", "每天", "查卡", "测试", "刷卡", "查询余额", "确认卡状态"],
+    "mutually_exclusive_with": []
+  },
+  {
+    "tag_id": "F047",
+    "name": "分开装袋",
+    "category": "客观行为",
+    "description": "将资金分开装袋处理",
+    "extraction_hints": ["装袋", "分装", "分开", "打包", "现金", "现金袋", "分袋", "封装"],
+    "mutually_exclusive_with": []
+  }
+]

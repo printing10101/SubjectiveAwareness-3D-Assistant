@@ -1,0 +1,283 @@
+{
+  "test_time": "2026-06-15T20:28:36.589215",
+  "total": 39,
+  "pass": 34,
+  "fail": 3,
+  "warn": 2,
+  "pass_rate": "87.2%",
+  "results": [
+    {
+      "module": "认证",
+      "test": "管理员登录",
+      "status": "pass",
+      "detail": "成功获取token",
+      "timestamp": "20:27:02"
+    },
+    {
+      "module": "认证",
+      "test": "获取用户信息(/me)",
+      "status": "pass",
+      "detail": "username=admin, role=admin",
+      "timestamp": "20:27:04"
+    },
+    {
+      "module": "认证",
+      "test": "Token刷新",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:09"
+    },
+    {
+      "module": "认证",
+      "test": "登出",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:11"
+    },
+    {
+      "module": "认证",
+      "test": "未认证拦截",
+      "status": "pass",
+      "detail": "正确返回401",
+      "timestamp": "20:27:13"
+    },
+    {
+      "module": "认证",
+      "test": "错误密码拒绝",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:15"
+    },
+    {
+      "module": "案件管理",
+      "test": "案件列表查询",
+      "status": "pass",
+      "detail": "共106条记录",
+      "timestamp": "20:27:20"
+    },
+    {
+      "module": "案件管理",
+      "test": "创建案件",
+      "status": "pass",
+      "detail": "case_id=107",
+      "timestamp": "20:27:22"
+    },
+    {
+      "module": "案件管理",
+      "test": "获取案件详情",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:24"
+    },
+    {
+      "module": "案件管理",
+      "test": "更新案件",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:26"
+    },
+    {
+      "module": "案件管理",
+      "test": "案件状态筛选",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:28"
+    },
+    {
+      "module": "三维度分析",
+      "test": "分析执行与结果",
+      "status": "warn",
+      "detail": "仅包含: 未知",
+      "timestamp": "20:27:30"
+    },
+    {
+      "module": "三维度分析",
+      "test": "规则触发机制",
+      "status": "warn",
+      "detail": "未触发规则（可能文本未命中）",
+      "timestamp": "20:27:30"
+    },
+    {
+      "module": "报告功能",
+      "test": "报告生成",
+      "status": "fail",
+      "detail": "无可用analysis_id",
+      "timestamp": "20:27:30"
+    },
+    {
+      "module": "文档上传",
+      "test": "文本文件上传",
+      "status": "pass",
+      "detail": "提取57字符",
+      "timestamp": "20:27:32"
+    },
+    {
+      "module": "文档上传",
+      "test": "未认证拦截",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:35"
+    },
+    {
+      "module": "知识库",
+      "test": "知识条目列表",
+      "status": "pass",
+      "detail": "共0条",
+      "timestamp": "20:27:37"
+    },
+    {
+      "module": "知识库",
+      "test": "创建知识条目",
+      "status": "fail",
+      "detail": "status=500, detail=Internal Server Error",
+      "timestamp": "20:27:39"
+    },
+    {
+      "module": "知识库",
+      "test": "分类筛选",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:27:41"
+    },
+    {
+      "module": "知识库",
+      "test": "知识图谱数据",
+      "status": "pass",
+      "detail": "节点=0, 边=0",
+      "timestamp": "20:28:07"
+    },
+    {
+      "module": "知识库",
+      "test": "法律规则列表",
+      "status": "pass",
+      "detail": "共0条规则",
+      "timestamp": "20:28:09"
+    },
+    {
+      "module": "知识库",
+      "test": "标签列表",
+      "status": "fail",
+      "detail": "status=500",
+      "timestamp": "20:28:11"
+    },
+    {
+      "module": "评测中心",
+      "test": "评测任务执行",
+      "status": "pass",
+      "detail": "结果类型=dict",
+      "timestamp": "20:28:21"
+    },
+    {
+      "module": "评测中心",
+      "test": "权限控制",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:23"
+    },
+    {
+      "module": "案件标注",
+      "test": "创建标注",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:26"
+    },
+    {
+      "module": "案件标注",
+      "test": "获取标注",
+      "status": "pass",
+      "detail": "共4条标注",
+      "timestamp": "20:28:28"
+    },
+    {
+      "module": "案件标注",
+      "test": "删除标注",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:30"
+    },
+    {
+      "module": "系统管理",
+      "test": "系统统计",
+      "status": "pass",
+      "detail": "统计项=['total_cases', 'total_analyses', 'total_users']",
+      "timestamp": "20:28:32"
+    },
+    {
+      "module": "系统管理",
+      "test": "系统日志查询",
+      "status": "pass",
+      "detail": "返回0条日志",
+      "timestamp": "20:28:34"
+    },
+    {
+      "module": "系统管理",
+      "test": "权限控制",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "首页(/)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "登录页(/login)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "分析主页(/main)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "智能阅卷(/generate)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "知识库(/knowledge)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "知识图谱(/knowledge-graph)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "案件管理(/cases)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "审查中心(/review)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    },
+    {
+      "module": "前端页面",
+      "test": "系统设置(/settings)",
+      "status": "pass",
+      "detail": "",
+      "timestamp": "20:28:36"
+    }
+  ]
+}

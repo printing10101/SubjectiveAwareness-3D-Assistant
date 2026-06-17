@@ -1,0 +1,117 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.2.0"
+tag_format = "v$version"
+version_scheme = "semver"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
+
+[tool.commitizen.settings]
+# 提交类型
+[[tool.commitizen.settings.type]]
+value = "feat"
+name = "feat"
+emoji = "✨"
+changelog_title = "Features"
+
+[[tool.commitizen.settings.type]]
+value = "fix"
+name = "fix"
+emoji = "🐛"
+changelog_title = "Bug Fixes"
+
+[[tool.commitizen.settings.type]]
+value = "docs"
+name = "docs"
+emoji = "📚"
+changelog_title = "Documentation"
+
+[[tool.commitizen.settings.type]]
+value = "style"
+name = "style"
+emoji = "💎"
+changelog_title = "Styles"
+
+[[tool.commitizen.settings.type]]
+value = "refactor"
+name = "refactor"
+emoji = "📦"
+changelog_title = "Code Refactoring"
+
+[[tool.commitizen.settings.type]]
+value = "perf"
+name = "perf"
+emoji = "🚀"
+changelog_title = "Performance Improvements"
+
+[[tool.commitizen.settings.type]]
+value = "test"
+name = "test"
+emoji = "🚨"
+changelog_title = "Tests"
+
+[[tool.commitizen.settings.type]]
+value = "build"
+name = "build"
+emoji = "🛠"
+changelog_title = "Builds"
+
+[[tool.commitizen.settings.type]]
+value = "ci"
+name = "ci"
+emoji = "⚙️"
+changelog_title = "Continuous Integrations"
+
+[[tool.commitizen.settings.type]]
+value = "chore"
+name = "chore"
+emoji = "♻️"
+changelog_title = "Chores"
+
+[[tool.commitizen.settings.type]]
+value = "revert"
+name = "revert"
+emoji = "🗑"
+changelog_title = "Reverts"
+
+# 提交范围（可选）
+[[tool.commitizen.settings.scope]]
+value = "backend"
+name = "backend"
+description = "后端代码变更"
+
+[[tool.commitizen.settings.scope]]
+value = "frontend"
+name = "frontend"
+description = "前端代码变更"
+
+[[tool.commitizen.settings.scope]]
+value = "api"
+name = "api"
+description = "API接口变更"
+
+[[tool.commitizen.settings.scope]]
+value = "db"
+name = "db"
+description = "数据库变更"
+
+[[tool.commitizen.settings.scope]]
+value = "config"
+name = "config"
+description = "配置变更"
+
+[[tool.commitizen.settings.scope]]
+value = "docs"
+name = "docs"
+description = "文档变更"
+
+[[tool.commitizen.settings.scope]]
+value = "test"
+name = "test"
+description = "测试相关"
+
+[[tool.commitizen.settings.scope]]
+value = "deps"
+name = "deps"
+description = "依赖更新"

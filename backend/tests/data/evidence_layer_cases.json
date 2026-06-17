@@ -1,0 +1,121 @@
+{
+  "test_cases": [
+    {
+      "case_id": "case_001",
+      "description": "仅有客观异常，无直接认知证据 - 应触发降档防护",
+      "tags": [
+        {
+          "tag_id": "F001",
+          "matched_text": "跨省取款",
+          "confidence": 0.85,
+          "source_span": [0, 10],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F002",
+          "matched_text": "夜间大额交易",
+          "confidence": 0.80,
+          "source_span": [11, 25],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F009",
+          "matched_text": "虚拟币折现",
+          "confidence": 0.75,
+          "source_span": [26, 36],
+          "match_type": "keyword"
+        }
+      ],
+      "expected": {
+        "has_direct_cognition": false,
+        "has_objective_anomaly": true,
+        "downgrade_applied": true,
+        "cognition_tier": 3
+      }
+    },
+    {
+      "case_id": "case_002",
+      "description": "同时有直接认知和客观异常 - 应维持高档级",
+      "tags": [
+        {
+          "tag_id": "F003",
+          "matched_text": "知道是洗黑钱",
+          "confidence": 0.90,
+          "source_span": [0, 12],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F004",
+          "matched_text": "承认知道资金异常",
+          "confidence": 0.85,
+          "source_span": [13, 30],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F001",
+          "matched_text": "跨省取款",
+          "confidence": 0.80,
+          "source_span": [31, 41],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F006",
+          "matched_text": "异常报酬比例",
+          "confidence": 0.75,
+          "source_span": [42, 56],
+          "match_type": "keyword"
+        }
+      ],
+      "expected": {
+        "has_direct_cognition": true,
+        "has_objective_anomaly": true,
+        "downgrade_applied": false,
+        "cognition_tier": 1
+      }
+    },
+    {
+      "case_id": "case_003",
+      "description": "4层都为空 - 应返回低档级",
+      "tags": [],
+      "expected": {
+        "has_direct_cognition": false,
+        "has_objective_anomaly": false,
+        "downgrade_applied": false,
+        "cognition_tier": 3
+      }
+    },
+    {
+      "case_id": "case_004",
+      "description": "仅有认知增强因素和辩解检验材料 - 应返回中低档级",
+      "tags": [
+        {
+          "tag_id": "F006",
+          "matched_text": "异常报酬比例",
+          "confidence": 0.70,
+          "source_span": [0, 14],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F007",
+          "matched_text": "规避监管行为",
+          "confidence": 0.65,
+          "source_span": [15, 29],
+          "match_type": "keyword"
+        },
+        {
+          "tag_id": "F011",
+          "matched_text": "辩解与客观事实冲突",
+          "confidence": 0.60,
+          "source_span": [30, 48],
+          "match_type": "keyword"
+        }
+      ],
+      "expected": {
+        "has_direct_cognition": false,
+        "has_objective_anomaly": false,
+        "downgrade_applied": false,
+        "cognition_tier": 2
+      }
+    }
+  ]
+}
