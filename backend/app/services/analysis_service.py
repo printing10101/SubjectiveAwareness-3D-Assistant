@@ -4,21 +4,35 @@
 所有数据库操作均使用异步 API。
 """
 
+# 导入模块: json
 import json
+# 导入模块: math
 import math
+# 导入模块: time
 import time
+# 导入模块: from collections.abc
 from collections.abc import Mapping
+# 导入模块: from typing
 from typing import Any
 
+# 导入模块: from fastapi
 from fastapi import HTTPException
+# 导入模块: from loguru
 from loguru import logger
+# 导入模块: from sqlalchemy
 from sqlalchemy import select
+# 导入模块: from sqlalchemy.ext.asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# 导入模块: from app.models.analysis
 from app.models.analysis import Analysis
+# 导入模块: from app.models.case
 from app.models.case import Case
+# 导入模块: from app.services.pipeline
 from app.services.pipeline import analyze_pipeline
+# 导入模块: from app.types.analysis
 from app.types.analysis import AnalysisResult, GroundTruthAnalysis
+# 导入模块: from app.types.analysis_v2
 from app.types.analysis_v2 import is_v2_result
 
 
@@ -79,7 +93,9 @@ def _compute_knowledge_score(result: AnalysisResult) -> float | None:
         float | None: 钳制后的平均知识评分（0-10），无有效评分时返回 None
     """
     ground_truth: GroundTruthAnalysis | None = result.get("ground_truth_analysis")
+    # 条件判断：处理业务逻辑
     if ground_truth is None:
+        # 返回处理结果
         return None
     scores: list[float] = []
     for dim_key in _KNOWLEDGE_DIMENSION_KEYS:
@@ -88,9 +104,12 @@ def _compute_knowledge_score(result: AnalysisResult) -> float | None:
             if isinstance(raw, (int, float)) and not math.isnan(raw):
                 clamped: float = max(0.0, min(10.0, raw))
                 scores.append(clamped)
+    # 条件判断: 检查 scores
     if scores:
         avg: float = sum(scores) / len(scores)
+        # 返回处理结果
         return max(0.0, min(10.0, avg))
+    # 返回处理结果
     return None
 
 
@@ -100,18 +119,26 @@ def _compute_self_consistency(result: Mapping[str, Any]) -> float:
     三个维度档级完全相同 → 1.0；仅一档差异 → 0.85；两档以上差异 → 0.6。
     缺少任一维度档级时降级为 0.5。
     """
+    # 初始化变量 dims
     dims = (result.get("dimension1"), result.get("dimension2"), result.get("dimension3"))
     tiers: list[str] = []
     for d in dims:
         if isinstance(d, Mapping) and d.get("tier"):
             tiers.append(str(d["tier"]))
     if len(tiers) < 3:
+        # 返回处理结果
         return 0.5
+    # 初始化变量 unique
     unique = set(tiers)
+    # 条件判断: 检查 len(unique) == 1
     if len(unique) == 1:
+        # 返回处理结果
         return 1.0
+    # 条件判断: 检查 len(unique) == 2
     if len(unique) == 2:
+        # 返回处理结果
         return 0.85
+    # 返回处理结果
     return 0.6
 
 
@@ -124,25 +151,39 @@ def _compute_rule_hit_rate(result: Mapping[str, Any]) -> float:
     极少数规则命中就 0.1 显得太"绝望"。
     """
     triggered = result.get("triggered_rule_ids") or []
+    # 条件判断: 检查 not isinstance(triggered, list) or not t
     if not isinstance(triggered, list) or not triggered:
+        # 返回处理结果
         return 0.0
+    # 初始化变量 total
     total = result.get("total_rules")
+    # 条件判断: 检查 not isinstance(total, int) or total <= 0
     if not isinstance(total, int) or total <= 0:
+        # 初始化变量 total
         total = 56
+    # 初始化变量 rate
     rate = min(1.0, len(triggered) / max(1, total))
     return min(1.0, rate / _RULE_HIT_SATURATION)
 
 
 def _compute_conflict_penalty(result: Mapping[str, Any]) -> float:
     """计算冲突惩罚 (0-1，越大越扣分)."""
+    # 初始化变量 conflicts
     conflicts = result.get("conflicts")
+    # 条件判断: 检查 not isinstance(conflicts, list)
     if not isinstance(conflicts, list):
+        # 返回处理结果
         return 0.0
     n = len(conflicts)
+    # 条件判断: 检查 n == 0
     if n == 0:
+        # 返回处理结果
         return 0.0
+    # 条件判断: 检查 n >= len(_CONFLICT_PENALTY_TABLE)
     if n >= len(_CONFLICT_PENALTY_TABLE):
+        # 返回处理结果
         return _CONFLICT_PENALTY_MAX
+    # 返回处理结果
     return _CONFLICT_PENALTY_TABLE.get(n, _CONFLICT_PENALTY_MAX)
 
 
@@ -162,6 +203,7 @@ def _compute_confidence(result: Mapping[str, Any]) -> float:
 
     公式（V2）::
 
+        # 初始化变量 confidence
         confidence = (
             W_consistency * consistency
             + W_rule_hit * rule_hit
@@ -172,56 +214,75 @@ def _compute_confidence(result: Mapping[str, Any]) -> float:
     总和仍在 [0, 1]。
 
     Args:
-        result: 分析结果字典（V1 或 V2）
+        # 条件判断：处理业务逻辑
+    result: 分析结果字典（V1 或 V2）
 
     Returns:
         float: 置信度（0-1），无任何有效信号时返回 :data:`_DEFAULT_CONFIDENCE`。
     """
+    # 条件判断: 检查 not isinstance(result, Mapping)
     if not isinstance(result, Mapping):
+        # 返回处理结果
         return _DEFAULT_CONFIDENCE
 
     # ---------- V2 协议 ----------
+    # 条件判断: 检查 is_v2_result(dict(result))
     if is_v2_result(dict(result)):
+        # 初始化变量 consistency
         consistency = _compute_self_consistency(result)
+        # 初始化变量 rule_hit
         rule_hit = _compute_rule_hit_rate(result)
         conflict_pen = _compute_conflict_penalty(result)
 
         # 若三个信号全为 0，返回兜底
         if consistency == 0.0 and rule_hit == 0.0 and conflict_pen == 0.0:
+            # 返回处理结果
             return _DEFAULT_CONFIDENCE
 
         # 归一化权重（剔除 0 值项）
         weights: list[tuple[float, float]] = []
+        # 条件判断: 检查 consistency > 0.0
         if consistency > 0.0:
             weights.append((_WEIGHT_SELF_CONSISTENCY, consistency))
+        # 条件判断: 检查 rule_hit > 0.0
         if rule_hit > 0.0:
             weights.append((_WEIGHT_RULE_HIT, rule_hit))
+        # 条件判断: 检查 conflict_pen > 0.0
         if conflict_pen > 0.0:
             # 冲突是负向信号
             weights.append((_WEIGHT_CONFLICT_PENALTY, conflict_pen))
 
+        # 条件判断: 检查 not weights
         if not weights:
+            # 返回处理结果
             return _DEFAULT_CONFIDENCE
 
+        # 初始化变量 total_weight
         total_weight = sum(w for w, _ in weights)
         # 惩罚项按"扣分"方式加入：positive_sum - penalty_sum
         positive = sum(w * v for w, v in weights[:2])
+        # 初始化变量 penalty
         penalty = (weights[-1][0] * weights[-1][1]) if len(weights) >= 3 else 0.0
 
         # 归一化到 [0, 1]
         norm = total_weight if total_weight > 0 else 1.0
         raw = (positive - penalty) / norm
+        # 返回处理结果
         return float(max(0.0, min(1.0, raw)))
 
     # ---------- V1 协议（向后兼容） ----------
     v1_score = _compute_knowledge_score(dict(result))  # type: ignore[arg-type]
     if v1_score is None:
+        # 返回处理结果
         return _DEFAULT_CONFIDENCE
+    # 初始化变量 confidence
     confidence = v1_score * _V1_SCORE_TO_CONFIDENCE
+    # 返回处理结果
     return float(max(0.0, min(1.0, confidence)))
 
 
 async def run_analysis(
+    # 函数 run_analysis 的初始化逻辑
     db: AsyncSession,
     case_id: int,
     mode: str = "auto",
@@ -252,22 +313,43 @@ async def run_analysis(
     Raises:
         HTTPException 404: 案件不存在
     """
+    # 异步等待操作完成
     case: Case | None = await db.get(Case, case_id)
+    # 条件判断: 检查 not case
     if not case:
+        # 抛出异常，处理错误情况
         raise HTTPException(status_code=404, detail="案件不存在")
 
     start_time: float = time.time()
+    # 异步等待操作完成
     result_data: AnalysisResult = await analyze_pipeline(
         str(case.case_text), mode=mode, version=version
     )
     elapsed: int = int((time.time() - start_time) * 1000)
 
+    # 记录日志信息
     logger.info(
         "分析完成: version={}, fallback={}, time={}ms",
         version,
         result_data.get("fallback", "no"),
         elapsed,
     )
+
+    # 记录 V1.2 新增字段（如果存在）
+    if version == "v2":
+        # 初始化变量 identified_path
+        identified_path = result_data.get("identified_path", "unknown")
+        # 初始化变量 scoring_mode
+        scoring_mode = result_data.get("scoring_mode", "unknown")
+        # 记录日志信息
+        logger.info(
+            "V1.2 字段: identified_path={}, scoring_mode={}, "
+            "evidence_layer_count={}, boundary_alert_count={}",
+            identified_path,
+            scoring_mode,
+            result_data.get("evidence_layer_count", 0),
+            result_data.get("boundary_alert_count", 0),
+        )
 
     # 置信度：V2 走 _compute_confidence，V1 走 _compute_knowledge_score * 0.1
     # 字段 "knowledge_score" 实际语义从 0-10 评分改为 0-1 置信度
@@ -277,16 +359,22 @@ async def run_analysis(
     result_data_with_disclaimer: dict = dict(result_data)
     result_data_with_disclaimer["disclaimer"] = ANALYSIS_DISCLAIMER
 
+    # 初始化变量 db_analysis
     db_analysis = Analysis(
+        # 初始化变量 case_id
         case_id=case_id,
+        # 初始化变量 result_json
         result_json=json.dumps(result_data_with_disclaimer, ensure_ascii=False),
+        # 初始化变量 knowledge_score
         knowledge_score=confidence,  # type: ignore[arg-type]
         mode=mode,
     )
     db.add(db_analysis)
     # 仅刷新到数据库，获取自增ID，不提交事务
     await db.flush()
+    # 异步等待操作完成
     await db.refresh(db_analysis)
+    # 返回处理结果
     return db_analysis
 
 
@@ -300,7 +388,9 @@ async def get_analysis(db: AsyncSession, analysis_id: int) -> Analysis | None:
     Returns:
         Analysis | None: 分析结果记录，不存在返回 None
     """
+    # 初始化变量 result
     result = await db.execute(select(Analysis).where(Analysis.id == analysis_id))
+    # 返回处理结果
     return result.scalar_one_or_none()
 
 
@@ -314,7 +404,9 @@ async def get_analyses_for_case(db: AsyncSession, case_id: int) -> list[Analysis
     Returns:
         list[Analysis]: 分析结果列表
     """
+    # 初始化变量 result
     result = await db.execute(
         select(Analysis).where(Analysis.case_id == case_id)
     )
+    # 返回处理结果
     return list(result.scalars().all())

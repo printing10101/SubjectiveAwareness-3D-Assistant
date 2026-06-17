@@ -5,9 +5,12 @@ Revises:
 Create Date: 2026-05-24
 """
 
+# 导入模块: from typing
 from typing import Sequence, Union
 
+# 导入模块: from alembic
 from alembic import op
+# 导入模块: sqlalchemy
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -18,6 +21,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+
+
+    # 执行 upgrade 函数的核心逻辑
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -59,6 +65,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_analyses_id"), "analyses", ["id"], unique=False)
 
+    # 使用上下文管理器管理资源
     with op.batch_alter_table("analyses") as batch_op:
         batch_op.create_check_constraint(
             "ck_analyses_knowledge_score",
@@ -122,6 +129,9 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+
+
+    # 执行 downgrade 函数的核心逻辑
     op.drop_index(op.f("ix_model_versions_id"), table_name="model_versions")
     op.drop_table("model_versions")
     op.drop_index(op.f("ix_system_logs_log_level"), table_name="system_logs")

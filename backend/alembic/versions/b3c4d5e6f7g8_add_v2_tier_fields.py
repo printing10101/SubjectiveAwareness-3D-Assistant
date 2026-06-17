@@ -28,11 +28,15 @@ deprecated alias 以保证 v1 数据仍能通过 ORM 读取——实际由应用
 等比缩放到 0-1 区间（score / 10.0）。这是 v1 → v2 语义变更的合理近似。
 """
 
+# 导入模块: from collections.abc
 from collections.abc import Sequence
+# 导入模块: from typing
 from typing import Union
 
+# 导入模块: sqlalchemy
 import sqlalchemy as sa
 
+# 导入模块: from alembic
 from alembic import op
 
 
@@ -51,7 +55,9 @@ def upgrade() -> None:
             sa.Column(
                 "version",
                 sa.String(length=4),
+                # 初始化变量 nullable
                 nullable=False,
+                # 初始化变量 server_default
                 server_default="v1",
             )
         )
@@ -107,6 +113,7 @@ def downgrade() -> None:
         )
     )
 
+    # 使用上下文管理器管理资源
     with op.batch_alter_table("analyses", recreate="auto") as batch_op:
         # 2) 重建 CHECK 约束
         batch_op.drop_constraint("ck_analyses_knowledge_score", type_="check")

@@ -23,11 +23,15 @@
    边缘 case 通过 :func:`combine_tiers_with_overrides` 的 overrides 机制补充。
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: from collections.abc
 from collections.abc import Iterable
 
+# 导入模块: from app.services.rule_engine
 from app.services.rule_engine import Rule
+# 导入模块: from app.types.analysis_v2
 from app.types.analysis_v2 import (
     FinalVerdict,
     TierEnum,
@@ -167,7 +171,11 @@ assert len(_BASE_COMBINATION) == 64, (
 
 
 def combine_tiers(
+    # 函数 combine_tiers 的初始化逻辑
     d1: TierEnum | str | int | None,
+
+
+    # 执行 combine_tiers 函数的核心逻辑
     d2: TierEnum | str | int | None,
     d3: TierEnum | str | int | None,
     rule_hits: Iterable[Rule] | None = None,
@@ -190,13 +198,19 @@ def combine_tiers(
     t1 = TierEnum.coerce(d1)
     t2 = TierEnum.coerce(d2)
     t3 = TierEnum.coerce(d3)
+    # 初始化变量 rules
     rules = list(rule_hits) if rule_hits else []
 
+    # 返回处理结果
     return combine_tiers_with_overrides(t1, t2, t3, rules)
 
 
 def combine_tiers_with_overrides(
+    # 函数 combine_tiers_with_overrides 的初始化逻辑
     d1: TierEnum,
+
+
+    # 执行 combine_tiers_with_overrides 函数的核心逻辑
     d2: TierEnum,
     d3: TierEnum,
     rule_hits: list[Rule] | None = None,
@@ -211,6 +225,7 @@ def combine_tiers_with_overrides(
     3. 抗辩降档：若 d3 显著低于 d1 且 d2（视为抗辩有效），base_tier 可下调一档。
     4. 量化：依据 base_tier → 数值严重度（1-4）。
     """
+    # 初始化变量 rules
     rules = rule_hits or []
     key = (d1.rank, d2.rank, d3.rank)
     base_tier_rank, rule_id = _BASE_COMBINATION.get(key, (2, "BASE_FALLBACK"))
@@ -226,38 +241,59 @@ def combine_tiers_with_overrides(
         r.weight >= _VERY_HIGH_RULE_WEIGHT_THRESHOLD for r in rules
     )
 
+    # 初始化变量 final_rank
     final_rank = base_tier_rank
 
+    # 条件判断: 检查 has_t4_signal and has_very_high_weight
     if has_t4_signal and has_very_high_weight:
+        # 初始化变量 final_rank
         final_rank = 4
+        # 初始化变量 rule_id
         rule_id = "ESCALATE_T4_CRITICAL"
+    # 条件判断: 检查 elhas_t4_signal and has_high_weight
     elif has_t4_signal and has_high_weight:
+        # 初始化变量 final_rank
         final_rank = max(final_rank, 3)
+        # 初始化变量 rule_id
         rule_id = "ESCALATE_T3_HEAVY"
+    # 条件判断: 检查 elhas_high_weight and final_rank < 3
     elif has_high_weight and final_rank < 3:
         # 任意高权重规则命中 + 基础档 < T3 → 至少升到 T3
         final_rank = 3
+        # 初始化变量 rule_id
         rule_id = "ESCALATE_T3_HEAVY"
 
     # ------------------------------------------------------------------
     # 抗辩降档
     # ------------------------------------------------------------------
+    # 条件判断：处理业务逻辑
     if d3.rank <= d1.rank - 1 and d3.rank <= d2.rank - 1 and final_rank > 1:
         # d3 比 d1 和 d2 都低至少 1 档 → 抗辩有效，降一档
         final_rank -= 1
+        # 初始化变量 rule_id
         rule_id = f"DOWNGRADE_DEFENSE_{rule_id}"
 
+    # 初始化变量 final_rank
     final_rank = max(1, min(4, final_rank))
+    # 初始化变量 final_tier
     final_tier = TierEnum(f"T{final_rank}")
 
+    # 初始化变量 confidence
     confidence = _compute_combiner_confidence(d1, d2, d3, rules)
 
+    # 返回处理结果
     return FinalVerdict(
+        # 初始化变量 final_tier
         final_tier=final_tier.value,
+        # 初始化变量 final_label
         final_label=final_tier.chinese_label,
+        # 初始化变量 sentence_band
         sentence_band=final_tier.sentence_band,
+        # 初始化变量 confidence
         confidence=round(confidence, 4),
+        # 初始化变量 severity_score
         severity_score=final_rank,
+        # 初始化变量 combination_rule
         combination_rule=rule_id,
     )
 
@@ -269,21 +305,28 @@ def combine_tiers_with_overrides(
 
 def _contains_t4_signal(rules: Iterable[Rule]) -> bool:
     """判断是否触发了 T4 升级信号（上游严重犯罪 / 组织者 / 数额特别巨大）。"""
+    # 循环遍历：处理业务逻辑
     for r in rules:
+        # 初始化变量 haystack
         haystack = " ".join(
             [
                 r.name or "",
                 r.conclusion or "",
                 r.conditions or "",
                 " ".join(r.applicable_scenarios or []),
-            ]
+              # 条件判断：处理业务逻辑
+      ]
         )
+        # 条件判断: 检查 any(kw in haystack for kw in _T4_ESCALAT
         if any(kw in haystack for kw in _T4_ESCALATION_KEYWORDS):
+            # 返回处理结果
             return True
+    # 返回处理结果
     return False
 
 
 def _compute_combiner_confidence(
+    # 函数 _compute_combiner_confidence 的初始化逻辑
     d1: TierEnum,
     d2: TierEnum,
     d3: TierEnum,
@@ -299,8 +342,11 @@ def _compute_combiner_confidence(
     - 三档完全不同 → 0.45
     - 命中规则数越多置信度越高（每命中 1 条 +0.02，上限 0.20）
     """
+    # 初始化变量 ranks
     ranks = [d1.rank, d2.rank, d3.rank]
+    # 初始化变量 spread
     spread = max(ranks) - min(ranks)
+    # 初始化变量 base_conf
     base_conf = {
         0: 1.00,
         1: 0.85,
@@ -308,7 +354,9 @@ def _compute_combiner_confidence(
         3: 0.45,
     }.get(spread, 0.45)
 
+    # 初始化变量 rule_bonus
     rule_bonus = min(0.20, len(rules) * 0.02)
+    # 返回处理结果
     return max(0.0, min(1.0, base_conf + rule_bonus))
 
 
@@ -319,19 +367,27 @@ def _compute_combiner_confidence(
 
 def all_combinations() -> list[tuple[tuple[int, int, int], tuple[int, str]]]:
     """返回 64 种基础组合的有序列表，便于测试断言."""
+    # 返回处理结果
     return list(_BASE_COMBINATION.items())
 
 
 def debug_dump_table() -> str:
     """以 4×4×4 形式打印档级组合表，供调试与论文引用."""
-    lines: list[str] = ["档级组合基础映射 (d1 × d2 → d3 → final_tier)："]
+    lines: list[str] = ["档级组合基础映射 (d1 × d2 → d3    # 循环遍历：处理业务逻辑
+ → final_        # 循环遍历：处理业务逻辑
+tier)："]
+    # 遍历: for d1 in range(1, 5):
     for d1 in range(1, 5):
-        for d2 in range(1, 5):
+        # 遍历: for d2 in range(1            # 循环遍历：处理业务逻辑
+        for d2 in range(1            # 循环遍历：处理业务逻辑
+, 5):
             row: list[str] = [f"d1={d1} d2={d2} →"]
+            # 遍历: for d3 in range(1, 5):
             for d3 in range(1, 5):
                 rank, _ = _BASE_COMBINATION[(d1, d2, d3)]
                 row.append(f"d3={d3}:T{rank}")
             lines.append(" ".join(row))
+    # 返回处理结果
     return "\n".join(lines)
 
 

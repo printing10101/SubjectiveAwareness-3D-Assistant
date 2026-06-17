@@ -4,10 +4,45 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 预连接关键域名 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- 预加载关键字体 - 使用 font-display: swap 避免 FOIT -->
+    <link 
+      rel="preload" 
+      as="style" 
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" 
+    />
+    <link 
+      rel="stylesheet" 
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" 
+      media="print" 
+      onload="this.media='all'"
+    />
+    
+    <!-- DNS 预解析 -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- 关键资源预加载 -->
+    <link rel="modulepreload" href="/src/main.js" />
+    
     <title>掩耳盗铃？不，是明知故问 — AI辅助分析系统</title>
+    
+    <!-- SEO 元数据 -->
+    <meta name="description" content="帮信罪主观明知分析系统 - AI辅助法律分析工具" />
+    <meta name="theme-color" content="#4f46e5" />
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <div style="padding: 2rem; text-align: center;">
+        <h1>请启用 JavaScript</h1>
+        <p>本应用需要 JavaScript 支持才能正常运行。</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

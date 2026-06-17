@@ -1,0 +1,86 @@
+[
+  {
+    "case_id": "TEST_FRAUD_COCONSPIRATOR",
+    "description": "明知是诈骗钱款仍取现分装，受上线安排转移资金",
+    "case_facts": "经审理查明：被告人张某明知是诈骗钱款，仍按照上线安排，多次前往银行取现并分装成若干包裹，通过快递方式转移至指定地点。上线明确告知张某所取款项系电信诈骗所得，要求其按照指令操作。张某每日取现金额达10万元以上，按比例抽取1%作为报酬。",
+    "actual_judgment": {
+      "reasoning": "被告人明知是诈骗钱款仍按照上线安排取现分装转移，构成诈骗罪共同犯罪。"
+    },
+    "ground_truth_analysis": {
+      "dimension1": {
+        "key_indicators": ["明知是诈骗钱款", "上线安排取现", "分装转移"],
+        "reasoning": "明确知道资金为诈骗所得，仍按上线指令操作"
+      },
+      "dimension2": {
+        "pattern_match": "符合诈骗罪共同犯罪中帮助转移赃款的模式"
+      },
+      "dimension3": {
+        "contradictions": ["无有效辩解"]
+      }
+    },
+    "expected_path": "FRAUD_COCONSPIRATOR"
+  },
+  {
+    "case_id": "TEST_MONEY_LAUNDERING",
+    "description": "长期取现按比例抽成验卡防冻，帮助转移犯罪资金",
+    "case_facts": "经审理查明：被告人李某长期从事银行卡取现业务，按照转移资金金额的3%至5%比例抽成获利。为规避银行风控系统冻结风险，李某采取验卡防冻措施，定期测试银行卡交易状态。李某明知所取资金系犯罪所得，仍帮助转移资金，累计取现金额达500余万元。",
+    "actual_judgment": {
+      "reasoning": "被告人明知是犯罪所得仍帮助转移资金，构成掩饰隐瞒犯罪所得罪。"
+    },
+    "ground_truth_analysis": {
+      "dimension1": {
+        "key_indicators": ["长期取现", "按比例抽成", "验卡防冻", "转移资金"],
+        "reasoning": "长期稳定从事资金转移活动，具有明显洗钱特征"
+      },
+      "dimension2": {
+        "pattern_match": "符合掩饰隐瞒犯罪所得中帮助转移资金的模式"
+      },
+      "dimension3": {
+        "contradictions": ["无有效辩解"]
+      }
+    },
+    "expected_path": "MONEY_LAUNDERING"
+  },
+  {
+    "case_id": "TEST_MAIN_HELPER",
+    "description": "提供银行卡帮助转账，不知具体上游犯罪",
+    "case_facts": "经审理查明：被告人赵某通过他人介绍，将自己名下5张银行卡提供给陌生人使用，每张卡获利2000元。赵某仅提供银行卡并配合进行人脸识别验证，帮助转账操作。赵某不知道具体上游犯罪人员身份，也不清楚资金的具体来源和用途，仅知道可能用于违法犯罪活动。",
+    "actual_judgment": {
+      "reasoning": "被告人明知他人可能利用信息网络实施犯罪，仍提供银行卡帮助支付结算，构成帮助信息网络犯罪活动罪。"
+    },
+    "ground_truth_analysis": {
+      "dimension1": {
+        "key_indicators": ["提供银行卡", "帮转账", "不知具体上游"],
+        "reasoning": "提供银行卡帮助支付结算，但对上游犯罪缺乏明确认知"
+      },
+      "dimension2": {
+        "pattern_match": "符合帮信罪主路径中提供银行卡帮助转账的模式"
+      },
+      "dimension3": {
+        "contradictions": ["辩称不知道具体用途，但获利事实说明应当知道"]
+      }
+    },
+    "expected_path": "MAIN_HELPER"
+  },
+  {
+    "case_id": "TEST_PENDING_VERIFICATION",
+    "description": "案件事实标签不充分，无法明确路径分类",
+    "case_facts": "经审理查明：被告人孙某因涉嫌参与网络犯罪活动被公安机关抓获。现有证据显示孙某与多名网络犯罪嫌疑人存在资金往来，但具体行为模式尚不清晰。孙某到案后供述不一致，案件关键事实有待进一步查证。",
+    "actual_judgment": {
+      "reasoning": "案件事实尚不充分，需要进一步调查核实。"
+    },
+    "ground_truth_analysis": {
+      "dimension1": {
+        "key_indicators": ["资金往来", "事实不清"],
+        "reasoning": "案件事实标签不充分，无法进行明确分类"
+      },
+      "dimension2": {
+        "pattern_match": "无法匹配典型犯罪模式"
+      },
+      "dimension3": {
+        "contradictions": ["供述前后矛盾"]
+      }
+    },
+    "expected_path": "PENDING_VERIFICATION"
+  }
+]

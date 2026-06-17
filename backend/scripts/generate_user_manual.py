@@ -13,34 +13,52 @@
 - 页眉页脚格式规范
 """
 
+# 导入模块: os
 import os
+# 导入模块: sys
 import sys
+# 导入模块: from pathlib
 from pathlib import Path
+# 导入模块: from datetime
 from datetime import datetime
 
+# 导入模块: from reportlab.lib.pagesizes
 from reportlab.lib.pagesizes import A4
+# 导入模块: from reportlab.lib.units
 from reportlab.lib.units import cm, mm
+# 导入模块: from reportlab.lib.styles
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+# 导入模块: from reportlab.lib.enums
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+# 导入模块: from reportlab.platypus
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, PageBreak,
     Table, TableStyle, Image, KeepTogether
 )
+# 导入模块: from reportlab.lib
 from reportlab.lib import colors
+# 导入模块: from reportlab.pdfbase
 from reportlab.pdfbase import pdfmetrics
+# 导入模块: from reportlab.pdfbase.ttfonts
 from reportlab.pdfbase.ttfonts import TTFont
 
 
 # 项目根目录
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+# 初始化变量 OUTPUT_DIR
 OUTPUT_DIR = PROJECT_ROOT / "03_软件文档"
+# 初始化变量 OUTPUT_FILE
 OUTPUT_FILE = OUTPUT_DIR / "用户手册.pdf"
 
 # 页面设置
 PAGE_WIDTH, PAGE_HEIGHT = A4
+# 初始化变量 LEFT_MARGIN
 LEFT_MARGIN = 2.5 * cm
+# 初始化变量 RIGHT_MARGIN
 RIGHT_MARGIN = 2.5 * cm
+# 初始化变量 TOP_MARGIN
 TOP_MARGIN = 2.5 * cm
+# 初始化变量 BOTTOM_MARGIN
 BOTTOM_MARGIN = 2.5 * cm
 
 
@@ -53,11 +71,16 @@ def register_fonts():
         "/usr/share/fonts/truetype/arphic/uming.ttc",  # Linux
     ]
     
+    # 遍历: for font_path in font_paths:
     for font_path in font_paths:
+        # 条件判断：处理业务逻辑
         if os.path.exists(font_path):
+            # 异常处理：处理业务逻辑
             try:
                 pdfmetrics.registerFont(TTFont('SimSun', font_path))
+                # 返回处理结果
                 return 'SimSun'
+            # 捕获异常：处理业务逻辑
             except Exception:
                 continue
     
@@ -67,148 +90,238 @@ def register_fonts():
 
 def create_styles(font_name: str):
     """创建文档样式"""
+    # 初始化变量 styles
     styles = getSampleStyleSheet()
     
     # 封面标题样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='CoverTitle',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=28,
+        # 初始化变量 leading
         leading=36,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 spaceAfter
         spaceAfter=30,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#1a1a1a'),
     ))
     
     # 封面副标题样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='CoverSubtitle',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=16,
+        # 初始化变量 leading
         leading=24,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 spaceAfter
         spaceAfter=20,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#4a4a4a'),
     ))
     
     # 一级标题样式（章标题）
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='Heading1Custom',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=18,
+        # 初始化变量 leading
         leading=28,
+        # 初始化变量 alignment
         alignment=TA_LEFT,
+        # 初始化变量 spaceBefore
         spaceBefore=20,
+        # 初始化变量 spaceAfter
         spaceAfter=15,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#2c3e50'),
         keepWithNext=True,
     ))
     
     # 二级标题样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='Heading2Custom',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=14,
+        # 初始化变量 leading
         leading=22,
+        # 初始化变量 alignment
         alignment=TA_LEFT,
+        # 初始化变量 spaceBefore
         spaceBefore=15,
+        # 初始化变量 spaceAfter
         spaceAfter=10,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#34495e'),
         keepWithNext=True,
     ))
     
     # 三级标题样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='Heading3Custom',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=12,
+        # 初始化变量 leading
         leading=18,
+        # 初始化变量 alignment
         alignment=TA_LEFT,
+        # 初始化变量 spaceBefore
         spaceBefore=10,
+        # 初始化变量 spaceAfter
         spaceAfter=8,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#5a6c7d'),
         keepWithNext=True,
     ))
     
     # 正文样式（小四号 = 12pt）
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='BodyTextCustom',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=12,
+        # 初始化变量 leading
         leading=20,
+        # 初始化变量 alignment
         alignment=TA_JUSTIFY,
+        # 初始化变量 spaceBefore
         spaceBefore=6,
+        # 初始化变量 spaceAfter
         spaceAfter=6,
+        # 初始化变量 firstLineIndent
         firstLineIndent=24,  # 首行缩进2字符
     ))
     
     # 列表项样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='ListItem',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=12,
+        # 初始化变量 leading
         leading=20,
+        # 初始化变量 alignment
         alignment=TA_LEFT,
+        # 初始化变量 spaceBefore
         spaceBefore=4,
+        # 初始化变量 spaceAfter
         spaceAfter=4,
+        # 初始化变量 leftIndent
         leftIndent=20,
+        # 初始化变量 bulletIndent
         bulletIndent=10,
     ))
     
     # 表格标题样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='TableTitle',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=11,
+        # 初始化变量 leading
         leading=16,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 spaceBefore
         spaceBefore=10,
+        # 初始化变量 spaceAfter
         spaceAfter=5,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#2c3e50'),
     ))
     
     # 图片说明样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='FigureCaption',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=10,
+        # 初始化变量 leading
         leading=14,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 spaceBefore
         spaceBefore=5,
+        # 初始化变量 spaceAfter
         spaceAfter=15,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#666666'),
     ))
     
     # 页眉样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='Header',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=9,
+        # 初始化变量 leading
         leading=12,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#888888'),
     ))
     
     # 页脚样式
     styles.add(ParagraphStyle(
+        # 初始化变量 name
         name='Footer',
+        # 初始化变量 fontName
         fontName=font_name,
+        # 初始化变量 fontSize
         fontSize=9,
+        # 初始化变量 leading
         leading=12,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#888888'),
     ))
     
+    # 返回处理结果
     return styles
 
 
 def create_placeholder_image(width: float = 12 * cm, height: float = 8 * cm, 
+
+
+    # 执行 create_placeholder_image 函数的核心逻辑
                              caption: str = "") -> list:
     """创建占位图"""
+    # 初始化变量 elements
     elements = []
     
     # 创建占位图表格
     data = [['[示意图占位区域]']]
+    # 初始化变量 table
     table = Table(data, colWidths=[width], rowHeights=[height])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0f0f0')),
@@ -220,20 +333,32 @@ def create_placeholder_image(width: float = 12 * cm, height: float = 8 * cm,
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#999999')),
     ]))
-    elements.append(table)
+    e    
+    # 条件判断：处理业务逻辑
+lements.append(table)
     
+    # 条件判断: 检查 caption
     if caption:
         elements.append(Paragraph(caption, ParagraphStyle(
+            # 初始化变量 name
             name='Caption',
+            # 初始化变量 fontName
             fontName='Helvetica',
+            # 初始化变量 fontSize
             fontSize=10,
+            # 初始化变量 leading
             leading=14,
+            # 初始化变量 alignment
             alignment=TA_CENTER,
+            # 初始化变量 spaceBefore
             spaceBefore=5,
+            # 初始化变量 spaceAfter
             spaceAfter=15,
+            # 初始化变量 textColor
             textColor=colors.HexColor('#666666'),
         )))
     
+    # 返回处理结果
     return elements
 
 
@@ -267,6 +392,7 @@ def add_header_footer(canvas, doc):
 
 def build_cover_page(styles) -> list:
     """构建封面页"""
+    # 初始化变量 elements
     elements = []
     
     # 空行
@@ -289,6 +415,7 @@ def build_cover_page(styles) -> list:
         ["密级", "内部公开"],
     ]
     
+    # 初始化变量 version_table
     version_table = Table(version_info, colWidths=[4 * cm, 6 * cm])
     version_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -314,25 +441,34 @@ def build_cover_page(styles) -> list:
     未经书面许可，不得复制、传播或向第三方披露。
     """
     elements.append(Paragraph(copyright_text, ParagraphStyle(
+        # 初始化变量 name
         name='Copyright',
+        # 初始化变量 fontName
         fontName='Helvetica',
+        # 初始化变量 fontSize
         fontSize=10,
+        # 初始化变量 leading
         leading=16,
+        # 初始化变量 alignment
         alignment=TA_CENTER,
+        # 初始化变量 textColor
         textColor=colors.HexColor('#888888'),
     )))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_toc(styles) -> list:
     """构建目录页"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("目  录", styles['Heading1Custom']))
     elements.append(Spacer(1, 1 * cm))
     
+    # 初始化变量 toc_items
     toc_items = [
         ("第1章 系统概述", "1"),
         ("  1.1 系统简介", "1"),
@@ -367,33 +503,51 @@ def build_toc(styles) -> list:
         ("第10章 错误码表", "18"),
     ]
     
+    # 遍历: for item, page in toc_items:
     for item, page in toc_items:
+        # 条件判断: 检查 item.startswith("第")
         if item.startswith("第"):
+            # 初始化变量 style
             style = ParagraphStyle(
+                # 初始化变量 name
                 name='TOCChapter',
+                # 初始化变量 fontName
                 fontName='Helvetica',
+                # 初始化变量 fontSize
                 fontSize=12,
+                # 初始化变量 leading
                 leading=20,
+                # 初始化变量 leftIndent
                 leftIndent=0,
             )
+        # 其他情况的默认处理
         else:
+            # 初始化变量 style
             style = ParagraphStyle(
+                # 初始化变量 name
                 name='TOCSection',
+                # 初始化变量 fontName
                 fontName='Helvetica',
+                # 初始化变量 fontSize
                 fontSize=11,
+                # 初始化变量 leading
                 leading=18,
+                # 初始化变量 leftIndent
                 leftIndent=20,
             )
         
+        # 初始化变量 text
         text = f"{item} {'.' * (50 - len(item))} {page}"
         elements.append(Paragraph(text, style))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter1(styles) -> list:
     """第1章 系统概述"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第1章 系统概述", styles['Heading1Custom']))
@@ -411,6 +565,7 @@ def build_chapter1(styles) -> list:
     ))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 1-1 系统主界面示意图"
     ))
     
@@ -432,6 +587,7 @@ def build_chapter1(styles) -> list:
         ["案件管理", "案件的创建、查看、搜索和删除"],
     ]
     
+    # 初始化变量 func_table
     func_table = Table(func_data, colWidths=[3 * cm, 12 * cm])
     func_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -456,25 +612,30 @@ def build_chapter1(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 users
     users = [
         "检察官：负责案件审查起诉，需要快速准确地判断嫌疑人主观明知状态",
         "法官：负责案件审理裁判，需要参考AI分析结果辅助判决",
         "公安干警：负责案件侦查，需要初步判断案件性质",
         "法律研究人员：进行帮信罪相关研究和数据分析",
     ]
+    # 循环遍历：处理业务逻辑
     for user in users:
         elements.append(Paragraph(f"• {user}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 1-2 系统用户角色示意图"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter2(styles) -> list:
     """第2章 系统架构"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第2章 系统架构", styles['Heading1Custom']))
@@ -487,7 +648,9 @@ def build_chapter2(styles) -> list:
     ))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 height
         height=10 * cm,
+        # 初始化变量 caption
         caption="图 2-1 系统五层架构图"
     ))
     
@@ -497,28 +660,35 @@ def build_chapter2(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 modules
     modules = [
         ("案件管理模块", "负责案件的CRUD操作、状态管理、搜索筛选等功能"),
         ("分析推理模块", "核心AI分析引擎，实现三维度分析和报告生成"),
         ("文档处理模块", "处理PDF/DOCX文档上传、文本提取、实体抽取"),
         ("知识图谱模块", "管理法律规则、案例知识、推理路径"),
         ("用户管理模块", "用户认证、权限控制、角色管理"),
-        ("系统管理模块", "系统配置、日志管理、版本控制"),
+        ("系统管理模块", "系统配置、日    
+    # 循环遍历：处理业务逻辑
+志管理、版本控制"),
     ]
     
+    # 遍历: for name, desc in modules:
     for name, desc in modules:
         elements.append(Paragraph(f"<b>{name}</b>：{desc}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 2-2 系统模块关系图"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter3(styles) -> list:
     """第3章 安装部署"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第3章 安装部署", styles['Heading1Custom']))
@@ -530,23 +700,29 @@ def build_chapter3(styles) -> list:
     ))
     
     elements.append(Paragraph("<b>硬件要求</b>", styles['Heading3Custom']))
+    # 初始化变量 hw_reqs
     hw_reqs = [
         "CPU：4核及以上处理器",
         "内存：8GB RAM及以上（推荐16GB）",
-        "硬盘：50GB可用存储空间",
+        "硬盘：50GB可    # 循环遍历：处理业务逻辑
+用存储空间",
         "网络：稳定的局域网或互联网连接",
     ]
+    # 遍历: for req in hw_reqs:
     for req in hw_reqs:
         elements.append(Paragraph(f"• {req}", styles['ListItem']))
     
     elements.append(Paragraph("<b>软件要求</b>", styles['Heading3Custom']))
+    # 初始化变量 sw_reqs
     sw_reqs = [
         "操作系统：Windows 10/11、Linux（Ubuntu 20.04+）、macOS",
         "Python：3.10及以上版本",
         "Node.js：18.x及以上版本",
-        "数据库：SQLite（内置）或PostgreSQL 14+",
+        "数据库：SQLite（内置）或Pos    # 循环遍历：处理业务逻辑
+tgreSQL 14+",
         "AI模型：Ollama服务及DeepSeek-R1模型",
     ]
+    # 遍历: for req in sw_reqs:
     for req in sw_reqs:
         elements.append(Paragraph(f"• {req}", styles['ListItem']))
     
@@ -556,20 +732,25 @@ def build_chapter3(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 steps
     steps = [
         ("步骤1：获取源代码", "从代码仓库克隆或下载项目源代码到本地目录"),
         ("步骤2：安装后端依赖", "进入backend目录，执行 pip install -r requirements.txt"),
         ("步骤3：安装前端依赖", "进入frontend目录，执行 npm install"),
         ("步骤4：配置数据库", "复制.env.example为.env，配置数据库连接信息"),
-        ("步骤5：初始化数据", "执行数据库迁移脚本，导入初始数据"),
+        ("步骤5：初始化数据", "    
+    # 循环遍历：处理业务逻辑
+执行数据库迁移脚本，导入初始数据"),
         ("步骤6：启动Ollama", "确保Ollama服务正常运行，加载所需模型"),
     ]
     
+    # 遍历: for i, (title, desc) in enumerate(steps, 1):
     for i, (title, desc) in enumerate(steps, 1):
         elements.append(Paragraph(f"<b>{title}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(desc, styles['BodyTextCustom']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 3-1 安装部署流程图"
     ))
     
@@ -579,22 +760,27 @@ def build_chapter3(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 start_steps
     start_steps = [
         "启动数据库服务（如使用PostgreSQL）",
         "启动Ollama AI推理服务",
-        "启动后端API服务：cd backend && python run.py",
+        "启动后端API服务：cd backend && python run.    # 循环遍历：处理业务逻辑
+py",
         "启动前端开发服务器：cd frontend && npm run dev",
         "访问 http://localhost:5173 进入系统",
     ]
+    # 遍历: for i, step in enumerate(start_steps, 1):
     for i, step in enumerate(start_steps, 1):
         elements.append(Paragraph(f"{i}. {step}", styles['ListItem']))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter4(styles) -> list:
     """第4章 快速上手"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第4章 快速上手", styles['Heading1Custom']))
@@ -605,16 +791,20 @@ def build_chapter4(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 login_steps
     login_steps = [
-        "打开浏览器，访问系统地址（开发环境：http://localhost:5173）",
+        "打开浏览器，访问系统地址（开发环境：http://loca    # 循环遍历：处理业务逻辑
+lhost:5173）",
         "在登录页面输入用户名和密码（默认管理员账号：admin / admin123）",
         "点击【登录】按钮",
         "登录成功后自动跳转到分析主页面",
     ]
+    # 遍历: for i, step in enumerate(login_steps, 1):
     for i, step in enumerate(login_steps, 1):
         elements.append(Paragraph(f"{i}. {step}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 4-1 用户登录界面"
     ))
     
@@ -643,6 +833,7 @@ def build_chapter4(styles) -> list:
     ))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 4-2 案件上传界面"
     ))
     
@@ -652,39 +843,48 @@ def build_chapter4(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 result_items
     result_items = [
+    # 循环遍历：处理业务逻辑
         "综合结论：明显明知/边缘情况/确实不明知",
         "三维度评分：客观行为异常度、认知能力匹配度、辩解合理性",
         "推理依据：每个维度的分析说明和证据引用",
         "置信度：分析结果的可信程度百分比",
     ]
+    # 遍历: for item in result_items:
     for item in result_items:
         elements.append(Paragraph(f"• {item}", styles['ListItem']))
     
     elements.append(Paragraph("4.4 报告生成", styles['Heading2Custom']))
     elements.append(Paragraph(
         "分析结果页面提供报告导出功能：",
-        styles['BodyTextCustom']
+        styles['BodyText    # 循环遍历：处理业务逻辑
+Custom']
     ))
     
+    # 初始化变量 report_steps
     report_steps = [
         "点击【复制】按钮，将报告以Markdown格式复制到剪贴板",
         "点击【导出PDF】按钮，生成PDF格式的分析报告",
         "报告包含完整的分析过程、结论和建议",
     ]
+    # 遍历: for i, step in enumerate(report_steps, 1):
     for i, step in enumerate(report_steps, 1):
         elements.append(Paragraph(f"{i}. {step}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 4-3 分析报告界面"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter5(styles) -> list:
     """第5章 案件分析"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第5章 案件分析", styles['Heading1Custom']))
@@ -695,20 +895,26 @@ def build_chapter5(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 flow_steps
     flow_steps = [
         ("输入案件文本", "通过手动输入、文档上传或Demo案例方式提供案件事实"),
-        ("复杂度判断", "系统自动判断案件复杂度，选择单次推理或两阶段推理"),
+      
+    # 循环遍历：处理业务逻辑
+      ("复杂度判断", "系统自动判断案件复杂度，选择单次推理或两阶段推理"),
         ("AI分析", "调用大语言模型进行三维度分析"),
         ("结果生成", "生成包含评分、依据、结论的完整分析报告"),
         ("缓存存储", "分析结果存入缓存，相同案件再次分析可直接返回"),
     ]
     
+    # 遍历: for i, (title, desc) in enumerate(flow_steps, 1):
     for i, (title, desc) in enumerate(flow_steps, 1):
         elements.append(Paragraph(f"<b>步骤{i}：{title}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(desc, styles['BodyTextCustom']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 height
         height=8 * cm,
+        # 初始化变量 caption
         caption="图 5-1 案件分析流程图"
     ))
     
@@ -726,6 +932,7 @@ def build_chapter5(styles) -> list:
         ["辩解合理性", "评估嫌疑人辩解的逻辑合理性和可信度", "0-10分"],
     ]
     
+    # 初始化变量 dim_table
     dim_table = Table(dim_data, colWidths=[4 * cm, 8 * cm, 3 * cm])
     dim_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -744,29 +951,35 @@ def build_chapter5(styles) -> list:
     elements.append(dim_table)
     elements.append(Spacer(1, 0.5 * cm))
     
-    elements.append(Paragraph(
+    elements.append(Paragr    # 循环遍历：处理业务逻辑
+aph(
         "综合评分（knowledge_score）范围为0-10分：",
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 score_items
     score_items = [
         "0-3分：确实不明知",
         "4-6分：可能不明知或可能明知（边缘情况）",
         "7-10分：明显明知",
     ]
+    # 遍历: for item in score_items:
     for item in score_items:
         elements.append(Paragraph(f"• {item}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 5-2 三维度分析结果展示"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter6(styles) -> list:
     """第6章 报告管理"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第6章 报告管理", styles['Heading1Custom']))
@@ -774,44 +987,55 @@ def build_chapter6(styles) -> list:
     elements.append(Paragraph("6.1 报告查看", styles['Heading2Custom']))
     elements.append(Paragraph(
         "分析报告页面展示AI分析的完整结果，包括：",
-        styles['BodyTextCustom']
+       
+    # 循环遍历：处理业务逻辑
+     styles['BodyTextCustom']
     ))
     
+    # 初始化变量 report_sections
     report_sections = [
         ("综合结论", "显示结论类型（明显明知/边缘情况/确实不明知）、总体描述和置信度"),
         ("维度分析", "每个维度的评分、推理依据、引用证据和相关法条"),
         ("推理链条", "从证据到规则的完整逻辑路径，支持多链条展示"),
     ]
     
+    # 遍历: for name, desc in report_sections:
     for name, desc in report_sections:
         elements.append(Paragraph(f"<b>{name}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(desc, styles['BodyTextCustom']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 6-1 分析报告查看界面"
     ))
     
     elements.append(Paragraph("6.2 报告下载", styles['Heading2Custom']))
-    elements.append(Paragraph(
+    elements.append(Parag    
+    # 循环遍历：处理业务逻辑
+raph(
         "系统提供两种报告导出方式：",
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 export_methods
     export_methods = [
         ("复制为Markdown", "点击【复制】按钮，将报告以Markdown格式复制到剪贴板，可粘贴到文档编辑器"),
         ("导出PDF", "点击【导出PDF】按钮，使用html2canvas和jsPDF生成本地PDF文件"),
     ]
     
+    # 遍历: for name, desc in export_methods:
     for name, desc in export_methods:
         elements.append(Paragraph(f"<b>{name}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(desc, styles['BodyTextCustom']))
     
-    elements.append(Paragraph("6.3 报告审查", styles['Heading2Custom']))
+    elements.append(Paragraph("6.3 报告审查", styles['Heading    # 循环遍历：处理业务逻辑
+2Custom']))
     elements.append(Paragraph(
         "用户可以对分析报告进行审查和批注：",
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 review_items
     review_items = [
         "查看分析依据是否充分",
         "评估推理逻辑是否合理",
@@ -819,19 +1043,23 @@ def build_chapter6(styles) -> list:
         "判断结论是否可接受",
         "必要时可重新调整案件文本进行分析",
     ]
+    # 遍历: for item in review_items:
     for item in review_items:
         elements.append(Paragraph(f"• {item}", styles['ListItem']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 6-2 报告审查流程"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter7(styles) -> list:
     """第7章 知识库"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第7章 知识库", styles['Heading1Custom']))
@@ -849,20 +1077,24 @@ def build_chapter7(styles) -> list:
     ))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 7-1 法律规则查看界面"
     ))
     
-    elements.append(Paragraph("7.2 标签查看", styles['Heading2Custom']))
+    elements.append(Paragraph("7.2 标签查看    # 循环遍历：处理业务逻辑
+", styles['Heading2Custom']))
     elements.append(Paragraph(
         "标签体系用于对案件特征进行分类标记，包括：",
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 tag_types
     tag_types = [
         "行为特征标签：如【异常高额报酬】、【资金快进快出】等",
         "认知能力标签：如【长期从事相关工作】、【具备专业知识】等",
         "辩解类型标签：如【不知情辩解】、【被蒙骗辩解】等",
     ]
+    # 遍历: for tag in tag_types:
     for tag in tag_types:
         elements.append(Paragraph(f"• {tag}", styles['ListItem']))
     
@@ -879,25 +1111,31 @@ def build_chapter7(styles) -> list:
     ))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 7-2 知识库管理界面"
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter8(styles) -> list:
     """第8章 系统设置"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第8章 系统设置", styles['Heading1Custom']))
     
     elements.append(Paragraph("8.1 配置调整", styles['Heading2Custom']))
-    elements.append(Paragraph(
+    elements    
+    # 循环遍历：处理业务逻辑
+.append(Paragraph(
         "系统设置页面提供以下配置功能（仅管理员可用）：",
         styles['BodyTextCustom']
     ))
     
+    # 初始化变量 settings
     settings = [
         ("法律规则管理", "新增、编辑、删除法律推定规则，调整规则权重"),
         ("模型版本信息", "查看当前AI模型版本、微调时间、评估指标等"),
@@ -905,11 +1143,13 @@ def build_chapter8(styles) -> list:
         ("用户管理", "新增用户、启用/禁用账户、重置密码"),
     ]
     
+    # 遍历: for name, desc in settings:
     for name, desc in settings:
         elements.append(Paragraph(f"<b>{name}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(desc, styles['BodyTextCustom']))
     
     elements.extend(create_placeholder_image(
+        # 初始化变量 caption
         caption="图 8-1 系统设置界面"
     ))
     
@@ -920,15 +1160,18 @@ def build_chapter8(styles) -> list:
     ))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter9(styles) -> list:
     """第9章 常见问题FAQ"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第9章 常见问题FAQ", styles['Heading1Custom']))
     
+    # 初始化变量 faqs
     faqs = [
         ("Q1：分析结果不准确怎么办？",
          "A：请确认案件文本包含足够的案件事实细节，建议提供交易过程、聊天记录、嫌疑人供述等关键信息。"
@@ -946,7 +1189,9 @@ def build_chapter9(styles) -> list:
          "A：普通用户请联系管理员重置密码。管理员可在系统管理-用户管理页面进行密码重置操作。"),
         
         ("Q5：系统支持哪些浏览器？",
-         "A：推荐使用Chrome 90+、Firefox 88+、Edge 90+等现代浏览器。不支持IE浏览器。"),
+         "A：推荐使用Chrome 90+、Firefox 88+、Edge 90+等现代浏览器。不支持IE浏览器    
+    # 循环遍历：处理业务逻辑
+。"),
         
         ("Q6：分析结果可以修改吗？",
          "A：分析结果由AI自动生成，不支持直接修改。如需调整，可修改案件文本后重新分析。"),
@@ -959,17 +1204,20 @@ def build_chapter9(styles) -> list:
          "可配置PostgreSQL并启用SSL加密。"),
     ]
     
+    # 遍历: for q, a in faqs:
     for q, a in faqs:
         elements.append(Paragraph(f"<b>{q}</b>", styles['Heading3Custom']))
         elements.append(Paragraph(a, styles['BodyTextCustom']))
         elements.append(Spacer(1, 0.3 * cm))
     
     elements.append(PageBreak())
+    # 返回处理结果
     return elements
 
 
 def build_chapter10(styles) -> list:
     """第10章 错误码表"""
+    # 初始化变量 elements
     elements = []
     
     elements.append(Paragraph("第10章 错误码表", styles['Heading1Custom']))
@@ -1003,6 +1251,7 @@ def build_chapter10(styles) -> list:
         ["SYS_003", "缓存服务异常", "检查缓存配置"],
     ]
     
+    # 初始化变量 error_table
     error_table = Table(error_data, colWidths=[2.5 * cm, 4.5 * cm, 8 * cm])
     error_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -1027,6 +1276,7 @@ def build_chapter10(styles) -> list:
         styles['BodyTextCustom']
     ))
     
+    # 返回处理结果
     return elements
 
 
@@ -1044,12 +1294,19 @@ def generate_user_manual():
     # 创建文档
     doc = SimpleDocTemplate(
         str(OUTPUT_FILE),
+        # 初始化变量 pagesize
         pagesize=A4,
+        # 初始化变量 leftMargin
         leftMargin=LEFT_MARGIN,
+        # 初始化变量 rightMargin
         rightMargin=RIGHT_MARGIN,
+        # 初始化变量 topMargin
         topMargin=TOP_MARGIN,
+        # 初始化变量 bottomMargin
         bottomMargin=BOTTOM_MARGIN,
+        # 初始化变量 title
         title="帮信罪主观明知分析系统 - 用户手册",
+        # 初始化变量 author
         author="系统开发团队",
     )
     
@@ -1078,15 +1335,24 @@ def generate_user_manual():
     doc.build(elements, onFirstPage=add_header_footer, onLaterPages=add_header_footer)
     
     print(f"[OK] 用户手册已生成: {OUTPUT_FILE}")
-    print(f"  文件大小: {OUTPUT_FILE.stat().st_size / 1024:.1f} KB")
+    print(f"  文件大小: {OUTPUT_FILE.stat().st_size 
+
+# 条件判断：处理业务逻辑
+/ 1024:.1f} KB")
     
+    # 返回处理结果
     return OUTPUT_FILE
 
 
-if __name__ == "__main__":
+i    # 异常处理：处理业务逻辑
+f __name__ == "__main__":
+    # 尝试执行可能抛出异常的代码
     try:
+        # 初始化变量 output_file
         output_file = generate_user_manual()
-        print(f"\n生成成功！输出文件: {output_file}")
+        print(f"\n生    # 捕获异常：处理业务逻辑
+成成功！输出文件: {output_file}")
+    # 捕获并处理异常
     except Exception as e:
         print(f"\n生成失败: {e}", file=sys.stderr)
         sys.exit(1)

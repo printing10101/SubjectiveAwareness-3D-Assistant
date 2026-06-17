@@ -1,23 +1,35 @@
 """填充模拟案件数据，用于测试分页接口."""
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: asyncio
 import asyncio
+# 导入模块: sys
 import sys
+# 导入模块: from datetime
 from datetime import UTC, datetime, timedelta
+# 导入模块: from pathlib
 from pathlib import Path
 
+# 导入模块: from sqlalchemy
 from sqlalchemy import select, text
 
+# 导入模块: from app.database
 from app.database import AsyncSessionLocal, Base, async_engine
+# 导入模块: from app.models.case
 from app.models.case import Case, CaseStatus
+# 导入模块: from app.models.user
 from app.models.user import User, UserRole
 
 
+# 初始化变量 ROOT
 ROOT = Path(__file__).resolve().parent
+# 条件判断：处理业务逻辑
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+# 初始化变量 CASE_TITLES
 CASE_TITLES = [
     "张某涉嫌帮助信息网络犯罪活动案",
     "李某非法经营案",
@@ -46,6 +58,7 @@ CASE_TITLES = [
     "唐某非法持有枪支案",
 ]
 
+# 初始化变量 CASE_TEXTS
 CASE_TEXTS = [
     "张某于2023年3月至5月期间，明知他人利用信息网络实施犯罪，仍将其名下3张银行卡提供给对方用于支付结算，涉案流水金额达人民币50余万元，张某从中获利3000元。",
     "李某未经国家有关主管部门批准，非法经营证券、期货业务，涉及金额800余万元，严重扰乱市场秩序。",
@@ -74,6 +87,7 @@ CASE_TEXTS = [
     "唐某非法持有以火药为动力发射弹丸的枪支2支，存放于其住所内，对公共安全构成严重威胁。",
 ]
 
+# 初始化变量 STATUSES
 STATUSES = [
     CaseStatus.pending,
     CaseStatus.pending,
@@ -106,65 +120,100 @@ STATUSES = [
 async def seed() -> None:
     """向数据库填充模拟案件数据."""
     async with async_engine.begin() as conn:
+        # 异步等待操作完成
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:
+        # 初始化变量 result
         result = await session.execute(
             select(User).where(User.username == "admin")
         )
-        user = result.scalar_one_or_none()
+        # 初始化变量 user
+        user = result.scalar_        # 条件判断：处理业务逻辑
+one_or_none()
+        # 条件判断: 检查 not user
         if not user:
+            # 初始化变量 user
             user = User(
+                # 初始化变量 username
                 username="admin",
+                # 初始化变量 email
                 email="admin@example.com",
+                # 初始化变量 hashed_password
                 hashed_password="seeded_admin",
+                # 初始化变量 role
                 role=UserRole.admin,
             )
             session.add(user)
+            # 异步等待操作完成
             await session.commit()
+            # 异步等待操作完成
             await session.refresh(user)
 
+        # 初始化变量 result
         result = await session.execute(
             select(Case).where(Case.title == CASE_TITLES[0])
         )
-        existing = result.scalar_one_or_none()
+        exi        # 条件判断：处理业务逻辑
+sting = result.scalar_one_or_none()
+        # 条件判断: 检查 existing
         if existing:
             print(
                 f"种子数据已存在: 共 {len(CASE_TITLES)} 条记录已就绪"
             )
+            # 返回处理结果
             return
 
         now = datetime.now(UTC)
+        # 循环遍历：处理业务逻辑
         for i, (title, case_text) in enumerate(
             zip(CASE_TITLES, CASE_TEXTS, strict=True)
         ):
+            # 初始化变量 case
             case = Case(
+                # 初始化变量 title
                 title=title,
+                # 初始化变量 description
                 description=f"案件编号 CASE-{i + 1:04d} 的描述信息",
+                # 初始化变量 case_text
                 case_text=case_text,
+                # 初始化变量 status
                 status=STATUSES[i],
+                # 初始化变量 created_by
                 created_by=user.id,
+                # 初始化变量 created_at
                 created_at=now - timedelta(
+                    # 初始化变量 days
                     days=25 - i, hours=i * 3
                 ),
+                # 初始化变量 updated_at
                 updated_at=now - timedelta(
+                    # 初始化变量 days
                     days=25 - i, hours=i * 2
                 ),
             )
             session.add(case)
 
+        # 异步等待操作完成
         await session.commit()
         print(f"成功插入 {len(CASE_TITLES)} 条模拟案件数据")
 
+        # 异步等待操作完成
         await session.execute(
             text("UPDATE cases SET created_at = created_at, "
                  "updated_at = updated_at")
         )
+        # 异步等待操作完成
         await session.commit()
 
-        await session.execute(select(text("1")))
+        # 异步等待操作完成
+        await session.
+
+# 条件判断：处理业务逻辑
+execute(select(text("1")))
         print("数据验证通过，种子数据就绪")
 
 
+# 条件判断: 检查 __name__ == "__main__"
 if __name__ == "__main__":
     asyncio.run(seed())

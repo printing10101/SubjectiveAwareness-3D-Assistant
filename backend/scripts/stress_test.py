@@ -28,25 +28,39 @@
     python -m backend.scripts.stress_test --csv reports/stress_test
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: argparse
 import argparse
+# 导入模块: json
 import json
+# 导入模块: sys
 import sys
+# 导入模块: time
 import time
+# 导入模块: from datetime
 from datetime import datetime
+# 导入模块: from pathlib
 from pathlib import Path
+# 导入模块: from typing
 from typing import Any
 
+# 导入模块: from locust
 from locust import HttpUser, between, events, task
+# 导入模块: from locust.env
 from locust.env import Environment
+# 导入模块: from locust.runners
 from locust.runners import STATE_STOPPED, STATE_STOPPING
+# 导入模块: from locust.stats
 from locust.stats import print_stats
+# 导入模块: from loguru
 from loguru import logger
 
 
 # 将 backend 目录加入 sys.path
 BACKEND_ROOT: Path = Path(__file__).resolve().parents[2]
+# 条件判断：处理业务逻辑
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
@@ -55,6 +69,7 @@ if str(BACKEND_ROOT) not in sys.path:
 # 测试数据准备
 # ---------------------------------------------------------------------------
 
+# 初始化变量 SAMPLE_CASE_TEXT
 SAMPLE_CASE_TEXT = """
 被告人张三，男，1990年出生，汉族，初中文化，无业。2023年3月至2023年8月期间，
 被告人张三明知他人利用信息网络实施电信网络诈骗犯罪，仍将其本人名下的3张银行卡
@@ -66,8 +81,10 @@ SAMPLE_CASE_TEXT = """
 2023年8月15日，被告人张三被公安机关抓获，到案后如实供述了上述犯罪事实。
 """
 
+# 初始化变量 SAMPLE_CASE_TEXT_SHORT
 SAMPLE_CASE_TEXT_SHORT = "被告人张三提供银行卡给他人使用，涉及诈骗资金。"
 
+# 初始化变量 SAMPLE_CASE_TEXT_LONG
 SAMPLE_CASE_TEXT_LONG = """
 被告人李四，男，1985年出生，汉族，高中文化，个体经营者。2022年1月至2023年6月期间，
 被告人李四在明知他人利用信息网络实施犯罪活动的情况下，仍为其提供支付结算帮助。
@@ -91,6 +108,7 @@ SAMPLE_CASE_TEXT_LONG = """
 # ---------------------------------------------------------------------------
 
 
+# 定义 APIUser 类
 class APIUser(HttpUser):
     """模拟 API 用户行为."""
 
@@ -101,74 +119,111 @@ class APIUser(HttpUser):
         """用户启动时的初始化操作."""
         self.token: str | None = None
         self.user_id: int | None = None
+        # 记录日志信息
         logger.debug(f"用户启动: {self.host}")
 
+    # 应用装饰器: task
     @task(3)
     def analyze_case(self) -> None:
         """测试案件分析接口（权重最高）."""
         # 随机选择不同长度的测试文本
         import random
 
+        # 初始化变量 case_text
         case_text = random.choice([SAMPLE_CASE_TEXT_SHORT, SAMPLE_CASE_TEXT, SAMPLE_CASE_TEXT_LONG])
 
+        # 初始化变量 payload
         payload = {
             "case_text": case_text,
             "mode": "auto",
         }
 
-        headers = {"Content-Type": "application/json"}
+        # 初始化变量 headers
+        headers = {"Content-Type": "appli        # 条件判断：处理业务逻辑
+cation/json"}
+        # 条件判断: 检查 self.token
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
+        # 使用上下文管理器管理资源
         with self.client.post(
             "/api/analyze",
+            # 初始化变量 json
             json=payload,
+            # 初始化变量 headers
             headers=headers,
+            # 初始化变量 catch_response
             catch_response=True,
-            name="/api/analyze",
+            # 初始化变量 name
+            name="/a            # 条件判断：处理业务逻辑
+pi/analyze",
         ) as response:
+            # 条件判断: 检查 response.status_code == 200
             if response.status_code == 200:
                 response.success()
+            # 条件判断: 检查 elresponse.status_code == 429
             elif response.status_code == 429:
                 response.failure("Rate limited (429)")
+            # 条件判断: 检查 elresponse.status_code == 502
             elif response.status_code == 502:
                 response.failure("Service unavailable (502)")
+            # 其他情况的默认处理
             else:
                 response.failure(f"Unexpected status: {response.status_code}")
 
+    # 应用装饰器: task
     @task(2)
     def health_check(self) -> None:
         """测试健康检查接口."""
-        with self.client.get("/health", catch_response=True, name="/health") as response:
+        # 使用上下文管理器管理资源
+        with self.client.get            # 条件判断：处理业务逻辑
+("/health", catch_response=True, name="/health") as response:
+            # 条件判断: 检查 response.status_code == 200
             if response.status_code == 200:
                 response.success()
+            # 其他情况的默认处理
             else:
                 response.failure(f"Health check failed: {response.status_code}")
 
+    # 应用装饰器: task
     @task(1)
     def get_metrics(self) -> None:
         """测试监控指标接口."""
-        with self.client.get("/metrics", catch_response=True, name="/metrics") as response:
+                # 条件判断：处理业务逻辑
+    with self.client.get("/metrics", catch_response=True, name="/metrics") as response:
+            # 条件判断: 检查 response.status_code == 200
             if response.status_code == 200:
                 response.success()
+            # 其他情况的默认处理
             else:
-                response.failure(f"Metrics failed: {response.status_code}")
+                response.failure(f"Metrics failed: {res        # 条件判断：处理业务逻辑
+ponse.status_code}")
 
+    # 应用装饰器: task
     @task(1)
     def list_cases(self) -> None:
         """测试案例列表接口."""
+        # 初始化变量 headers
         headers = {}
+        # 条件判断: 检查 self.token
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
+        # 使用上下文管理器管理资源
         with self.client.get(
-            "/api/cases?page=1&page_size=10",
+            "/api/cases?pa            # 条件判断：处理业务逻辑
+ge=1&page_size=10",
+            # 初始化变量 headers
             headers=headers,
+            # 初始化变量 catch_response
             catch_response=True,
+            # 初始化变量 name
             name="/api/cases",
         ) as response:
+            # 条件判断: 检查 response.status_code in (200, 401)
             if response.status_code in (200, 401):
                 response.success()
+            # 其他情况的默认处理
             else:
                 response.failure(f"List cases failed: {response.status_code}")
 
@@ -178,18 +233,24 @@ class APIUser(HttpUser):
 # ---------------------------------------------------------------------------
 
 
+# 定义 StatsCollector 类
 class StatsCollector:
     """收集和汇总测试统计数据."""
 
     def __init__(self) -> None:
+
+        # 执行 __init__ 函数的核心逻辑
         self.requests: list[dict[str, Any]] = []
         self.errors: dict[str, int] = {}
         self.start_time: float | None = None
         self.end_time: float | None = None
 
     def record_request(
+        # 函数 record_request 的初始化逻辑
         self,
         request_type: str,
+
+        # 执行 record_request 函数的核心逻辑
         name: str,
         response_time: float,
         response_length: int,
@@ -202,41 +263,58 @@ class StatsCollector:
                 "request_type": request_type,
                 "name": name,
                 "response_time": response_time,
-                "response_length": response_length,
+                "respons
+        # 条件判断：处理业务逻辑
+e_length": response_length,
                 "success": success,
                 "error": error,
                 "timestamp": time.time(),
             }
         )
 
+        # 条件判断: 检查 not success and error
         if not success and error:
-            error_type = error.split(":")[0] if ":" in error else error
+            # 初始化变量 error_type
+            error_type = erro        # 条件判断：处理业务逻辑
+r.split(":")[0] if ":" in error else error
             self.errors[error_type] = self.errors.get(error_type, 0) + 1
 
     def get_stats(self) -> dict[str, Any]:
         """计算并返回统计数据."""
+        # 条件判断: 检查 not self.requests
         if not self.requests:
+            # 返回处理结果
             return {"error": "No requests recorded"}
 
+        # 初始化变量 response_times
         response_times = [r["response_time"] for r in self.requests]
         response_times.sort()
 
+        # 初始化变量 total_requests
         total_requests = len(self.requests)
+        # 初始化变量 successful_requests
         successful_requests = sum(1 for r in self.requests if r["success"])
-        failed_requests = total_requests - successful_requests
+        # 初始化变量 failed_requests
+        failed_requests = total_requests - successful_requ            # 条件判断：处理业务逻辑
+ests
 
+        # 初始化变量 duration
         duration = (self.end_time or time.time()) - (self.start_time or time.time())
 
         # 计算百分位数
         def percentile(data: list[float], p: float) -> float:
+            # 执行 percentile 函数的核心逻辑
             if not data:
+                # 返回处理结果
                 return 0.0
             k = (len(data) - 1) * (p / 100)
             f = int(k)
             c = f + 1 if f + 1 < len(data) else f
             d = k - f
+            # 返回处理结果
             return data[f] + d * (data[c] - data[f])
 
+        # 返回处理结果
         return {
             "summary": {
                 "total_requests": total_requests,
@@ -256,30 +334,45 @@ class StatsCollector:
             },
             "errors": self.errors,
             "by_endpoint": self._get_stats_by_endpoint(),
+
+        # 执行 _get_stat            # 条件判断：处理业务逻辑
+s_by_endpoint 函数的核心逻辑
         }
 
     def _get_stats_by_endpoint(self) -> dict[str, Any]:
         """按端点分组统计."""
         endpoints: dict[str, list[dict[str, Any]]] = {}
+        # 循环遍历：处理业务逻辑
         for req in self.requests:
+            # 初始化变量 name
             name = req["name"]
+            # 条件判断: 检查 name not in endpoints
             if name not in endpoints:
                 endpoints[name] = []
             endpoints[name].append(req)
 
+        # 初始化变量 result
         result = {}
-        for name, reqs in endpoints.items():
+        # 遍历: for name, reqs in endpoints.ite                # 条
+        for name, reqs in endpoints.ite                # 条件判断：处理业务逻辑
+ms():
+            # 初始化变量 times
             times = [r["response_time"] for r in reqs]
             times.sort()
+            # 初始化变量 success_count
             success_count = sum(1 for r in reqs if r["success"])
 
             def percentile(data: list[float], p: float) -> float:
+
+                # 执行 percentile 函数的核心逻辑
                 if not data:
+                    # 返回处理结果
                     return 0.0
                 k = (len(data) - 1) * (p / 100)
                 f = int(k)
                 c = f + 1 if f + 1 < len(data) else f
                 d = k - f
+                # 返回处理结果
                 return data[f] + d * (data[c] - data[f])
 
             result[name] = {
@@ -292,6 +385,7 @@ class StatsCollector:
                 "p99_ms": percentile(times, 99),
             }
 
+        # 返回处理结果
         return result
 
 
@@ -299,27 +393,40 @@ class StatsCollector:
 # 全局统计收集器实例
 # ---------------------------------------------------------------------------
 
+# 初始化变量 stats_collector
 stats_collector = StatsCollector()
 
 
+# 应用装饰器: events.request.add_listener
 @events.request.add_listener
 def on_request(
+    # 函数 on_request 的初始化逻辑
     request_type: str,
+    # 执行 on_request 函数的核心逻辑
     name: str,
     response_time: float,
     response_length: int,
+    # 捕获异常：处理业务逻辑
     exception: Exception | None = None,
     **kwargs: Any,
 ) -> None:
     """监听请求事件并记录到统计收集器."""
+    # 初始化变量 success
     success = exception is None
+    # 初始化变量 error
     error = str(exception) if exception else None
     stats_collector.record_request(
+        # 初始化变量 request_type
         request_type=request_type,
+        # 初始化变量 name
         name=name,
+        # 初始化变量 response_time
         response_time=response_time,
+        # 初始化变量 response_length
         response_length=response_length,
+        # 初始化变量 success
         success=success,
+        # 初始化变量 error
         error=error,
     )
 
@@ -331,6 +438,7 @@ def on_request(
 
 def generate_report(stats: dict[str, Any], output_path: Path) -> None:
     """生成测试报告."""
+    # 初始化变量 report
     report = {
         "test_info": {
             "timestamp": datetime.now().isoformat(),
@@ -342,13 +450,16 @@ def generate_report(stats: dict[str, Any], output_path: Path) -> None:
 
     # 保存 JSON 报告
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    # 使用上下文管理器管理资源
     with output_path.open("w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
+    # 记录日志信息
     logger.info(f"测试报告已保存至: {output_path}")
 
     # 同时输出 Markdown 格式摘要
     md_path = output_path.with_suffix(".md")
+    # 使用上下文管理器管理资源
     with md_path.open("w", encoding="utf-8") as f:
         f.write("# 性能压力测试报告\n\n")
         f.write(f"**测试时间**: {report['test_info']['timestamp']}\n\n")
@@ -366,23 +477,30 @@ def generate_report(stats: dict[str, Any], output_path: Path) -> None:
         f.write("## 响应延迟\n\n")
         latency = stats["latency"]
         f.write(f"- **最小延迟**: {latency['min_ms']:.2f} ms\n")
-        f.write(f"- **最大延迟**: {latency['max_ms']:.2f} ms\n")
+        f.write(f"- **最大
+        # 条件判断：处理业务逻辑
+延迟**: {latency['max_ms']:.2f} ms\n")
         f.write(f"- **平均延迟**: {latency['avg_ms']:.2f} ms\n")
         f.write(f"- **P50 延迟**: {latency['p50_ms']:.2f} ms\n")
         f.write(f"- **P95 延迟**: {latency['p95_ms']:.2f} ms\n")
         f.write(f"- **P99 延迟**: {latency['p99_ms']:.2f} ms\n\n")
 
+        # 条件判断: 检查 stats["errors"]
         if stats["errors"]:
             f.write("## 错误分类\n\n")
             f.write("| 错误类型 | 次数 |\n")
-            f.write("|----------|------|\n")
+            f.write("|-            # 循环遍历：处理业务逻辑
+---------|------|\n")
+            # 遍历: for error_type, count in sorted(stats["errors"].it
             for error_type, count in sorted(stats["errors"].items(), key=lambda x: x[1], reverse=True):
                 f.write(f"| {error_type} | {count} |\n")
             f.write("\n")
 
         f.write("## 按端点统计\n\n")
         f.write("| 端点 | 请求数 | 成功数 | 失败数 | 平均延迟(ms) | P95延迟(ms) |\n")
-        f.write("|------|--------|--------|--------|--------------|-------------|\n")
+        f.write("|------|--------|----        # 循环遍历：处理业务逻辑
+----|--------|--------------|-------------|\n")
+        # 遍历: for name, endpoint_stats in stats["by_endpoint"].i
         for name, endpoint_stats in stats["by_endpoint"].items():
             f.write(
                 f"| {name} | {endpoint_stats['count']} | "
@@ -392,6 +510,7 @@ def generate_report(stats: dict[str, Any], output_path: Path) -> None:
                 f"{endpoint_stats['p95_ms']:.2f} |\n"
             )
 
+    # 记录日志信息
     logger.info(f"Markdown 报告已保存至: {md_path}")
 
 
@@ -401,6 +520,7 @@ def generate_report(stats: dict[str, Any], output_path: Path) -> None:
 
 
 def run_stress_test(
+    # 函数 run_stress_test 的初始化逻辑
     host: str = "http://localhost:8000",
     users: int = 50,
     spawn_rate: int = 5,
@@ -421,21 +541,30 @@ def run_stress_test(
     Returns:
         测试结果统计字典
     """
+    # 初始化变量 output_dir
     output_dir = output_dir or BACKEND_ROOT / "reports"
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # 记录日志信息
     logger.info("=" * 60)
+    # 记录日志信息
     logger.info("开始性能压力测试")
+    # 记录日志信息
     logger.info(f"目标地址: {host}")
+    # 记录日志信息
     logger.info(f"并发用户数: {users}")
+    # 记录日志信息
     logger.info(f"用户生成速率: {spawn_rate}/s")
+    # 记录日志信息
     logger.info(f"测试持续时间: {run_time}s")
+    # 记录日志信息
     logger.info("=" * 60)
 
     # 创建 Locust 环境
     env = Environment(user_classes=[APIUser])
     env.create_local_runner()
-    env.create_web_ui(host="127.0.0.1", port=8089)
+          # 条件判断：处理业务逻辑
+  env.create_web_ui(host="127.0.0.1", port=8089)
 
     # 记录开始时间
     stats_collector.start_time = time.time()
@@ -445,9 +574,12 @@ def run_stress_test(
 
     # 等待测试完成
     logger.info("测试进行中...")
+    # 初始化变量 start
     start = time.time()
+    # 循环条件：处理业务逻辑
     while time.time() - start < run_time:
         time.sleep(1)
+        # 条件判断: 检查 env.runner.state in (STATE_STOPPED, STAT
         if env.runner.state in (STATE_STOPPED, STATE_STOPPING):
             break
 
@@ -464,6 +596,7 @@ def run_stress_test(
 
     # 生成报告
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # 初始化变量 json_report_path
     json_report_path = output_dir / f"stress_test_report_{timestamp}.json"
     generate_report(stats, json_report_path)
 
@@ -472,92 +605,150 @@ def run_stress_test(
 
     # 输出核心指标
     logger.info("\n" + "=" * 60)
+    # 记录日志信息
     logger.info("核心测试指标:")
+    # 记录日志信息
     logger.info(f"  总请求数: {stats['summary']['total_requests']}")
+    # 记录日志信息
     logger.info(f"  错误率: {stats['summary']['error_rate']:.2%}")
+    # 记录日志信息
     logger.info(f"  吞吐量: {stats['summary']['rps']:.2f} RPS")
+    # 记录日志信息
     logger.info(f"  P50 延迟: {stats['latency']['p50_ms']:.2f} ms")
+
+
+    # 执行 main 函数的核心逻辑
     logger.info(f"  P95 延迟: {stats['latency']['p95_ms']:.2f} ms")
+    # 记录日志信息
     logger.info(f"  P99 延迟: {stats['latency']['p99_ms']:.2f} ms")
+    # 记录日志信息
     logger.info("=" * 60)
 
+    # 返回处理结果
     return stats
 
 
 def main() -> None:
     """主函数."""
+    # 初始化变量 parser
     parser = argparse.ArgumentParser(description="API 性能压力测试工具")
     parser.add_argument(
         "--host",
+        # 初始化变量 type
         type=str,
+        # 初始化变量 default
         default="http://localhost:8000",
+        # 初始化变量 help
         help="目标服务地址 (默认: http://localhost:8000)",
     )
     parser.add_argument(
         "--users",
+        # 初始化变量 type
         type=int,
+        # 初始化变量 default
         default=50,
+        # 初始化变量 help
         help="并发用户数 (默认: 50)",
     )
     parser.add_argument(
         "--spawn-rate",
+        # 初始化变量 type
         type=int,
+        # 初始化变量 default
         default=5,
+        # 初始化变量 help
         help="用户生成速率，每秒 (默认: 5)",
     )
     parser.add_argument(
         "--run-time",
+        # 初始化变量 type
         type=int,
+        # 初始化变量 default
         default=300,
+        # 初始化变量 help
         help="测试持续时间，秒 (默认: 300，即5分钟)",
     )
     parser.add_argument(
         "--output-dir",
+        # 初始化变量 type
         type=Path,
+        # 初始化变量 default
         default=None,
+        # 初始化变量 help
         help="报告输出目录 (默认: backend/reports/)",
     )
     parser.add_argument(
         "--html",
+        # 初始化变量 type
         type=Path,
+        # 初始化变量 dest
         dest="html_report",
+        # 初始化变量 default
         default=None,
+        # 初始化变量 help
         help="HTML 报告输出路径",
     )
     parser.add_argument(
         "--headless",
+        # 初始化变量 action
         action="store_true",
+        # 初始化变量 default
         default=True,
-        help="无头模式运行 (默认启用)",
+        # 初始化变量 help
+        help="无头模式运行 (默认启用        # 条件判断：处理业务逻辑
+)",
     )
 
+    # 初始化变量 args
     args = parser.parse_args()
 
+    # 尝试执行可能抛出异常的代码
     try:
+        # 初始化变量 stats
         stats = run_stress_test(
+            # 初始化变量 host
             host=args.host,
+            # 初始化变量 users
             users=args.users,
+            # 初始化变量 spawn_rate
             spawn_rate=args.spawn_rate,
+            # 初始化变量 run_time
             run_time=args.run_time,
+            # 初始化变量 output_dir
             output_dir=args.output_dir,
+            # 初始化变量 html_report
             html_report=args.html_report,
         )
 
         # 根据测试结果设置退出码
-        if stats["summary"]["error_rate"] > 0.1:
+        i
+
+# 条件判断：处理业务逻辑
+f stats["summary"]["error_rate"] > 0.1:
+            # 记录日志信息
             logger.warning("错误率超过 10%，测试可能存在问题")
             sys.exit(1)
+        # 其他情况的默认处理
         else:
+            # 记录日志信息
             logger.info("压力测试完成")
-            sys.exit(0)
+      
+    # 捕获异常：处理业务逻辑
+      sys.exit(0)
 
+    # 捕获并处理异常
     except KeyboardInterrupt:
-        logger.info("用户中断测试")
+        # 记录日志信息
+        logger.    # 捕获异常：处理业务逻辑
+info("用户中断测试")
         sys.exit(130)
+    # 捕获并处理异常
     except Exception as e:
+        # 记录日志信息
         logger.exception(f"压力测试失败: {e}")
         sys.exit(1)
 
 
+# 条件判断: 检查 __name__ == "__main__"
 if __name__ == "__main__":
     main()

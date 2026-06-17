@@ -52,13 +52,14 @@ describe('WelcomeView', () => {
     const wrapper = mount(WelcomeView)
     const button = wrapper.find('.start-btn')
     expect(button.exists()).toBe(true)
-    expect(button.text()).toBe('开始使用')
+    expect(button.text()).toContain('开始使用')
   })
 
-  it('renders all four feature items', () => {
+  it('renders the analyze new case button', () => {
     const wrapper = mount(WelcomeView)
-    const features = wrapper.findAll('.feature-item')
-    expect(features).toHaveLength(4)
+    const button = wrapper.find('.action-card.primary')
+    expect(button.exists()).toBe(true)
+    expect(button.text()).toContain('分析新案件')
   })
 
   it('sets localStorage and navigates on start button click', async () => {

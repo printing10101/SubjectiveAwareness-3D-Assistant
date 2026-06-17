@@ -1,18 +1,49 @@
+"""config - 系统模块.
+
+本模块为帮信罪主观明知智能分析系统的组成部分。
+提供系统运行所需的核心功能和基础支持。
+
+模块功能：
+    - 实现特定的业务功能或技术支持
+    - 与其他模块协作完成系统任务
+    - 提供可复用的接口和工具方法
+    - 确保系统稳定性和可维护性
+
+技术栈：Python 3.10+, FastAPI, SQLAlchemy
+项目版本：V1.0.0
+
+# 应用装饰器: author 帮信罪智能分析系统开发团队
+@author 帮信罪智能分析系统开发团队
+# 应用装饰器: version 1.0.0
+@version 1.0.0
+"""
+
+# 导入模块: from pathlib
+from pathlib import Path
+
+# 导入模块: logging
 import logging
+# 导入模块: os
 import os
+# 导入模块: secrets
 import secrets
+# 导入模块: warnings
 import warnings
 
+# 导入模块: from pydantic
 from pydantic import model_validator
+# 导入模块: from pydantic_settings
 from pydantic_settings import BaseSettings
 
 
+# 初始化变量 logger
 logger = logging.getLogger(__name__)
 
 _MIN_ENCRYPTION_KEY_LENGTH = 32
 _MIN_PASSWORD_LENGTH = 10
 
 
+# 定义 AnalysisConfig 类
 class AnalysisConfig:
     """分析相关常量配置，统一管理所有硬编码数值.
 
@@ -206,6 +237,7 @@ class AnalysisConfig:
     KNOWLEDGE_LINT_SCHEDULE_INTERVAL: int = 604800  # 7天
 
 
+# 定义 Settings 类
 class Settings(BaseSettings):
     """Application settings loaded from environment and .env file."""
 
@@ -213,6 +245,15 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "deepseek-r1:7b"
     OLLAMA_UPSTREAM_URL: str = "http://localhost:11434"
+    OLLAMA_ENABLED: bool = False  # V1专业版默认使用 DeepSeek 云端/规则化兜底，不启动本地推理引擎
+
+    # DeepSeek API configuration
+    DEEPSEEK_API_KEY: str = ""  # DeepSeek API 密钥，从 https://platform.deepseek.com/ 获取
+    DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
+    DEEPSEEK_MODEL: str = "deepseek-chat"
+    DEEPSEEK_TEMPERATURE: float = 0.2
+    DEEPSEEK_TIMEOUT: float = 120.0
+    DEEPSEEK_ENABLED: bool = True  # DeepSeek 功能开关，未配置 API Key 时自动降级
 
     # Server configuration
     SERVER_HOST: str = "0.0.0.0"  # noqa: S104
@@ -356,8 +397,13 @@ class Settings(BaseSettings):
             if h.strip()
         ]
 
-    model_config = {"env_file": ".env", "case_sensitive": True}
+    # 初始化变量 model_config
+    model_config = {
+        "env_file": str(Path(__file__).parent.parent / ".env"),
+        "case_sensitive": True
+    }
 
+    # 应用装饰器: model_validator
     @model_validator(mode='after')
     def _validate_security_settings(self) -> "Settings":
         self._validate_jwt()
@@ -369,7 +415,6 @@ class Settings(BaseSettings):
     def _validate_admin_password(self) -> None:
         """验证默认管理员密码安全性."""
         if not self.DEFAULT_ADMIN_PASSWORD:
-            # 空密码时自动生成随机密码
             generated_password = secrets.token_urlsafe(16)
             self.DEFAULT_ADMIN_PASSWORD = generated_password
             logger.warning(
@@ -381,7 +426,6 @@ class Settings(BaseSettings):
             )
             return
 
-        # 检查弱密码
         weak_passwords = {
             "admin123", "password", "123456", "admin", "root",
             "test", "demo", "default", "changeme", "letmein",
@@ -427,6 +471,7 @@ class Settings(BaseSettings):
             raise RuntimeError(msg)
 
     def _validate_jwt(self) -> None:
+        """验证 JWT 密钥安全性."""
         default_placeholder = (
             "change-this-to-a-secure-random-secret-key-in-production"
         )
@@ -465,6 +510,7 @@ class Settings(BaseSettings):
             )
 
     def _validate_encryption_key(self) -> None:
+        """验证加密密钥安全性."""
         encryption_key = self.ENCRYPTION_KEY
         derive_key = self.ENCRYPTION_KEY_DERIVE
 
@@ -518,4 +564,5 @@ class Settings(BaseSettings):
         )
 
 
+# 初始化变量 settings
 settings = Settings()
