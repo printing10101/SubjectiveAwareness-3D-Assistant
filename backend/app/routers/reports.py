@@ -160,7 +160,7 @@ async def generate_report_endpoint(
                 # 初始化变量 content_json
                 content_json=report_content,
                 # 初始化变量 version
-                version="1.2.0",
+                version="1.1.0",
             )
             db.add(report)
             # 异步等待操作完成

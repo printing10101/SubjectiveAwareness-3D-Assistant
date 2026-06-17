@@ -326,7 +326,7 @@ def _add_pdf_metadata(
     # 初始化变量 metadata
     metadata = report_content.get("metadata", {})
     # 初始化变量 version
-    version = report_content.get("version", "1.2.0")
+    version = report_content.get("version", "1.1.0")
 
     page.insert_text(
         (x, y),
@@ -583,7 +583,7 @@ cx 函数的核心逻辑
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # 添加报告元信息
-    version = report_content.get("version", "1.2.0")
+    version = report_content.get("version", "1.1.0")
     # 初始化变量 meta_para
     meta_para = doc.add_paragraph()
     meta_para.alignment = WD_ALIGN_PARAGRAPH.CENTER

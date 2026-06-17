@@ -179,7 +179,7 @@ def verify_report_json():
     report = generate_report(analysis_result, case)
     
     print("\n[1/4] 验证报告版本")
-    assert report["version"] == "1.2.0", f"报告版本错误: {report['version']}"
+    assert report["version"] == "1.1.0", f"报告版本错误: {report['version']}"
     print(f"[OK] 报告版本: {report['version']}")
     
     print("\n[2/4] 验证新增字段存在")

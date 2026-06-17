@@ -443,7 +443,7 @@ class TestGenerateReport:
         # 初始化变量 report
         report = generate_report(sample_analysis_v2, mock_case)
         assert report["case_id"] == mock_case.id
-        assert report["version"] == "1.2.0"
+        assert report["version"] == "1.1.0"
         assert "generated_at" in report
         assert report["metadata"]["total_chapters"] == 10
 

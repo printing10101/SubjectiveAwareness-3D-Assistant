@@ -434,11 +434,11 @@ class TestReportVersion:
         # 函数 test_report_version_is_1_2_0 的初始化逻辑
         self, mock_case, sample_analysis_v2_with_new_fields
     ):
-        """测试报告版本号为 1.2.0."""
+        """测试报告版本号为 1.1.0."""
         # 初始化变量 report
         report = generate_report(sample_analysis_v2_with_new_fields, mock_case)
         
-        assert report["version"] == "1.2.0"
+        assert report["version"] == "1.1.0"
 
 
 # ---------------------------------------------------------------------------

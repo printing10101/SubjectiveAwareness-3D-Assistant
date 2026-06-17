@@ -519,7 +519,7 @@ onMounted(() => {
       <div class="report-header">
         <div class="header-left">
           <h1 class="report-title">帮信罪辅助裁定分析报告</h1>
-          <span class="report-version">v1.0.0</span>
+          <span class="report-version">V1.1.0</span>
         </div>
         <div class="header-actions">
           <button

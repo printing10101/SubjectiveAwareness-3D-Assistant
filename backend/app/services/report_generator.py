@@ -926,7 +926,7 @@ def generate_report(
         "report_id": None,  # 将在保存时设置
         "case_id": case.id,
         "generated_at": generated_at.isoformat(),
-        "version": "1.2.0",
+        "version": "1.1.0",
         "chapters": {ch["chapter_id"]: ch for ch in chapters},
         "metadata": {
             "total_chapters": len(chapters),

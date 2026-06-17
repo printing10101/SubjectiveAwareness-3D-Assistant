@@ -287,7 +287,7 @@ app = FastAPI(
     # 初始化变量 title
     title="Case Analysis API",
     # 初始化变量 version
-    version="1.2.0",
+    version="1.1.0",
     # 初始化变量 description
     description=_OPENAPI_DESCRIPTION,
     # 初始化变量 lifespan
