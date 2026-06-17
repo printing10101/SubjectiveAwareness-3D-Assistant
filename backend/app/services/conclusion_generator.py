@@ -19,28 +19,44 @@
 
 典型用法：
 
+    # 导入模块: from app.services.conclusion_generator
     from app.services.conclusion_generator import generate_conclusion
+    # 导入模块: from app.services.tier_combiner
     from app.services.tier_combiner import combine_tiers
 
+    # 初始化变量 verdict
     verdict = combine_tiers(d1, d2, d3, rule_hits=rules)
+    # 初始化变量 text
     text = await generate_conclusion(
+        # 初始化变量 verdict
         verdict=verdict,
+        # 初始化变量 rule_hits
         rule_hits=rules,
+        # 初始化变量 tags
         tags=tags,
+        # 初始化变量 case_text
         case_text=case,
     )
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: from collections.abc
 from collections.abc import Sequence
+# 导入模块: from typing
 from typing import Any
 
+# 导入模块: from loguru
 from loguru import logger
 
+# 导入模块: from app.services.prompts
 from app.services.prompts import CONCLUSION_GENERATION_PROMPT
+# 导入模块: from app.services.rule_engine
 from app.services.rule_engine import Rule
+# 导入模块: from app.services.tag_extractor
 from app.services.tag_extractor import TagMatch
+# 导入模块: from app.types.analysis_v2
 from app.types.analysis_v2 import FinalVerdict, TierEnum
 
 
@@ -81,16 +97,24 @@ def _format_rule_hits(rule_hits: Sequence[Rule] | None) -> str:
     Returns:
         人类可读的规则摘要字符串.
     """
+    # 条件判断：处理业务逻辑
     if not rule_hits:
+        # 返回处理结果
         return "（无规则命中）"
 
     lines: list[str] = []
+    # 循环遍历：处理业务逻辑
     for r in rule_hits:
+        # 初始化变量 weight
         weight = f"{r.weight:.2f}" if isinstance(r.weight, (int, float)) else "n/a"
+        # 初始化变量 conclusion
         conclusion = (r.conclusion or "").strip()
+        # 初始化变量 article
         article = (r.article or "").strip()
+        # 初始化变量 suffix
         suffix = f" | 条款：{article}" if article else ""
         lines.append(f"- {r.rule_id} {r.name} (weight={weight}): {conclusion}{suffix}")
+    # 返回处理结果
     return "\n".join(lines)
 
 
@@ -101,38 +125,61 @@ def _format_tags(tags: Sequence[TagMatch] | None) -> str:
         tags: 命中的标签列表.
 
     Returns:
-        人类可读的标签摘要字符串.
+        人类可读    # 条件判断：处理业务逻辑
+的标签摘要字符串.
     """
+    # 条件判断: 检查 not tags
     if not tags:
+        # 返回处理结果
         return "（无标签命中）"
 
-    lines: list[str] = []
+    line    # 循环遍历：处理业务逻辑
+s: list[str] = []
+    # 遍历: for m in tags:
     for m in tags:
+        # 初始化变量 conf
         conf = f"{m.confidence:.2f}" if isinstance(m.confidence, (int, float)) else "n/a"
+        # 初始化变量 text
         text = (m.matched_text or "").strip()[:60]
         lines.append(f"- {m.tag_id} ({m.match_type}, conf={conf}): {text}")
+    # 返回处理结果
     return "\n".join(lines)
 
 
 def _format_conflicts(conflicts: Sequence[Any] | None) -> str:
     """把冲突列表格式化为 prompt 注入片段.
 
-    支持传入 :class:`Conflict` 或 :class:`dict` 两种形态.
+    支持传入 :class:`Conf    # 条件判断：处理业务逻辑
+lict` 或 :class:`dict` 两种形态.
     """
+    # 条件判断: 检查 not conflicts
     if not conflicts:
-        return "（无冲突）"
+        # 返回处理结果
+        return "（无冲突        # 条件判断：处    # 循环遍历：处理业务逻辑
+理业务逻辑
+）"
 
     lines: list[str] = []
+    # 遍历: for c in conflicts:
     for c in conflicts:
+        # 条件判断: 检查 isinstance(c, dict)
         if isinstance(c, dict):
+            # 初始化变量 check_id
             check_id = c.get("check_id", "?")
+            # 初始化变量 name
             name = c.get("name", "")
+            # 初始化变量 severity
             severity = c.get("severity", "")
+        # 其他情况的默认处理
         else:
+            # 初始化变量 check_id
             check_id = getattr(c, "check_id", "?")
+            # 初始化变量 name
             name = getattr(c, "name", "")
+            # 初始化变量 severity
             severity = getattr(c, "severity", "")
         lines.append(f"- {check_id} ({severity}): {name}")
+    # 返回处理结果
     return "\n".join(lines)
 
 
@@ -142,6 +189,7 @@ def _format_conflicts(conflicts: Sequence[Any] | None) -> str:
 
 
 async def generate_conclusion(
+    # 函数 generate_conclusion 的初始化逻辑
     verdict: FinalVerdict,
     rule_hits: Sequence[Rule] | None = None,
     tags: Sequence[TagMatch] | None = None,
@@ -149,6 +197,7 @@ async def generate_conclusion(
     *,
     dimension_tiers: dict[str, str] | None = None,
     conflicts: Sequence[Any] | None = None,
+    evidence_report: Any | None = None,
     temperature: float = 0.2,
 ) -> str:
     """生成三段论结论文本.
@@ -169,64 +218,105 @@ async def generate_conclusion(
         本函数在 LLM 不可用 / 抛错时会自动降级为模板化结论，确保调用方
         始终拿到非空字符串。
     """
+    # 初始化变量 rules
     rules = list(rule_hits) if rule_hits else []
+    # 初始化变量 tag_list
     tag_list = list(tags) if tags else []
+    # 初始化变量 conflict_list
     conflict_list = list(conflicts) if conflicts else []
 
     # ------------------------------------------------------------------
     # 构造 prompt
     # ------------------------------------------------------------------
     final_tier = verdict.get("final_tier", TierEnum.T2.value)
+    # 初始化变量 final_label
     final_label = verdict.get("final_label", "二档（情节一般）")
+    # 初始化变量 sentence_band
     sentence_band = verdict.get(
         "sentence_band",
         "三年以下有期徒刑，并处罚金",
     )
+    # 初始化变量 combination_rule
     combination_rule = verdict.get("combination_rule", "BASE_FALLBACK")
 
+    # 初始化变量 dims
     dims = dimension_tiers or {}
+    # 初始化变量 dim1_t
     dim1_t = dims.get("dimension1", "T2")
+    # 初始化变量 dim2_t
     dim2_t = dims.get("dimension2", "T2")
+    # 初始化变量 dim3_t
     dim3_t = dims.get("dimension3", "T2")
 
+    # 初始化变量 formatted_rules
     formatted_rules = _format_rule_hits(rules)
+    # 初始化变量 formatted_tags
     formatted_tags = _format_tags(tag_list)
-    formatted_conflicts = _format_conflicts(conflict_list)
+    # 初始化变量 formatted_conflicts
+    formatted_conflicts = _format_conflicts(conflict_li    # 条件判断：处理业务逻辑
+st)
 
     # 截断案件原文，避免 prompt 过长
     case_excerpt = (case_text or "").strip()
+    # 条件判断: 检查 len(case_excerpt) > 1500
     if len(case_excerpt) > 1500:
+        # 初始化变量 case_excerpt
         case_excerpt = case_excerpt[:1500] + "..."
 
+    # 初始化变量 prompt
     prompt = CONCLUSION_GENERATION_PROMPT.format(
+        # 初始化变量 case_text
         case_text=case_excerpt or "（无案件原文）",
+        # 初始化变量 matched_tags
         matched_tags=formatted_tags,
+        # 初始化变量 triggered_rules
         triggered_rules=formatted_rules,
+        # 初始化变量 final_tier
         final_tier=final_tier,
+        # 初始化变量 final_label
         final_label=final_label,
+        # 初始化变量 sentence_band
         sentence_band=sentence_band,
+        # 初始化变量 dim1_tier
         dim1_tier=dim1_t,
+        # 初始化变量 dim2_tier
         dim2_tier=dim2_t,
+        # 初始化变量 dim3_tier
         dim3_tier=dim3_t,
+        # 初始化变量 conflicts
         conflicts=formatted_conflicts,
     )
 
     # ------------------------------------------------------------------
     # 调用 LLM（带降级）
-    # ------------------------------------------------------------------
+    # -------------------------------------------------------------        # 条件判断：处理业务逻辑
+-----
+    # 异常处理：处理业务逻辑
     try:
-        text = await _call_llm_for_conclusion(prompt, temperature=temperature)
+        # 初始化变量 text
+        text = await _call_llm_for_conclusion(pr            # 条件判断：处理业务逻辑
+ompt, temperature=temperature)
+        # 条件判断: 检查 text and text.strip()
         if text and text.strip():
+            # 初始化变量 cleaned
             cleaned = _clean_conclusion_text(text)
+            # 条件判断: 检查 cleaned
             if cleaned:
+                # 返回处理结果
                 return cleaned
+    # 捕获并处理异常
     except Exception as exc:  # noqa: BLE001
         logger.warning(f"LLM 结论生成失败，使用模板化兜底: {exc}")
 
+    # 返回处理结果
     return _build_fallback_conclusion(
+        # 初始化变量 verdict
         verdict=verdict,
+        # 初始化变量 rule_hits
         rule_hits=rules,
+        # 初始化变量 tags
         tags=tag_list,
+        # 初始化变量 combination_rule
         combination_rule=combination_rule,
     )
 
@@ -239,23 +329,30 @@ async def generate_conclusion(
 async def _call_llm_for_conclusion(prompt: str, *, temperature: float) -> str:
     """调用 LLM 生成结论文本.
 
-    默认通过 :func:`app.services.ollama_client.call_ollama_with_retry` 调用本地
+    默认通过 :func:`app.services.ollama_client.call_o    # 条件判断：处理业务逻辑
+llama_with_retry` 调用本地
     Ollama；测试场景下可通过 :func:`register_conclusion_llm_callable` 注入
     自定义实现。
     """
     global _conclusion_llm_callable
+    # 条件判断: 检查 _conclusion_llm_callable is not None
     if _conclusion_llm_callable is not None:
+        # 返回处理结果
         return await _conclusion_llm_callable(prompt, temperature=temperature)
 
+    # 导入模块: from app.services.ollama_client
     from app.services.ollama_client import call_ollama_with_retry  # 延迟导入
 
+    # 返回处理结果
     return await call_ollama_with_retry(
         prompt,
+        # 初始化变量 system_prompt
         system_prompt=(
             "你是一位严谨的帮信罪案件结论生成助手。"
             "请严格按三段论结构输出结论文本，"
             "不输出 JSON、不输出 Markdown 代码块。"
         ),
+        # 初始化变量 temperature
         temperature=temperature,
     )
 
@@ -284,35 +381,56 @@ def reset_conclusion_llm_callable() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _clean_conclusion_text(text: str) -> str:
+def _clean_conclusion_text(te    # 条件判断：处理业务逻辑
+    # 函数 _clean_conclusion_text 的初始化逻辑
+xt: str) -> str:
     """清洗 LLM 返回的结论文本.
 
-    1. 去除首尾空白。
+      # 条件判断：处理业务逻辑
+  1. 去除首尾空白。
     2. 去掉 markdown 代码块包裹。
-    3. 限制最大长度（截断到 _FALLBACK_TEXT_MAX 字以内）。
+    3. 限制最大长度（截        # 条件判断：处理业务逻辑
+断到 _FALLBACK_TEXT_MAX 字以内）。
     """
+    # 初始化变量 cleaned
     cleaned = text.strip()
+    # 条件判断: 检查 not cleaned
     if not cleaned:
+        # 返回处理结果
         return ""
 
     # 去除 ```...``` 包裹
-    if cleaned.startswith("```"):
+    
+    # 条件判断：处理业务逻辑
+if cleaned.startswith("```"):
+        # 初始化变量 first_nl
         first_nl = cleaned.find("\n")
+        # 条件判断: 检查 first_nl != -1
         if first_nl != -1:
+            # 初始化变量 cleaned
             cleaned = cleaned[first_nl + 1 :]
+        # 初始化变量 cleaned
         cleaned = cleaned.removesuffix("```")
 
+    # 初始化变量 cleaned
     cleaned = cleaned.strip()
 
+    # 条件判断: 检查 len(cleaned) > _FALLBACK_TEXT_MAX
     if len(cleaned) > _FALLBACK_TEXT_MAX:
+        # 初始化变量 cleaned
         cleaned = cleaned[:_FALLBACK_TEXT_MAX] + "..."
 
+    # 返回处理结果
     return cleaned
 
 
 def _build_fallback_conclusion(
+    # 函数 _build_fallback_conclusion 的初始化逻辑
     *,
     verdict: FinalVerdict,
+
+
+    # 执行 _build_fallback_conclusion 函数的核心逻辑
     rule_hits: list[Rule],
     tags: list[TagMatch],
     combination_rule: str,
@@ -321,27 +439,40 @@ def _build_fallback_conclusion(
 
     仍然按"三段论"结构组织：事实（已抽标签）、规则（已命中）、结论（档级）。
     """
+    # 初始化变量 final_tier
     final_tier = verdict.get("final_tier", "T2")
-    final_label = verdict.get("final_label", "二档（情节一般）")
+    # 初始化变量 final_label
+    final_label = verdict.get("final_label"        # 条件判断：处理业务逻辑
+, "二档（情节一般）")
+    # 初始化变量 sentence_band
     sentence_band = verdict.get(
         "sentence_band",
-        "三年以下有期徒刑，并处罚金",
+        "三年以下有期徒刑，并    # 循环遍历：处理业务逻辑
+处罚金",
     )
 
     # 事实段
     fact_parts: list[str] = []
+    # 遍历: for t in tags[:_FALLBACK_TAG_TOP_N]:
     for t in tags[:_FALLBACK_TAG_TOP_N]:
+        # 初始化变量 text
         text = (t.matched_text or "").strip()[:40]
+        # 条件判断: 检查 text
         if text:
             fact_parts.append(f"{t.tag_id}（{text}）")
-    fact_str = "、".join(fact_parts) if fact_parts else "未抽取到具体事实标签"
+    # 初始化变量 fact_str
+    fact_str = "、".join(fact_parts) if    # 循环遍历：处理业务逻辑
+ fact_parts else "未抽取到具体事实标签"
 
     # 规则段
     rule_parts: list[str] = []
+    # 遍历: for r in rule_hits[:_FALLBACK_RULE_TOP_N]:
     for r in rule_hits[:_FALLBACK_RULE_TOP_N]:
         rule_parts.append(f"{r.rule_id}（{r.name}）")
+    # 初始化变量 rule_str
     rule_str = "、".join(rule_parts) if rule_parts else "未命中具体规则"
 
+    # 初始化变量 text
     text = (
         f"【{_FALLBACK_TITLE}】\n\n"
         f"**一、事实认定**\n"
@@ -354,6 +485,7 @@ def _build_fallback_conclusion(
         f"建议量刑区间为：{sentence_band}。\n\n"
         f"⚠️ {_FALLBACK_DISCLAIMER}"
     )
+    # 返回处理结果
     return text
 
 

@@ -4,16 +4,22 @@
 所有数据库操作均使用异步 API。
 """
 
+# 导入模块: from math
 from math import ceil
 
+# 导入模块: from sqlalchemy
 from sqlalchemy import func, select
+# 导入模块: from sqlalchemy.ext.asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# 导入模块: from app.models.analysis
 from app.models.analysis import Analysis
+# 导入模块: from app.types.analysis
 from app.types.analysis import AnalysisReport
 
 
 async def list_reports(
+    # 函数 list_reports 的初始化逻辑
     db: AsyncSession,
     page: int = 1,
     page_size: int = 20,
@@ -28,23 +34,31 @@ async def list_reports(
     Returns:
         dict: 包含 total、page、page_size、total_pages、reports 的字典
     """
+    # 初始化变量 page
     page = max(1, page)
+    # 初始化变量 page_size
     page_size = min(max(1, page_size), 100)
 
+    # 初始化变量 count_result
     count_result = await db.execute(select(func.count(Analysis.id)))
     total: int = count_result.scalar() or 0
 
+    # 初始化变量 offset
     offset = (page - 1) * page_size
+    # 初始化变量 result
     result = await db.execute(
         select(Analysis)
         .order_by(Analysis.created_at.desc())
         .offset(offset)
         .limit(page_size)
     )
+    # 初始化变量 analyses
     analyses = list(result.scalars().all())
 
+    # 初始化变量 reports
     reports = [_format_analysis(a) for a in analyses]
 
+    # 返回处理结果
     return {
         "total": total,
         "page": page,
@@ -63,6 +77,7 @@ def _format_analysis(a: Analysis) -> AnalysisReport:
     Returns:
         AnalysisReport: 格式化后的字典
     """
+    # 返回处理结果
     return {
         "id": a.id if a.id is not None else 0,
         "case_id": int(a.case_id) if a.case_id is not None else None,

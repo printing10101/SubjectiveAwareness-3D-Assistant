@@ -4,19 +4,30 @@
 整合全文搜索、LLM 生成和事实核查，确保回答准确、可追溯。
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: re
 import re
+# 导入模块: time
 import time
+# 导入模块: from typing
 from typing import Any
 
+# 导入模块: from loguru
 from loguru import logger
+# 导入模块: from sqlalchemy.ext.asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# 导入模块: from app.models.knowledge_entry
 from app.models.knowledge_entry import EntryStatus, KnowledgeEntry
+# 导入模块: from app.services.knowledge_search_service
 from app.services.knowledge_search_service import ensure_fts_table, search_entries
+# 导入模块: from app.services.knowledge_service
 from app.services.knowledge_service import get_entry
+# 导入模块: from app.services.ollama_client
 from app.services.ollama_client import OllamaClient, get_client
+# 导入模块: from app.services.prompts
 from app.services.prompts import KNOWLEDGE_QA_PROMPT
 
 
@@ -50,6 +61,7 @@ _MAX_CONTENT_PREVIEW_LENGTH: int = 1500
 _MIN_VALIDATION_THRESHOLD: float = 0.5
 
 
+# 定义 KnowledgeQAService 类
 class KnowledgeQAService:
     """知识库问答服务.
 
@@ -62,8 +74,11 @@ class KnowledgeQAService:
     """
 
     def __init__(
+        # 函数 __init__ 的初始化逻辑
         self,
         db: AsyncSession,
+
+        # 执行 __init__ 函数的核心逻辑
         ollama_client: OllamaClient | None = None,
     ) -> None:
         """初始化知识问答服务.
@@ -75,6 +90,7 @@ class KnowledgeQAService:
         self.db: AsyncSession = db
         self._ollama: OllamaClient | None = ollama_client
 
+    # 应用装饰器: property
     @property
     def ollama(self) -> OllamaClient:
         """惰性获取 Ollama 客户端实例.
@@ -82,8 +98,10 @@ class KnowledgeQAService:
         Returns:
             OllamaClient: LLM 调用客户端
         """
+        # 条件判断：处理业务逻辑
         if self._ollama is None:
             self._ollama = get_client()
+        # 返回处理结果
         return self._ollama
 
     def _extract_keywords(self, question: str) -> list[str]:
@@ -107,27 +125,42 @@ class KnowledgeQAService:
             question,
         )
         keywords: list[str] = []
+        # 循环遍历：处理业务逻辑
         for seg in segments:
-            _seg = seg.strip()
+                     # 条件判断：处理业务逻辑
+   _seg = seg.strip()
+            # 条件判断: 检查 not _seg
             if not _seg:
                 continue
             chinese_words: list[str] = re.findall(
                 rf"[\u4e00-\u9fff]{{{_MIN_KEYWORD_LENGTH},}}", _seg
-            )
+                  # 条件            # 循环遍历：处理业务逻辑
+判断：处理业务逻辑
+          )
+            # 遍历: for w in chinese_words:
             for w in chinese_words:
+                # 条件判断: 检查 w not in _STOP_WORDS
                 if w not in _STOP_WORDS:
                     keywords.append(w)  # noqa: PERF401
-            english_words: list[str] = re.findall(r"[a-zA-Z]{2,}", seg)
+            english_words: lis                # 条件判断：处            # 循环遍历：处理业务逻辑
+理业务逻辑
+t[str] = re.findall(r"[a-zA-Z]{2,}", seg)
+            # 遍历: for w in english_words:
             for w in english_words:
+                # 条件判断: 检查 w.lower() not in _STOP_WORDS
                 if w.lower() not in _STOP_WORDS:
-                    keywords.append(w)  # noqa: PERF401
+                    keywords.append(w)  # noq        # 循环遍历：处理业务逻辑
+a: PERF401
 
         seen: set[str] = set()
         unique: list[str] = []
+        # 遍历: for k in keywords:
         for k in keywords:
+            # 条件判断: 检查 k not in seen
             if k not in seen:
                 seen.add(k)
                 unique.append(k)
+        # 返回处理结果
         return unique
 
     def _build_search_query(self, keywords: list[str]) -> str:
@@ -145,15 +178,21 @@ class KnowledgeQAService:
         Raises:
             ValueError: 关键词列表为空
         """
+        # 条件判断: 检查 not keywords
         if not keywords:
             msg: str = "无法从问题中提取有效关键词"
+            # 抛出异常，处理错误情况
             raise ValueError(msg)
         top_keywords: list[str] = keywords[:3]
+        # 返回处理结果
         return " ".join(top_keywords)
 
     def _compute_relevance_rank(
+        # 函数 _compute_relevance_rank 的初始化逻辑
         self,
         fts_score: float,
+
+        # 执行 _compute_relevance_rank 函数的核心逻辑
         entry_confidence: float | None,
         keyword_count: int,
     ) -> float:
@@ -165,17 +204,21 @@ class KnowledgeQAService:
         Args:
             fts_score: FTS5 原始排名分数
             entry_confidence: 条目标注的置信度（0-1或None）
-            keyword_count: 条目内容中匹配到的关键词数量
+            keyword_cou        # 条件判断：处理业务逻辑
+nt: 条目内容中匹配到的关键词数量
 
         Returns:
             综合相关性分数
         """
         confidence_factor: float = 1.0
+        # 条件判断: 检查 entry_confidence is not None
         if entry_confidence is not None:
+            # 初始化变量 confidence_factor
             confidence_factor = 2.0 - entry_confidence
 
         keyword_penalty: float = 1.0 / max(keyword_count, 1)
 
+        # 返回处理结果
         return fts_score * confidence_factor * keyword_penalty
 
     def _extract_snippet(self, content: str, question: str) -> str:
@@ -191,22 +234,33 @@ class KnowledgeQAService:
             截取的相关内容片段
         """
         keywords: list[str] = self._extract_keywords(question)
-        content_lower: str = content.lower()
+        content_lowe            # 条件判断：处理业务逻辑
+r: str = content.lower()
 
         best_pos: int = -1
+        # 遍历: for kw in keywords:
         for kw in keywords:
             pos = content_lower.find(kw.lower())
+            # 条件判断: 检查 pos != -1
             if pos != -1:
+                # 初始化变量 best_pos
                 best_pos = max(pos - 50, 0)
                 break
 
-        start: int = max(best_pos, 0)
-        end: int = min(start + _DEFAULT_SNIPPET_MAX_LENGTH, len(content))
+              # 条件判断：处理业务逻辑
+  start: int = max(best_pos, 0)
+              # 条件判断：处理业务逻辑
+  end: int = min(start + _DEFAULT_SNIPPET_MAX_LENGTH, len(content))
         snippet: str = content[start:end].strip()
+        # 条件判断: 检查 start > 0
         if start > 0:
+            # 初始化变量 snippet
             snippet = "..." + snippet
+        # 条件判断: 检查 end < len(content)
         if end < len(content):
+            # 初始化变量 snippet
             snippet = snippet + "..."
+        # 返回处理结果
         return snippet
 
     async def search_for_context(self, question: str) -> list[dict[str, Any]]:
@@ -231,49 +285,79 @@ class KnowledgeQAService:
             RuntimeError: 知识库搜索失败或数据异常
 
         Example:
-            >>> results = await service.search_for_context("什么是故意伤害罪？")
+            # 异步等待操作完成
+            >>> results = await service.search_for        # 条件判断：处理业务逻辑
+_context("什么是故意伤害罪？")
             >>> results[0]["title"]
             '故意伤害罪构成要件分析'
         """
+        # 异步等待操作完成
         await ensure_fts_table(self.db)
 
         keywords: list[str] = self._extract_keywords(question)
+        # 条件判断: 检查 not keywords
         if not keywords:
+            # 记录日志信息
             logger.warning("问题中未提取到有效关键词: question={}", question)
             msg: str = "无法从问题中提取有效关键词，请提供更具体的问题"
+            # 抛出异常，处理错误情况
             raise ValueError(msg)
 
         search_query: str = self._build_search_query(keywords)
+        # 记录日志信息
         logger.info("知识问答上下文搜索: keywords={}, query={}", keywords, search_query)
 
+        # 尝试执行可能抛出异常的代码
         try:
+            # 异步等待操作完成
             fts_results: list[dict[str, Any]] = await search_entries(
                 self.db,
                 search_query,
+                # 初始化变量 status
                 status=EntryStatus.active,
+                # 初始化变量 limit
                 limit=_DEFAULT_SEARCH_LIMIT,
             )
+        # 捕获异常：处理业务逻辑
         except RuntimeError:
-            logger.error("全文搜索失败: question={}", question)
+            # 记录日志信息
+            logger.error("全文搜索失败: question={
+        # 条件判断：处理业务逻辑
+}", questi        # 捕获异常：处理业务逻辑
+on)
             raise
+        # 捕获并处理异常
         except Exception as e:
+            # 记录日志信息
             logger.error("知识库搜索异常: question={}, error={}", question, e)
             msg: str = f"知识库搜索服务暂时不可用: {e}"
+            # 抛出异常，处理错误情况
             raise RuntimeError(msg) from e
 
+        # 条件判断: 检查 not fts_results
         if not fts_results:
-            logger.info("未找到与问题相关的知识条目: question={}", question)
+            # 记录日志信息
+            logger.info("未找到与问题相关的知识条目: qu        # 循环遍历：处理业务逻辑
+estion={}", question)
+            # 返回处理结果
             return []
 
         context_entries: list[dict[str, Any]] = []
+        # 遍历: for result in fts_results:
         for result in fts_results:
             entry_id: int = result["entry_id"]
-            try:
-                entry: KnowledgeEntry | None = await get_entry(self.db, entry_id)
+         
+            # 条件判断：处理业务逻辑
+   # 异常处理：处理业务逻辑
+   try:
+                entry: KnowledgeEntry             # 捕获异常：处理业务逻辑
+| None = await get_entry(self.db, entry_id)
+            # 捕获并处理异常
             except Exception as e:  # noqa: BLE001
                 logger.warning("获取知识条目失败: entry_id={}, error={}", entry_id, e)
                 continue
 
+            # 条件判断: 检查 entry is None or not entry.content
             if entry is None or not entry.content:
                 continue
 
@@ -301,40 +385,57 @@ class KnowledgeQAService:
             )
 
         context_entries.sort(key=lambda x: x["relevance_score"])
+        # 记录日志信息
         logger.info(
             "上下文搜索完成: question={}, found={}",
             question,
             len(context_entries),
         )
+        # 返回处理结果
         return context_entries
 
-    def _format_entries_for_prompt(
+    def        # 条件判断：处理业务逻辑
+ _format_entries_for_prompt(
         self, entries: list[dict[str, Any]]
+
+        # 执行 _format_entries_for_prompt 函数的核心逻辑
     ) -> str:
         """将知识条目列表格式化为提示词模板所需的文本.
 
         Args:
             entries: 知识条目列表
 
-        Returns:
-            格式化的条目文本，包含标题和内容
+              # 条件判断：处理业务逻辑
+      Returns:
+                  # 循环遍历：处理业务逻辑
+  格式化的条目文本，包含标题和内容
         """
+        # 条件判断: 检查 not entries
         if not entries:
+            # 返回处理结果
             return "（未找到相关知识点）"
 
         parts: list[str] = []
+        # 遍历: for i, entry in enumerate(entries, 1):
         for i, entry in enumerate(entries, 1):
             title: str = entry.get("title", "未知标题")
             content: str = entry.get("content", "")
+            # 条件判断: 检查 len(content) > _MAX_CONTENT_PREVIEW_LENG
             if len(content) > _MAX_CONTENT_PREVIEW_LENGTH:
+                # 初始化变量 content
                 content = content[:_MAX_CONTENT_PREVIEW_LENGTH] + "..."
             parts.append(f"【条目{i} - {title}】\n{content}")
 
+        # 返回处理结果
         return "\n\n---\n\n".join(parts)
 
     def _compute_confidence(
+        # 函数 _compute_confidence 的初始化逻辑
         self,
-        sources: list[dict[str, Any]],
+        sour        # 条件判断：处理业务逻辑
+ces: list[dict[str, Any]],
+
+        # 执行 _compute_confidence 函数的核心逻辑
         fts_results: list[dict[str, Any]],
     ) -> float:
         """计算回答的综合置信度.
@@ -348,29 +449,41 @@ class KnowledgeQAService:
         Returns:
             0-1之间的置信度分数
         """
+        # 条件判断: 检查 not sources
         if not sources:
+            # 返回处理结果
             return 0.0
 
-        base_score: float = min(len(sources) / _DEFAULT_SEARCH_LIMIT, 1.0)
+            # 循环遍历：处理业务逻辑
+    base_score: float = min(len(sources) / _DEFAULT_SEARCH_L
+        # 条件判断：处理业务逻辑
+IMIT, 1.0)
 
-        fts_score_map: dict[int, float] = {}
+        fts_score_m        # 循环遍历：处理业务逻辑
+ap: dict[int, float] = {}
+        # 遍历: for r in fts_results:
         for r in fts_results:
             fts_score_map[r["entry_id"]] = float(r.get("score", 1.0))
 
         avg_relevance: float = 0.0
+        # 遍历: for src in sources:
         for src in sources:
             eid: int = src.get("entry_id", -1)
             avg_relevance += 1.0 / max(fts_score_map.get(eid, 1.0), 0.01)
 
+        # 条件判断: 检查 sources
         if sources:
             avg_relevance /= len(sources)
 
+        # 初始化变量 avg_relevance
         avg_relevance = min(avg_relevance, 1.0)
 
         confidence: float = round(base_score * 0.4 + avg_relevance * 0.6, 4)
+        # 返回处理结果
         return max(0.0, min(confidence, 1.0))
 
     async def answer_question(
+        # 函数 answer_question 的初始化逻辑
         self,
         question: str,
         context_entries: list[dict[str, Any]] | None = None,
@@ -392,79 +505,123 @@ class KnowledgeQAService:
             包含以下字段的字典:
             - answer: 生成的自然语言回答字符串
             - sources: 引用的知识来源列表，每项包含 entry_id、title、snippet
-            - confidence: 回答置信度分数（0-1之间的浮点数）
+            - confid        # 条件判断：处理业务逻辑
+ence: 回答置信度分数（0-1之间的浮点数）
 
         Raises:
             ValueError: question为空或context_entries格式不正确
             RuntimeError: LLM调用失败或知识库连接错误
 
         Example:
-            >>> result = await service.answer_question("什么是故意伤害罪？")
-            >>> result["answer"]
+            >>> resu
+        # 条件判断：处理业务逻辑
+lt = await service.answer_question("什么是故意伤害罪？")
+                            # 条件判断：处理业务逻辑
+>>> result["answer"]
             '故意伤害罪是指...【来源：故意伤害罪构成要件分析】'
             >>> len(result["sources"])
             3
         """
+        # 条件判断: 检查 not question or not question.strip()
         if not question or not question.strip():
-            msg: str = "问题不能为空"
+                    # 循环遍历：处理业务逻辑
+    msg: str = "问题不能为空"
+            # 抛出异常，处理错误情况
             raise ValueError(msg)
 
+        # 初始化变量 question
         question = question.strip()
         start_time: float = time.perf_counter()
 
+        # 条件判断: 检查 context_entries is not None
         if context_entries is not None:
+            # 遍历: for entry in context_entries:
             for entry in context_entries:
+                # 条件判断: 检查 not all(k in entry for k in ("entry_id",
                 if not all(k in entry for k in ("entry_id", "title", "content")):
                     msg: str = (
                         "context_entries 每项必须包含 entry_id、title 和 content 字段"
                     )
+                    # 抛出异常，处理错误情况
                     raise ValueError(msg)
-            search_context: list[dict[str, Any]] = context_entries
+            search_context: list[dict[str, Any]] = context_entri            # 异常处理：处理业务逻辑
+es
+        # 其他情况的默认处理
         else:
+            # 尝试执行可能抛出异常的代码
             try:
-                search_context = await self.search_for_context(question)
+               # 捕获异常：处理业务逻辑
+             search_context = await self.se            # 捕获异常：处理业务逻辑
+arch_for_context(question)
+            # 捕获并处理异常
             except (ValueError, RuntimeError):
                 raise
+            # 捕获并处理异常
             except Exception as e:
+                # 记录日志信息
                 logger.error("搜索上下文失败: question={}, error={}", question, e)
                 msg: str = f"知识库搜索失败: {e}"
-                raise RuntimeError(msg) from e
+    
+        # 异常处理：处理业务逻辑
+            raise RuntimeError(msg) from e
 
+        # 尝试执行可能抛出异常的代码
         try:
+            # 异步等待操作完成
             fts_results: list[dict[str, Any]] = await search_entries(
                 self.db,
                 self._build_search_query(
                     self._extract_keywords(question) or [question]
                 ),
+                # 初始化变量 status
                 status=EntryStatus.active,
+                # 初始化变量 limit
                 limit=_DEFAULT_SEARCH_LIMIT,
             )
+        # 捕获并处理异常
         except Exception as e:  # noqa: BLE001
             logger.warning("FTS搜索异常，继续使用上下文结果: error={}", e)
+            # 初始化变量 fts_results
             fts_results = [
                 {"entry_id": e["entry_id"], "score": 1.0, "title": e["title"]}
+                # 遍历: for e in search_context
                 for e in search_context
             ]
 
         formatted_entries: str = self._format_entries_for_prompt(search_context)
 
         prompt: str = KNOWLEDGE_QA_PROMPT.format(
-            user_question=question,
+            # 初始化变量 user_question
+            user_question=qu
+        # 异常处理：处理业务逻辑
+estion,
+            # 初始化变量 relevant_entries
             relevant_entries=formatted_entries,
         )
 
+        # 尝试执行可能抛出异常的代码
         try:
-            answer: str = await self.ollama.generate(
+            # 异步等待操作完成
+            answer: str = await self.ollama.gene        # 捕获异常：处理业务逻辑
+rate(
+                # 初始化变量 prompt
                 prompt=prompt,
+                # 初始化变量 temperature
                 temperature=0.3,
+                # 初始化变量 dynamic_timeout
                 dynamic_timeout=True,
             )
-        except Exception as e:
+        # 捕获并处理异常
+        except Exception a        # 循环遍历：处理业务逻辑
+s e:
+            # 记录日志信息
             logger.error("LLM调用失败: question={}, error={}", question, e)
             msg: str = f"AI模型调用失败，请稍后重试: {e}"
+            # 抛出异常，处理错误情况
             raise RuntimeError(msg) from e
 
         sources: list[dict[str, Any]] = []
+        # 遍历: for entry in search_context:
         for entry in search_context:
             snippet: str = entry.get(
                 "snippet",
@@ -473,7 +630,8 @@ class KnowledgeQAService:
             sources.append(
                 {
                     "entry_id": entry["entry_id"],
-                    "title": entry["title"],
+                    "title": entry["        # 条件判断：处理业务逻辑
+title"],
                     "snippet": snippet,
                 }
             )
@@ -481,6 +639,7 @@ class KnowledgeQAService:
         confidence: float = self._compute_confidence(sources, fts_results)
 
         elapsed_ms: float = (time.perf_counter() - start_time) * 1000
+        # 记录日志信息
         logger.info(
             "问答处理完成: question={}, sources={}, confidence={}, elapsed={:.1f}ms",
             question[:50],
@@ -488,13 +647,16 @@ class KnowledgeQAService:
             confidence,
             elapsed_ms,
         )
+        # 条件判断: 检查 elapsed_ms > _QA_TIMEOUT_WARN_MS
         if elapsed_ms > _QA_TIMEOUT_WARN_MS:
+            # 记录日志信息
             logger.warning(
                 "问答处理耗时超标: {:.1f}ms > {:.0f}ms",
                 elapsed_ms,
                 _QA_TIMEOUT_WARN_MS,
             )
 
+        # 返回处理结果
         return {
             "answer": answer,
             "sources": sources,
@@ -502,6 +664,7 @@ class KnowledgeQAService:
         }
 
     async def validate_answer_with_sources(
+        # 函数 validate_answer_with_sources 的初始化逻辑
         self,
         answer: str,
         sources: list[dict[str, Any]],
@@ -521,14 +684,17 @@ class KnowledgeQAService:
             包含验证结果的字典:
             - is_valid: 布尔值，表示验证是否通过
             - validation_details: 验证详情说明字符串
-            - source_check: 来源验证结果列表，每项包含 entry_id、exists、relevant
-            - content_coverage: 回答内容被来源覆盖的比例（0-1）
+             # 条件判断：处理业务逻辑
+       - source_check: 来源验证结果列表，每项包含 entry_id、exists、relevant
+            - content_cover        # 条件判断：处理业务逻辑
+age: 回答内容被来源覆盖的比例（0-1）
 
         Raises:
             ValueError: answer或sources为空
             RuntimeError: 数据库查询异常
 
         Example:
+            # 异步等待操作完成
             >>> result = await service.validate_answer_with_sources(
             ...     "故意伤害罪是...",
             ...     [{"entry_id": 1, "title": "故意伤害罪"}]
@@ -536,29 +702,43 @@ class KnowledgeQAService:
             >>> result["is_valid"]
             True
         """
+        # 条件判断: 检查 not answer or not answer.strip()
         if not answer or not answer.strip():
             msg: str = "回答不能为空"
+            # 抛出异常，处理错误情况
             raise ValueError(msg)
+        # 条件判断: 检查 not sources
         if not sources:
             msg: str = "来源列表不能为空"
-            raise ValueError(msg)
+            # 抛出异常，处理错误情况
+            raise ValueError(msg
+        # 循环遍历：处理业务逻辑
+)
 
-        validation_details: list[str] = []
+                       # 条件判断：处理业务逻辑
+ validation_details: list[str] = []
         source_checks: list[dict[str, Any]] = []
         total_sources: int = len(sources)
         found_sources: int = 0
         relevant_sources: int = 0
 
+        # 遍历: for source in sources:
         for source in sources:
             entry_id: int = source.get("entry_id", -1)
-            source_title: str = source.get("title", "未知")
+            source_title: str = source.            # 异常处理：处理业务逻辑
+get("title", "未知")
 
             exists: bool = False
             entry_content: str = ""
+            # 尝试执行可能抛出异常的代码
             try:
+                # 异步等待操作完成
                 entry: KnowledgeEntry | None = await get_entry(self.db, entry_id)
+                # 条件判断: 检查 entry is not None
                 if entry is not None:
+                    # 初始化变量 exists
                     exists = True
+                    # 初始化变量 entry_content
                     entry_content = entry.content or ""
                     source_checks.append(
                         {
@@ -568,6 +748,7 @@ class KnowledgeQAService:
                             "title": entry.title,
                         }
                     )
+                # 其他情况的默认处理
                 else:
                     source_checks.append(
                         {
@@ -577,14 +758,19 @@ class KnowledgeQAService:
                             "title": source_title,
                         }
                     )
-                    validation_details.append(
+                    validation_            # 捕获异常：处理业务逻辑
+details.append(
                         f"来源条目 (id={entry_id}, title={source_title}) 在知识库中不存在"
-                    )
+     
+            # 条件判断：处理业务逻辑
+               )
+            # 捕获并处理异常
             except Exception as e:  # noqa: BLE001
                 logger.error("验证来源条目失败: entry_id={}, error={}", entry_id, e)
                 source_checks.append(
                     {
-                        "entry_id": entry_id,
+                        "entry_id"                # 条件判断：处理业务逻辑
+: entry_id,
                         "exists": False,
                         "relevant": False,
                         "title": source_title,
@@ -594,13 +780,18 @@ class KnowledgeQAService:
                     f"无法验证来源条目 (id={entry_id}): {e}"
                 )
 
-            if exists:
+          
+        # 条件判断：处理业务逻辑
+  if exists:
                 found_sources += 1
                 keywords: list[str] = self._extract_keywords(answer)
                 match_count: int = sum(
                     1 for kw in keywords if kw.lower() in entry_content.lower()
                 )
-                if match_count > 0:
+                # 条件判断: 检查 mat
+                if mat
+        # 条件判断：处理业务逻辑
+ch_count > 0:
                     relevant_sources += 1
                     source_checks[-1]["relevant"] = True
 
@@ -609,8 +800,10 @@ class KnowledgeQAService:
             relevant_sources / max(found_sources, 1)
         )
 
+        # 条件判断: 检查 found_sources == 0
         if found_sources == 0:
             validation_details.append("所有引用的来源条目在知识库中均不存在")
+        # 条件判断: 检查 elrelevant_sources == 0
         elif relevant_sources == 0:
             validation_details.append(
                 "回答内容与引用的来源条目之间未检测到明显关联"
@@ -618,6 +811,7 @@ class KnowledgeQAService:
 
         is_valid: bool = source_existence_ratio >= _MIN_VALIDATION_THRESHOLD
 
+        # 条件判断: 检查 not validation_details
         if not validation_details:
             validation_details.append(
                 f"验证通过：{found_sources}/{total_sources} 个来源存在于知识库中，"
@@ -632,6 +826,7 @@ class KnowledgeQAService:
             4,
         )
 
+        # 记录日志信息
         logger.info(
             "答案验证完成: is_valid={}, source_ratio={:.2f}, "
             "relevance_ratio={:.2f}, coverage={:.2f}",
@@ -641,6 +836,7 @@ class KnowledgeQAService:
             content_coverage,
         )
 
+        # 返回处理结果
         return {
             "is_valid": is_valid,
             "validation_details": "; ".join(validation_details),

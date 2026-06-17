@@ -9,11 +9,15 @@ Revises: 7a8b9c0d1e2f
 Create Date: 2026-06-12
 """
 
+# 导入模块: from collections.abc
 from collections.abc import Sequence
+# 导入模块: from typing
 from typing import Union
 
+# 导入模块: sqlalchemy
 import sqlalchemy as sa
 
+# 导入模块: from alembic
 from alembic import op
 
 
@@ -33,6 +37,7 @@ def upgrade() -> None:
             "case_id",
             sa.Integer(),
             sa.ForeignKey("cases.id", ondelete="CASCADE"),
+            # 初始化变量 nullable
             nullable=False,
         ),
         sa.Column("label_type", sa.String(length=64), nullable=False),
@@ -53,12 +58,14 @@ def upgrade() -> None:
             "canonical_case_id",
             sa.Integer(),
             sa.ForeignKey("cases.id", ondelete="CASCADE"),
+            # 初始化变量 nullable
             nullable=False,
         ),
         sa.Column(
             "duplicate_case_id",
             sa.Integer(),
             sa.ForeignKey("cases.id", ondelete="CASCADE"),
+            # 初始化变量 nullable
             nullable=False,
         ),
         sa.Column("similarity", sa.Float(), nullable=False),
@@ -73,15 +80,18 @@ def upgrade() -> None:
         op.f("ix_case_dedup_canonical_case_id"),
         "case_dedup",
         ["canonical_case_id"],
+        # 初始化变量 unique
         unique=False,
     )
     op.create_index(
         op.f("ix_case_dedup_duplicate_case_id"),
         "case_dedup",
         ["duplicate_case_id"],
+        # 初始化变量 unique
         unique=False,
     )
 
+    # 使用上下文管理器管理资源
     with op.batch_alter_table("case_dedup", recreate="auto") as batch_op:
         batch_op.create_check_constraint(
             "ck_case_dedup_similarity_range",
@@ -91,6 +101,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """删除 case_labels 与 case_dedup 两张表."""
+    # 使用上下文管理器管理资源
     with op.batch_alter_table("case_dedup", recreate="auto") as batch_op:
         batch_op.drop_constraint("ck_case_dedup_similarity_range", type_="check")
 

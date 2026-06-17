@@ -6,6 +6,10 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 import { useAnalysisStore } from '../stores/analysisStore.js'
+import StandardPathBadge from '../components/analysis/StandardPathBadge.vue'
+import MultiSubjectPanel from '../components/analysis/MultiSubjectPanel.vue'
+import EvidenceLayerPanel from '../components/analysis/EvidenceLayerPanel.vue'
+import BoundaryAlertBanner from '../components/analysis/BoundaryAlertBanner.vue'
 
 // 4. 组合式函数
 const router = useRouter()
@@ -613,6 +617,37 @@ onMounted(() => {
 
         <!-- 右侧内容区 -->
         <main class="report-content">
+          <!-- 规范路径标签展示区 -->
+          <div v-if="result?.standardPaths?.length" class="standard-paths-section">
+            <h3 class="section-title">规范路径标签</h3>
+            <div class="paths-container">
+              <StandardPathBadge
+                v-for="(path, index) in result.standardPaths"
+                :key="index"
+                :path-type="path.pathType"
+                :label="path.label"
+                :description="path.description"
+              />
+            </div>
+          </div>
+
+          <!-- 多主体列表展示区 -->
+          <div v-if="result?.subjects?.length" class="subjects-section">
+            <h3 class="section-title">涉案主体</h3>
+            <MultiSubjectPanel :subjects="result.subjects" />
+          </div>
+
+          <!-- 证据四层折叠展示区 -->
+          <div v-if="result?.evidenceLayers" class="evidence-section">
+            <h3 class="section-title">证据分层</h3>
+            <EvidenceLayerPanel :evidence-layers="result.evidenceLayers" />
+          </div>
+
+          <!-- 边界警告徽章展示区 -->
+          <div v-if="result?.boundaryAlerts?.length" class="boundary-alerts-section">
+            <BoundaryAlertBanner :alerts="result.boundaryAlerts" />
+          </div>
+
           <!-- 数据可视化矩阵 -->
           <div class="visualization-card">
             <h3 class="card-title">分析维度矩阵</h3>
@@ -672,13 +707,6 @@ onMounted(() => {
 
                   <!-- 特殊字段展示 -->
                   <div
-                    v-if="section.score !== undefined"
-                    class="score-badge"
-                  >
-                    评分: {{ section.score }}/100
-                  </div>
-
-                  <div
                     v-if="section.tier_label"
                     class="tier-badge"
                   >
@@ -697,13 +725,6 @@ onMounted(() => {
                     class="conclusion-badge"
                   >
                     结论: {{ section.conclusion }}
-                  </div>
-
-                  <div
-                    v-if="section.confidence !== undefined"
-                    class="confidence-badge"
-                  >
-                    置信度: {{ section.confidence }}%
                   </div>
 
                   <!-- 标签展示 -->

@@ -13,11 +13,15 @@ V2 协议使用"三维度 × 四档"代替 V1 协议的"0-10 分"，并把规则
 共存于 ``app.types``，使用 ``version: Literal["v1", "v2"]`` 区分。
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: from enum
 from enum import Enum
+# 导入模块: from typing
 from typing import Any, Literal, NotRequired
 
+# 导入模块: from typing_extensions
 from typing_extensions import TypedDict
 
 
@@ -26,9 +30,11 @@ from typing_extensions import TypedDict
 # ---------------------------------------------------------------------------
 
 
+# 定义 TierEnum 类
 class TierEnum(str, Enum):
     """帮信罪四档分类.
 
+    # 初始化变量 数值顺序
     数值顺序 = 严重程度（数字越大越严重），便于排序与组合规则计算。
     """
 
@@ -37,6 +43,7 @@ class TierEnum(str, Enum):
     T3 = "T3"  # 情节严重
     T4 = "T4"  # 情节特别严重
 
+    # 应用装饰器: classmethod
     @classmethod
     def coerce(cls, value: Any) -> TierEnum:
         """将任意输入安全地归一化为 ``TierEnum``.
@@ -46,16 +53,25 @@ class TierEnum(str, Enum):
         任何无法识别的输入都降级为 :attr:`T2`（情节一般），确保调用方不会
         因缺少 tier 字段而崩溃。
         """
+        # 条件判断：处理业务逻辑
         if isinstance(value, cls):
-            return value
+           # 条件判断：处理业务逻辑
+         return value
+        # 条件判断: 检查 value is None
         if value is None:
-            return cls.T2
+            r        # 条件判断：处理业务逻辑
+eturn cls.T2
         s = str(value).strip()
+        # 条件判断: 检查 not s
         if not s:
+            # 条件判断：处理业务逻辑
             return cls.T2
         # 直接匹配
+        # 循环遍历：处理业务逻辑
         for tier in cls:
+            # 条件判断: 检查 s.upper() == tier.value or s == tier.nam
             if s.upper() == tier.value or s == tier.name:
+                # 返回处理结果
                 return tier
         # 中文/同义词映射
         aliases: dict[str, TierEnum] = {
@@ -88,66 +104,108 @@ class TierEnum(str, Enum):
             "极高": cls.T4,
             "最高档": cls.T4,
         }
-        if s in aliases:
+        # 条件判断: 检查 s in             # 条件判断：处理业务逻辑
+        if s in             # 条件判断：处理业务逻辑
+aliases:
+            # 返回处理结果
             return aliases[s]
         # 数字 1-4
+        # 异常处理：处理业务逻辑
         try:
             n = int(s)
+            # 条件判断: 检查 n in (1, 2, 3, 4)
             if n in (1, 2, 3, 4):
-                return cls(f"T{n}")
+                # 返回处理结果
+                return cls(f"            # 条件判断：处理业务逻辑
+T{n}")
+        # 捕获异常：处理业务逻辑
         except (TypeError, ValueError):
-            pass
+                    # 循环遍历：处理业务逻辑
+pass
         # 包含关系回退
         for k, v in aliases.items():
+            # 条件判断: 检查 k in s
             if k in s:
+                # 返回处理结果
                 return v
+        # 返回处理结果
         return cls.T2
 
+    # 应用装饰器: property
     @property
     def rank(self) -> int:
-        """数值等级，1-4，数字越大越严重."""
+        """数值等级，1-4，数字越大越        # 条件判断：处理业务逻辑
+严重."""
+        # 返回处理结果
         return int(self.value[1])
 
     def __lt__(self, other: TierEnum) -> bool:  # type: ignore[override]
-        if not isinstance(other, TierEnum):
+
+        # 执行 __lt__ 函数的核心逻辑
+        if not isinstance(o        # 条件判断：处理业务逻辑
+ther, TierEnum):
+            # 返回处理结果
             return NotImplemented
+        # 返回处理结果
         return self.rank < other.rank
 
     def __le__(self, other: TierEnum) -> bool:
-        if not isinstance(other, TierEnum):
+
+        # 执行 __le__ 函数的核心逻辑
+              # 条件判断：处理业务逻辑
+  if not isinstance(other, TierEnum):
+            # 返回处理结果
             return NotImplemented
+        # 返回处理结果
         return self.rank <= other.rank
 
     def __gt__(self, other: TierEnum) -> bool:
+
+        # 执        # 条件判断：处理业务逻辑
+行 __gt__ 函数的核心逻辑
+        # 条件判断: 检查 not isinstance(other, TierEnum)
         if not isinstance(other, TierEnum):
+            # 返回处理结果
             return NotImplemented
+        # 返回处理结果
         return self.rank > other.rank
 
     def __ge__(self, other: TierEnum) -> bool:
+
+        # 执行 __ge__ 函数的核心逻辑
         if not isinstance(other, TierEnum):
+            # 返回处理结果
             return NotImplemented
+        # 返回处理结果
         return self.rank >= other.rank
 
+    # 应用装饰器: property
     @property
     def chinese_label(self) -> str:
         """中文标签（用于报告展示）."""
+        # 初始化变量 mapping
         mapping = {
             TierEnum.T1: "一档（情节较轻）",
             TierEnum.T2: "二档（情节一般）",
             TierEnum.T3: "三档（情节严重）",
             TierEnum.T4: "四档（情节特别严重）",
+        # 执行 sentence_band 函数的核心逻辑
         }
+        # 返回处理结果
         return mapping[self]
 
+    # 应用装饰器: property
     @property
     def sentence_band(self) -> str:
         """量刑区间（与刑法第 287 条之二对应）."""
+        # 初始化变量 mapping
         mapping = {
             TierEnum.T1: "三年以下有期徒刑、拘役或者管制，并处或者单处罚金",
             TierEnum.T2: "三年以下有期徒刑，并处罚金",
             TierEnum.T3: "三年以上七年以下有期徒刑，并处罚金",
             TierEnum.T4: "七年以上有期徒刑，并处罚金或者没收财产",
         }
+        # 返回处理结果
         return mapping[self]
 
 
@@ -156,6 +214,7 @@ class TierEnum(str, Enum):
 # ---------------------------------------------------------------------------
 
 
+# 定义 _DimensionBaseV2 类
 class _DimensionBaseV2(TypedDict):
     """维度 V2 公共字段.
 
@@ -170,6 +229,7 @@ class _DimensionBaseV2(TypedDict):
     confidence: NotRequired[float]
 
 
+# 定义 Dimension1ResultV2 类
 class Dimension1ResultV2(_DimensionBaseV2):
     """维度 1 V2（事实知识审查 / 构成要件）.
 
@@ -185,6 +245,7 @@ class Dimension1ResultV2(_DimensionBaseV2):
     triggered_rules: list[str]
 
 
+# 定义 Dimension2ResultV2 类
 class Dimension2ResultV2(_DimensionBaseV2):
     """维度 2 V2（模式匹配 / 情节评估）.
 
@@ -200,6 +261,7 @@ class Dimension2ResultV2(_DimensionBaseV2):
     triggered_rules: list[str]
 
 
+# 定义 Dimension3ResultV2 类
 class Dimension3ResultV2(_DimensionBaseV2):
     """维度 3 V2（矛盾分析 / 抗辩可信度）.
 
@@ -220,6 +282,7 @@ class Dimension3ResultV2(_DimensionBaseV2):
 # ---------------------------------------------------------------------------
 
 
+# 定义 FinalVerdict 类
 class FinalVerdict(TypedDict):
     """档级组合器产出的最终结论.
 
@@ -240,6 +303,7 @@ class FinalVerdict(TypedDict):
     combination_rule: str
 
 
+# 定义 PipelineMeta 类
 class PipelineMeta(TypedDict):
     """管道编排元数据.
 
@@ -255,6 +319,7 @@ class PipelineMeta(TypedDict):
     failed_stage: NotRequired[str]
 
 
+# 定义 AnalysisResultV2 类
 class AnalysisResultV2(TypedDict):
     """V2 主分析结果.
 
@@ -305,18 +370,23 @@ class AnalysisResultV2(TypedDict):
     disclaimer: NotRequired[str]
 
 
-# ---------------------------------------------------------------------------
+# -----------------------------------------------------------------------    # 条件判断：处理业务逻辑
+----
 # 联合类型 / 便捷类型
 # ---------------------------------------------------------------------------
 
 
+# 初始化变量 AnalysisVersion
 AnalysisVersion = Literal["v1", "v2"]
 
 
 def is_v2_result(payload: dict[str, Any] | None) -> bool:
     """判断一个反序列化的结果字典是否属于 V2 协议."""
+    # 条件判断: 检查 not isinstance(payload, dict)
     if not isinstance(payload, dict):
+        # 返回处理结果
         return False
+    # 返回处理结果
     return payload.get("version") == "v2"
 
 

@@ -1,0 +1,145 @@
+/* =====================================================================
+ * 设计 Token — 米白主题 + 苹果风格
+ * ===================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------
+   * 颜色 — 米白基调 + 暖色高光
+   * ------------------------------------------------------------------ */
+  /* 背景 */
+  --color-bg-base: #F5F2EC;
+  --color-bg-secondary: #FAF8F4;
+  --color-bg-card: #FFFFFF;
+  --color-bg-glass: rgba(245, 242, 236, 0.85);
+
+  /* 文字 */
+  --color-text-primary: #1D1D1F;
+  --color-text-secondary: #6E6E73;
+  --color-text-tertiary: #AEAEB2;
+
+  /* 边框 */
+  --color-border-subtle: #E8E3D9;
+  --color-border-strong: #D4CFC2;
+
+  /* 高光 */
+  --color-accent-copper: #8B6F47;
+  --color-accent-gold: #B8956A;
+
+  /* 语义色 */
+  --color-success: #2D7D4A;
+  --color-warning: #B8791E;
+  --color-error: #B23A2A;
+
+  /* 兼容旧变量名（过渡期） */
+  --bg-primary: var(--color-bg-base);
+  --bg-secondary: var(--color-bg-secondary);
+  --bg-tertiary: var(--color-bg-secondary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-tertiary: var(--color-text-tertiary);
+  --border-color: var(--color-border-subtle);
+
+  /* ------------------------------------------------------------------
+   * 字体
+   * ------------------------------------------------------------------ */
+  --font-sans: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'Source Han Serif SC', 'Songti SC', 'Noto Serif SC', serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* ------------------------------------------------------------------
+   * 响应式字号（clamp 实现）
+   * ------------------------------------------------------------------ */
+  --text-display: clamp(2.5rem, 5vw, 4rem);       /* 40–64px */
+  --text-h1: clamp(1.75rem, 3vw, 2.5rem);           /* 28–40px */
+  --text-h2: clamp(1.25rem, 2vw, 1.75rem);          /* 20–28px */
+  --text-h3: clamp(1rem, 1.5vw, 1.25rem);           /* 16–20px */
+  --text-body: 1rem;                                  /* 16px   */
+  --text-small: 0.875rem;                             /* 14px   */
+  --text-micro: 0.75rem;                              /* 12px   */
+
+  /* ------------------------------------------------------------------
+   * 间距（4px 为基础单位）
+   * ------------------------------------------------------------------ */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --spacing-6: 32px;
+  --spacing-7: 48px;
+  --spacing-8: 64px;
+
+  /* ------------------------------------------------------------------
+   * 圆角
+   * ------------------------------------------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* 向后兼容 */
+  --border-radius: var(--radius-md);
+  --border-radius-lg: var(--radius-lg);
+
+  /* ------------------------------------------------------------------
+   * 阴影（柔和系）
+   * ------------------------------------------------------------------ */
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.03);
+  --shadow-3: 0 8px 30px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-4: 0 16px 48px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.05);
+
+  /* 向后兼容 */
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+
+  /* ------------------------------------------------------------------
+   * 动效
+   * ------------------------------------------------------------------ */
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-normal: 300ms;
+  --duration-slow: 400ms;
+  --duration-number: 600ms;
+  --duration-skeleton: 1.5s;
+
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-base: var(--duration-base) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+
+  /* 向后兼容 */
+  --transition-normal: var(--transition-base);
+
+  /* ------------------------------------------------------------------
+   * 布局
+   * ------------------------------------------------------------------ */
+  --layout-sidebar-width: 240px;
+  --layout-header-height: 56px;
+  --layout-tab-height: 48px;
+  --layout-content-max-width: 1200px;
+}
+
+/* ------------------------------------------------------------------
+ * 768px 以下 — 移动端 padding 覆盖
+ * ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+  :root {
+    --layout-sidebar-width: 0px;
+    --layout-header-height: 48px;
+    --layout-tab-height: 44px;
+    --spacing-page-padding: var(--spacing-4);
+  }
+}
+
+@media (min-width: 769px) {
+  :root {
+    --spacing-page-padding: var(--spacing-6);
+  }
+}

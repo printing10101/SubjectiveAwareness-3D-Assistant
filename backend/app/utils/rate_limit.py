@@ -5,14 +5,21 @@
 所有限流参数均从 AnalysisConfig 动态读取，无硬编码数值。
 """
 
+# 导入模块: from contextvars
 from contextvars import ContextVar
+# 导入模块: from datetime
 from datetime import UTC, datetime
 
+# 导入模块: from fastapi
 from fastapi import Request
+# 导入模块: from loguru
 from loguru import logger
+# 导入模块: from slowapi
 from slowapi import Limiter
+# 导入模块: from slowapi.util
 from slowapi.util import get_remote_address
 
+# 导入模块: from app.config
 from app.config import AnalysisConfig
 
 
@@ -39,19 +46,32 @@ def _extract_user_info(request: Request) -> tuple[str | None, str | None, str | 
         (user_id, role, ip) 三元组，匿名用户仅 ip 有值
     """
     ip = get_remote_address(request)
+    # 异常处理：处理业务逻辑
     try:
+        # 初始化变量 auth_header
         auth_header = request.headers.get("Authorization")
+        # 条件判断：处理业务逻辑
         if auth_header and auth_header.startswith("Bearer "):
+            # 导入模块: from app.utils.auth
             from app.utils.auth import decode_token_with_fallback  # noqa: PLC0415
 
+            # 初始化变量 token
             token = auth_header.split(" ")[1]
+            # 初始化变量 payload
             payload = decode_token_with_fallback(token)
+            # 初始化变量 username
             username = payload.get("sub", "")
-            role = payload.get("role", "user")
+            # 初始化变量 role
+            role = payloa            # 条件判断：处理业务逻辑
+d.get("role", "user")
+            # 条件判断: 检查 username
             if username:
+                # 返回处理结果
                 return username, role, ip
+    # 捕获并处理异常
     except Exception:  # noqa: BLE001
         logger.debug("限流标识解析失败，回退为匿名用户")
+    # 返回处理结果
     return None, None, ip
 
 
@@ -64,9 +84,13 @@ def _resolve_rate_limit_key(request: Request) -> str:
     Returns:
         限流标识字符串，格式为 "角色:标识符"
     """
-    user_id, role, ip = _extract_user_info(request)
+        # 条件判断：处理业务逻辑
+user_id, role, ip = _extract_user_info(request)
+    # 条件判断: 检查 user_id and role
     if user_id and role:
+        # 返回处理结果
         return f"{role}:{user_id}"
+    # 返回处理结果
     return f"anon:{ip}"
 
 
@@ -81,9 +105,12 @@ def _log_rate_limit_breach(request: Request, response_headers: dict[str, str]) -
         response_headers: 限流响应头（未使用，保留以兼容 slowapi 接口）
     """
     user_id, role, ip = _extract_user_info(request)
+    # 初始化变量 role_display
     role_display = role or "匿名用户"
+    # 初始化变量 user_display
     user_display = user_id or ip
 
+    # 记录日志信息
     logger.warning(
         f"限流触发 | 角色: {role_display} | "
         f"标识: {user_display} | "
@@ -102,22 +129,35 @@ def get_analyze_rate_limit() -> str:
     通过 contextvars 获取当前请求上下文，适配 slowapi 零参数回调接口。
 
     Returns:
-        限流字符串，格式由 AnalysisConfig 中的对应配置项决定
+        限流字符串，格式由     # 条件判断：处理业务逻辑
+AnalysisConfig 中的对应配置项决定
     """
+    # 初始化变量 request
     request = _request_ctx.get()
+    # 条件判断: 检查 request is None
     if request is None:
-        return AnalysisConfig.RATE_LIMIT_ANALYZE_ANONYMOUS
-    user_id, role, _ip = _extract_user_info(request)
+        # 返回处理结果
+        return AnalysisConfi    # 条件判断：处理业务逻辑
+g.RATE_LIMIT_ANALYZE_ANONYMOUS
+    user_id, role, _ip = _extract_user_inf    # 条件判断：处理业务逻辑
+o(request)
+    # 条件判断: 检查 not user_id or not role
     if not user_id or not role:
+        # 返回处理结果
         return AnalysisConfig.RATE_LIMIT_ANALYZE_ANONYMOUS
+    # 条件判断: 检查 role == "admin"
     if role == "admin":
+        # 返回处理结果
         return AnalysisConfig.RATE_LIMIT_ANALYZE_ADMIN
+    # 返回处理结果
     return AnalysisConfig.RATE_LIMIT_ANALYZE_USER
 
 
 # 初始化 Limiter，使用角色感知的键函数
 limiter = Limiter(
+    # 初始化变量 key_func
     key_func=_resolve_rate_limit_key,
+    # 初始化变量 default_limits
     default_limits=[AnalysisConfig.RATE_LIMIT_DEFAULT],
 )
 # 注入自定义限流触发日志回调

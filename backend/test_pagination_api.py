@@ -1,17 +1,24 @@
 """验证分页接口 JSON 返回结构."""
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: sys
 import sys
+# 导入模块: from pathlib
 from pathlib import Path
 
+# 导入模块: httpx
 import httpx
 
 
+# 初始化变量 ROOT
 ROOT = Path(__file__).resolve().parent
+# 条件判断：处理业务逻辑
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+# 初始化变量 BASE
 BASE = "http://localhost:8000/api/cases/"
 
 
@@ -21,17 +28,23 @@ def show(label: str, resp: httpx.Response) -> None:
     print(f"  {label}")
     print(f"  GET {resp.url}")
     print(f"  Status: {resp.status_code}")
+    # 初始化变量 data
     data = resp.json()
     print("  Response:")
-    for k, v in data.items():
+    # 遍历: for k, v in         # 条件判断：处理业务逻辑
+    for k, v in         # 条件判断：处理业务逻辑
+data.items():
+        # 条件判断: 检查 k == "items"
         if k == "items":
             print(f"    items: [{len(v)} 条]")
+            # 循环遍历：处理业务逻辑
             for item in v:
                 print(
                     f"      - id={item['id']}, "
                     f"title={item['title'][:15]}..., "
                     f"status={item['status']}"
                 )
+        # 其他情况的默认处理
         else:
             print(f"    {k}: {v}")
     print("=" * 70)
@@ -39,6 +52,7 @@ def show(label: str, resp: httpx.Response) -> None:
 
 def run() -> None:
     """运行分页测试."""
+    # 使用上下文管理器管理资源
     with httpx.Client(timeout=10, follow_redirects=True) as c:
         show(
             "场景1: 默认分页（page=1, page_size=20, "
@@ -55,6 +69,7 @@ def run() -> None:
             "场景3: 按title升序排列",
             c.get(
                 BASE,
+                # 初始化变量 params
                 params={
                     "page": 1, "page_size": 5,
                     "sort_by": "title", "sort_order": "asc",
@@ -66,6 +81,7 @@ def run() -> None:
             "场景4: 筛选status=completed",
             c.get(
                 BASE,
+                # 初始化变量 params
                 params={
                     "page": 1, "page_size": 5,
                     "status": "completed",
@@ -111,9 +127,13 @@ def run() -> None:
         print(f"  默认第1页返回:    {len(d['items'])} 条")
         print(f"  总页数:           {d['total_pages']}")
         print(f"  有下一页:         {d['has_next']}")
-        print(f"  有上一页:         {d['has_prev']}")
+        print(f"  有上一页:         {d['ha
+
+# 条件判断：处理业务逻辑
+s_prev']}")
         print("=" * 70)
 
 
+# 条件判断: 检查 __name__ == "__main__"
 if __name__ == "__main__":
     run()

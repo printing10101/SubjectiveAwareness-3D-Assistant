@@ -2,18 +2,26 @@
 
 定义11项标准化审查项模板，提供审查记录的创建、更新和查询功能。
 
+# 应用装饰器: file: review_checklist.py
 @file: review_checklist.py
 """
 
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: from datetime
 from datetime import datetime
+# 导入模块: from typing
 from typing import Any
 
+# 导入模块: from loguru
 from loguru import logger
+# 导入模块: from sqlalchemy
 from sqlalchemy import select
+# 导入模块: from sqlalchemy.ext.asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# 导入模块: from app.models.report
 from app.models.report import ReportReview
 
 
@@ -63,7 +71,7 @@ REVIEW_ITEMS_TEMPLATE: dict[str, dict[str, Any]] = {
         "title": "情节严重程度审查",
         "description": "审查情节档级（T1-T4）认定是否适当",
         "default_checked": False,
-        "category": "量刑审查",
+        "category": "要件审查",
     },
     "item_07": {
         "id": "item_07",
@@ -74,10 +82,10 @@ REVIEW_ITEMS_TEMPLATE: dict[str, dict[str, Any]] = {
     },
     "item_08": {
         "id": "item_08",
-        "title": "量刑建议适当性审查",
-        "description": "审查量刑建议是否在法定幅度内，是否适当",
+        "title": "法律适用适当性审查",
+        "description": "审查法律适用是否适当，是否符合罪刑法定原则",
         "default_checked": False,
-        "category": "量刑审查",
+        "category": "法律审查",
     },
     "item_09": {
         "id": "item_09",
@@ -114,6 +122,7 @@ def get_review_items_template() -> dict[str, dict[str, Any]]:
     Returns:
         dict: 11项审查项模板
     """
+    # 返回处理结果
     return REVIEW_ITEMS_TEMPLATE.copy()
 
 
@@ -123,13 +132,16 @@ def create_default_review_items() -> dict[str, bool]:
     Returns:
         dict: 所有审查项默认未勾选状态
     """
+    # 返回处理结果
     return {
         item_id: item["default_checked"]
+        # 循环遍历：处理业务逻辑
         for item_id, item in REVIEW_ITEMS_TEMPLATE.items()
     }
 
 
 async def create_review(
+    # 函数 create_review 的初始化逻辑
     db: AsyncSession,
     report_id: int,
     reviewer_id: int | None = None,
@@ -144,26 +156,38 @@ async def create_review(
     Returns:
         ReportReview: 创建的审查记录
     """
+    # 记录日志信息
     logger.info(f"创建审查记录 - 报告ID={report_id}, 审查人ID={reviewer_id}")
 
+    # 初始化变量 review
     review = ReportReview(
+        # 初始化变量 report_id
         report_id=report_id,
+        # 初始化变量 reviewer_id
         reviewer_id=reviewer_id,
+        # 初始化变量 items
         items=create_default_review_items(),
+        # 初始化变量 comments
         comments=None,
+        # 初始化变量 completed_at
         completed_at=None,
     )
 
     db.add(review)
+    # 异步等待操作完成
     await db.commit()
+    # 异步等待操作完成
     await db.refresh(review)
 
+    # 记录日志信息
     logger.info(f"审查记录创建成功 - 审查ID={review.id}")
 
+    # 返回处理结果
     return review
 
 
 async def get_review_by_report_id(
+    # 函数 get_review_by_report_id 的初始化逻辑
     db: AsyncSession,
     report_id: int,
 ) -> ReportReview | None:
@@ -176,13 +200,16 @@ async def get_review_by_report_id(
     Returns:
         ReportReview | None: 审查记录或None
     """
+    # 初始化变量 result
     result = await db.execute(
         select(ReportReview).where(ReportReview.report_id == report_id)
     )
+    # 返回处理结果
     return result.scalar_one_or_none()
 
 
 async def update_review_items(
+    # 函数 update_review_items 的初始化逻辑
     db: AsyncSession,
     review_id: int,
     items: dict[str, bool],
@@ -197,28 +224,39 @@ async def update_review_items(
     Returns:
         ReportReview | None: 更新后的审查记录或None
     """
+    # 记录日志信息
     logger.info(f"更新审查项状态 - 审查ID={review_id}")
 
+    # 初始化变量 result
     result = await db.execute(
         select(ReportReview).where(ReportReview.id == review_id)
     )
+    # 初始化变量 review
     review = result.scalar_one_or_none()
 
+    # 条件判断: 检查 not review
     if not review:
+        # 记录日志信息
         logger.warning(f"审查记录不存在 - 审查ID={review_id}")
+        # 返回处理结果
         return None
 
     # 更新审查项状态
     review.items = items
+    # 异步等待操作完成
     await db.commit()
+    # 异步等待操作完成
     await db.refresh(review)
 
+    # 记录日志信息
     logger.info(f"审查项状态更新成功 - 审查ID={review_id}")
 
+    # 返回处理结果
     return review
 
 
 async def update_review_comments(
+    # 函数 update_review_comments 的初始化逻辑
     db: AsyncSession,
     review_id: int,
     comments: str,
@@ -233,27 +271,38 @@ async def update_review_comments(
     Returns:
         ReportReview | None: 更新后的审查记录或None
     """
+    # 记录日志信息
     logger.info(f"更新审查意见 - 审查ID={review_id}")
 
+    # 初始化变量 result
     result = await db.execute(
         select(ReportReview).where(ReportReview.id == review_id)
     )
+    # 初始化变量 review
     review = result.scalar_one_or_none()
 
+    # 条件判断: 检查 not review
     if not review:
+        # 记录日志信息
         logger.warning(f"审查记录不存在 - 审查ID={review_id}")
+        # 返回处理结果
         return None
 
     review.comments = comments
+    # 异步等待操作完成
     await db.commit()
+    # 异步等待操作完成
     await db.refresh(review)
 
+    # 记录日志信息
     logger.info(f"审查意见更新成功 - 审查ID={review_id}")
 
+    # 返回处理结果
     return review
 
 
 async def complete_review(
+    # 函数 complete_review 的初始化逻辑
     db: AsyncSession,
     review_id: int,
     items: dict[str, bool] | None = None,
@@ -272,20 +321,28 @@ async def complete_review(
     Returns:
         ReportReview | None: 更新后的审查记录或None
     """
+    # 记录日志信息
     logger.info(f"完成审查 - 审查ID={review_id}")
 
+    # 初始化变量 result
     result = await db.execute(
         select(ReportReview).where(ReportReview.id == review_id)
     )
+    # 初始化变量 review
     review = result.scalar_one_or_none()
 
+    # 条件判断: 检查 not review
     if not review:
+        # 记录日志信息
         logger.warning(f"审查记录不存在 - 审查ID={review_id}")
+        # 返回处理结果
         return None
 
     # 更新审查项状态
+    # 条件判断：处理业务逻辑
     if items is not None:
-        review.items = items
+        review.items = it    # 条件判断：处理业务逻辑
+ems
 
     # 更新审查意见
     if comments is not None:
@@ -294,15 +351,20 @@ async def complete_review(
     # 设置审查完成时间
     review.completed_at = datetime.now()
 
+    # 异步等待操作完成
     await db.commit()
+    # 异步等待操作完成
     await db.refresh(review)
 
+    # 记录日志信息
     logger.info(f"审查完成 - 审查ID={review_id}")
 
+    # 返回处理结果
     return review
 
 
 async def get_review_statistics(
+    # 函数 get_review_statistics 的初始化逻辑
     db: AsyncSession,
     report_id: int,
 ) -> dict[str, Any]:
@@ -315,9 +377,14 @@ async def get_review_statistics(
     Returns:
         dict: 审查统计信息
     """
-    review = await get_review_by_report_id(db, report_id)
+    # 初始化变量 review
+    review = await get
+    # 条件判断：处理业务逻辑
+_review_by_report_id(db, report_id)
 
+    # 条件判断: 检查 not review
     if not review:
+        # 返回处理结果
         return {
             "total_items": len(REVIEW_ITEMS_TEMPLATE),
             "checked_items": 0,
@@ -326,10 +393,14 @@ async def get_review_statistics(
             "is_completed": False,
         }
 
+    # 初始化变量 items
     items = review.items or {}
+    # 初始化变量 checked_count
     checked_count = sum(1 for v in items.values() if v)
+    # 初始化变量 total_count
     total_count = len(REVIEW_ITEMS_TEMPLATE)
 
+    # 返回处理结果
     return {
         "total_items": total_count,
         "checked_items": checked_count,

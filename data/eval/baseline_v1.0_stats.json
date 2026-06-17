@@ -1,0 +1,268 @@
+{
+  "version": "1.0",
+  "description": "基线统计指标 — 基于黄金标准数据集的人工标注者一致性分析",
+  "dataset_info": {
+    "total_cases": 30,
+    "num_annotators": 3,
+    "annotator_ids": [
+      "reviewer_1",
+      "reviewer_2",
+      "reviewer_3"
+    ]
+  },
+  "inter_annotator_agreement": {
+    "dimension1": {
+      "pairwise_kappa_mean": 0.9701,
+      "pairwise_kappa_values": [
+        1.0,
+        0.9551,
+        0.9551
+      ],
+      "pairwise_agreement_mean": 0.9778
+    },
+    "dimension2": {
+      "pairwise_kappa_mean": 0.4865,
+      "pairwise_kappa_values": [
+        0.8638,
+        0.3636,
+        0.2319
+      ],
+      "pairwise_agreement_mean": 0.6222
+    },
+    "dimension3": {
+      "pairwise_kappa_mean": 0.753,
+      "pairwise_kappa_values": [
+        0.9054,
+        0.7239,
+        0.6296
+      ],
+      "pairwise_agreement_mean": 0.8222
+    }
+  },
+  "gold_standard_kappa": {
+    "mean": 0.8177,
+    "statistics": {
+      "count": 30,
+      "mean": 0.8177,
+      "std": 0.0768,
+      "median": 0.795,
+      "min": 0.71,
+      "max": 0.97,
+      "q25": 0.76,
+      "q75": 0.8725
+    }
+  },
+  "confusion_matrix_baseline": {
+    "dimension1": {
+      "labels": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "matrix": [
+        [
+          6,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          8,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          10,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          6
+        ]
+      ],
+      "accuracy": 1.0,
+      "per_class": {
+        "1": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        },
+        "2": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 8
+        },
+        "3": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "4": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "total_samples": 30
+    },
+    "dimension2": {
+      "labels": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "matrix": [
+        [
+          4,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          9,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          10,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "accuracy": 1.0,
+      "per_class": {
+        "1": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "2": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9
+        },
+        "3": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 10
+        },
+        "4": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        }
+      },
+      "total_samples": 30
+    },
+    "dimension3": {
+      "labels": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "matrix": [
+        [
+          4,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          12,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          7,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "accuracy": 1.0,
+      "per_class": {
+        "1": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "2": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12
+        },
+        "3": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        },
+        "4": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        }
+      },
+      "total_samples": 30
+    }
+  },
+  "tier_distribution": {
+    "dimension1": {
+      "1档": 6,
+      "2档": 8,
+      "3档": 10,
+      "4档": 6
+    },
+    "dimension2": {
+      "1档": 4,
+      "2档": 9,
+      "3档": 10,
+      "4档": 7
+    },
+    "dimension3": {
+      "1档": 4,
+      "2档": 12,
+      "3档": 7,
+      "4档": 7
+    }
+  },
+  "verdict_distribution": {
+    "认定帮信": 18,
+    "不认定帮信": 8,
+    "竞合": 4
+  }
+}

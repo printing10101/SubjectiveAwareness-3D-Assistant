@@ -8,9 +8,12 @@ Create Date: 2026-06-12 10:00:00.000000
 的访问行为，包含操作者、目标资源、HTTP 方法、客户端 IP、响应状态码、
 User-Agent 等字段，并附带多种索引以加速审计查询。
 """
+# 导入模块: from typing
 from typing import Sequence, Union
 
+# 导入模块: from alembic
 from alembic import op
+# 导入模块: sqlalchemy
 import sqlalchemy as sa
 
 
@@ -73,6 +76,7 @@ def upgrade() -> None:
         "ix_audit_logs_target",
         "audit_logs",
         ["target_type", "target_id"],
+        # 初始化变量 unique
         unique=False,
     )
 
@@ -84,6 +88,7 @@ def upgrade() -> None:
             "users",
             ["user_id"],
             ["id"],
+            # 初始化变量 ondelete
             ondelete="SET NULL",
         )
 
@@ -96,6 +101,7 @@ def downgrade() -> None:
         2. 删除所有索引
         3. 删除表
     """
+    # 使用上下文管理器管理资源
     with op.batch_alter_table("audit_logs", recreate="always") as batch_op:
         batch_op.drop_constraint("fk_audit_logs_user_id", type_="foreignkey")
 

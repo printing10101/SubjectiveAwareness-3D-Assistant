@@ -1,14 +1,21 @@
 """通过 API 填充模拟案件数据，用于测试分页接口."""
+# 导入模块: from __future__
 from __future__ import annotations
 
+# 导入模块: asyncio
 import asyncio
+# 导入模块: sys
 import sys
+# 导入模块: from pathlib
 from pathlib import Path
 
+# 导入模块: httpx
 import httpx
 
 
+# 初始化变量 ROOT
 ROOT = Path(__file__).resolve().parent
+# 条件判断：处理业务逻辑
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -17,6 +24,7 @@ _HTTP_OK: int = 200
 _HTTP_CREATED: int = 201
 _EXISTING_DATA_THRESHOLD: int = 25
 
+# 初始化变量 CASE_TITLES
 CASE_TITLES = [
     "张某涉嫌帮助信息网络犯罪活动案",
     "李某非法经营案",
@@ -45,6 +53,7 @@ CASE_TITLES = [
     "唐某非法持有枪支案",
 ]
 
+# 初始化变量 CASE_TEXTS
 CASE_TEXTS = [
     "张某于2023年3月至5月期间，明知他人利用信息网络实施犯罪，仍将其名下3张银行卡提供给对方用于支付结算，涉案流水金额达人民币50余万元，张某从中获利3000元。",
     "李某未经国家有关主管部门批准，非法经营证券、期货业务，涉及金额800余万元，严重扰乱市场秩序。",
@@ -73,6 +82,7 @@ CASE_TEXTS = [
     "唐某非法持有以火药为动力发射弹丸的枪支2支，存放于其住所内，对公共安全构成严重威胁。",
 ] * 1
 
+# 初始化变量 STATUSES
 STATUSES = [
     "pending", "pending",
     "analyzing", "analyzing",
@@ -86,41 +96,61 @@ STATUSES = [
     "pending", "analyzing",
 ]
 
+# 初始化变量 BASE_URL
 BASE_URL = "http://localhost:8000"
 
 
 async def seed() -> None:
     """插入种子数据."""
     async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.get(f"{BASE_URL}/api/cases/?page_size=1")
-        if resp.status_code == _HTTP_OK:
+        # 初始化变量 resp
+        resp = await client.get(f"{BASE_URL}/api/cases/?        # 条件判断：处理业务逻辑
+page_size=1")
+        # 条件判断: 检查 resp.status_code == _HTTP            # 条
+        if resp.status_code == _HTTP            # 条件判断：处理业务逻辑
+_OK:
+            # 初始化变量 data
             data = resp.json()
+            # 条件判断: 检查 data["total"] >= _EXISTING_DATA_THRESHOL
             if data["total"] >= _EXISTING_DATA_THRESHOLD:
                 print(f"种子数据已存在: 共 {data['total']} 条")
+                # 返回处理结果
                 return
 
+        # 初始化变量 count
         count = 0
+        # 循环遍历：处理业务逻辑
         for i, (title, case_text) in enumerate(
             zip(CASE_TITLES, CASE_TEXTS, strict=True)
         ):
+            # 初始化变量 status
             status = STATUSES[i % len(STATUSES)]
+            # 初始化变量 payload
             payload = {
                 "title": title,
                 "case_text": case_text,
                 "status": status,
             }
+            # 初始化变量 resp
             resp = await client.post(
-                f"{BASE_URL}/api/cases/", json=payload
+                   # 条件判断：处理业务逻辑
+         f"{BASE_URL}/api/cases/", json=payload
             )
+            # 条件判断: 检查 resp.status_code == _HTTP_CREATED
             if resp.status_code == _HTTP_CREATED:
                 count += 1
+            # 其他情况的默认处理
             else:
                 print(
                     f"  [{resp.status_code}] 创建失败: "
-                    f"{title} - {resp.text[:100]}"
+                    f"{title} - {r
+
+# 条件判断：处理业务逻辑
+esp.text[:100]}"
                 )
         print(f"成功插入 {count} 条模拟案件数据 (总计: {count})")
 
 
+# 条件判断: 检查 __name__ == "__main__"
 if __name__ == "__main__":
     asyncio.run(seed())

@@ -1,0 +1,255 @@
+{
+  "total_cases": 25,
+  "path_distribution": {
+    "帮信罪主路径": 12,
+    "诈骗罪共同犯罪路径": 7,
+    "掩饰隐瞒犯罪所得路径": 3,
+    "规范路径待核实": 3
+  },
+  "case_details": [
+    {
+      "case_id": "GZ2023BX001",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "从事诈骗",
+        "诈骗团伙",
+        "诈骗犯罪",
+        "电信网络诈骗",
+        "诈骗所得",
+        "电信诈骗",
+        "网络诈骗",
+        "诈骗活动"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX002",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "提供技术支持",
+        "技术维护"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX003",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "电信网络诈骗",
+        "电信诈骗",
+        "网络诈骗"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX004",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "代为保管",
+        "养卡",
+        "代管"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX005",
+      "recognized_path": "掩饰隐瞒犯罪所得路径",
+      "reason": "识别到掩饰隐瞒犯罪所得相关事实标签组合",
+      "matched_keywords": [
+        "转移资金",
+        "帮助转移",
+        "跑分",
+        "网络赌博"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX006",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "诈骗团伙",
+        "电信网络诈骗",
+        "电信诈骗",
+        "网络诈骗",
+        "诈骗活动"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX007",
+      "recognized_path": "掩饰隐瞒犯罪所得路径",
+      "reason": "识别到掩饰隐瞒犯罪所得相关事实标签组合",
+      "matched_keywords": [
+        "转移资金",
+        "帮助转移",
+        "资金流转",
+        "跑分",
+        "网络赌博"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX008",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "出租银行卡"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX009",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "提供银行卡",
+        "出售银行卡"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX010",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "提供实名认证"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX011",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "开发APP",
+        "技术开发"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX012",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "电信诈骗"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX013",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "明确告知诈骗",
+        "诈骗犯罪",
+        "诈骗信息",
+        "网络诈骗",
+        "用于诈骗"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX014",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "代收转寄",
+        "代收包裹",
+        "虚假签名",
+        "虚假姓名签收"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX015",
+      "recognized_path": "掩饰隐瞒犯罪所得路径",
+      "reason": "识别到掩饰隐瞒犯罪所得相关事实标签组合",
+      "matched_keywords": [
+        "帮助转移",
+        "跑分"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX016",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "接收诈骗资金"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX017",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "商户入驻审核"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX018",
+      "recognized_path": "诈骗罪共同犯罪路径",
+      "reason": "识别到诈骗罪共同犯罪相关事实标签",
+      "matched_keywords": [
+        "接收诈骗资金",
+        "电信诈骗"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX019",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "人脸识别验证",
+        "借用手机",
+        "出借手机"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX020",
+      "recognized_path": "规范路径待核实",
+      "reason": "未识别到明确的路径分类标签，需要人工核实",
+      "matched_keywords": []
+    },
+    {
+      "case_id": "GZ2023BX021",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "推广话术"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX022",
+      "recognized_path": "规范路径待核实",
+      "reason": "未识别到明确的路径分类标签，需要人工核实",
+      "matched_keywords": []
+    },
+    {
+      "case_id": "GZ2023BX023",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "开发APP",
+        "技术开发",
+        "技术维护"
+      ]
+    },
+    {
+      "case_id": "GZ2023BX024",
+      "recognized_path": "规范路径待核实",
+      "reason": "未识别到明确的路径分类标签，需要人工核实",
+      "matched_keywords": []
+    },
+    {
+      "case_id": "GZ2023BX025",
+      "recognized_path": "帮信罪主路径",
+      "reason": "识别到帮信罪主路径相关事实标签",
+      "matched_keywords": [
+        "代收包裹",
+        "快递员代收"
+      ]
+    }
+  ],
+  "path_percentage": {
+    "帮信罪主路径": 48.0,
+    "诈骗罪共同犯罪路径": 28.0,
+    "掩饰隐瞒犯罪所得路径": 12.0,
+    "规范路径待核实": 12.0
+  },
+  "pending_verification_rate": {
+    "count": 3,
+    "percentage": 12.0,
+    "within_threshold": true
+  }
+}

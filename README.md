@@ -636,6 +636,167 @@ httpx 发送请求至 Ollama (deepseek-r1:7b)
 
 ---
 
+## 前端组件清单
+
+### 布局组件 (layout/)
+
+| 组件 | 文件 | 功能描述 |
+|------|------|----------|
+| `AppLayout` | `components/layout/AppLayout.vue` | 应用主布局容器，集成侧边栏、头部、主内容区 |
+| `AppSidebar` | `components/layout/AppSidebar.vue` | 桌面端侧边导航栏，支持折叠/展开 |
+| `AppHeader` | `components/layout/AppHeader.vue` | 顶部导航栏，显示面包屑、用户信息 |
+| `MobileTabbar` | `components/layout/MobileTabbar.vue` | 移动端底部 Tab 导航栏（<768px 显示） |
+| `PageContainer` | `components/layout/PageContainer.vue` | 页面内容容器，统一内边距和最大宽度 |
+
+### UI 基础组件 (ui/)
+
+| 组件 | 文件 | 功能描述 |
+|------|------|----------|
+| `BaseButton` | `components/ui/BaseButton.vue` | 基础按钮，支持 primary/secondary/danger 等变体 |
+| `BaseInput` | `components/ui/BaseInput.vue` | 输入框，支持 v-model、验证、前后缀 |
+| `BaseTextarea` | `components/ui/BaseTextarea.vue` | 多行文本输入框 |
+| `BaseSelect` | `components/ui/BaseSelect.vue` | 下拉选择框 |
+| `BaseCard` | `components/ui/BaseCard.vue` | 卡片容器，带阴影和圆角 |
+| `BaseModal` | `components/ui/BaseModal.vue` | 模态对话框，支持 ESC 关闭、点击遮罩关闭 |
+| `BaseDrawer` | `components/ui/BaseDrawer.vue` | 抽屉组件，支持左/右/底部弹出 |
+| `BaseToast` | `components/ui/BaseToast.vue` | 轻量提示提示，支持 success/error/warning/info |
+| `BaseBadge` | `components/ui/BaseBadge.vue` | 徽章标签，用于状态标记 |
+| `BaseTable` | `components/ui/BaseTable.vue` | 数据表格，支持排序、分页 |
+| `BaseTabs` | `components/ui/BaseTabs.vue` | 选项卡切换 |
+| `BasePagination` | `components/ui/BasePagination.vue` | 分页器 |
+| `BaseLoading` | `components/ui/BaseLoading.vue` | 加载状态指示器 |
+| `BaseEmpty` | `components/ui/BaseEmpty.vue` | 空状态占位图 |
+| `BaseSkeleton` | `components/ui/BaseSkeleton.vue` | 骨架屏加载动画 |
+| `BaseDivider` | `components/ui/BaseDivider.vue` | 分隔线 |
+| `AnimatedNumber` | `components/ui/AnimatedNumber.vue` | 数字滚动动画组件 |
+| `AnimatedProgress` | `components/ui/AnimatedProgress.vue` | 进度条动画组件 |
+| `ResponsiveImage` | `components/ui/ResponsiveImage.vue` | 响应式图片，支持懒加载 |
+
+### 业务组件
+
+| 组件 | 文件 | 功能描述 |
+|------|------|----------|
+| `AnalysisResult` | `components/analysis/AnalysisResult.vue` | 三维度分析结果展示 |
+| `DimensionMatrix` | `components/analysis/DimensionMatrix.vue` | 维度评分矩阵可视化 |
+| `RuleTransparency` | `components/analysis/RuleTransparency.vue` | 规则透明度说明组件 |
+| `CaseCard` | `components/cases/CaseCard.vue` | 案件卡片，用于列表展示 |
+| `KnowledgeGraph` | `components/KnowledgeGraph.vue` | 知识图谱可视化（D3.js） |
+
+### 通用组件 (common/)
+
+| 组件 | 文件 | 功能描述 |
+|------|------|----------|
+| `LoadingSpinner` | `components/common/LoadingSpinner.vue` | 全局加载旋转指示器 |
+
+---
+
+## 样式规范
+
+### 设计令牌 (Design Tokens)
+
+项目采用 CSS 变量实现统一的设计语言，所有令牌定义在 `frontend/src/assets/styles/tokens.css`。
+
+#### 颜色系统
+
+```css
+/* 背景色 */
+--color-bg-base: #F5F2EC;          /* 米白基底 */
+--color-bg-secondary: #FAF8F4;     /* 次要背景 */
+--color-bg-card: #FFFFFF;          /* 卡片背景 */
+--color-bg-glass: rgba(245, 242, 236, 0.85); /* 磨砂玻璃 */
+
+/* 文字色 */
+--color-text-primary: #1D1D1F;     /* 主文字 */
+--color-text-secondary: #6E6E73;   /* 次要文字 */
+--color-text-tertiary: #AEAEB2;    /* 辅助文字 */
+
+/* 边框 */
+--color-border-subtle: #E8E3D9;    /* 弱边框 */
+--color-border-strong: #D4CFC2;    /* 强边框 */
+
+/* 高光色 */
+--color-accent-copper: #8B6F47;    /* 古铜色 */
+--color-accent-gold: #B8956A;      /* 金色 */
+
+/* 语义色 */
+--color-success: #2D7D4A;          /* 成功 */
+--color-warning: #B8791E;          /* 警告 */
+--color-error: #B23A2A;            /* 错误 */
+```
+
+#### 间距系统
+
+基于 4px 基础单位，提供 8 档间距：
+
+```css
+--spacing-1: 4px;
+--spacing-2: 8px;
+--spacing-3: 12px;
+--spacing-4: 16px;
+--spacing-5: 24px;
+--spacing-6: 32px;
+--spacing-7: 48px;
+--spacing-8: 64px;
+```
+
+#### 圆角规范
+
+```css
+--radius-sm: 6px;    /* 小圆角：按钮、输入框 */
+--radius-md: 10px;   /* 中圆角：卡片 */
+--radius-lg: 16px;   /* 大圆角：模态框 */
+--radius-xl: 24px;   /* 超大圆角：特殊容器 */
+```
+
+#### 阴影层级
+
+```css
+--shadow-1: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);  /* 卡片默认 */
+--shadow-2: 0 4px 12px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03); /* 悬停状态 */
+--shadow-3: 0 8px 30px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04); /* 弹出层 */
+--shadow-4: 0 16px 48px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.05); /* 模态框 */
+```
+
+### 响应式断点
+
+| 断点 | 范围 | 布局策略 |
+|------|------|----------|
+| 移动端 | <768px | 单列布局，底部 Tab 导航，侧边栏隐藏 |
+| 平板端 | 768px–1279px | 双列布局，侧边栏可折叠（60px） |
+| 桌面端 | ≥1280px | 三列布局，侧边栏展开（240px） |
+
+### 命名约定
+
+- **CSS 变量**：`--{category}-{name}-{variant}`，如 `--color-text-primary`
+- **工具类**：`.{property}-{value}`，如 `.p-4`、`.text-center`
+- **组件类**：使用 `<style scoped>`，避免全局污染
+- **状态类**：`.is-{state}`，如 `.is-loading`、`.is-disabled`
+
+### 样式使用示例
+
+```vue
+<template>
+  <div class="page-container">
+    <BaseCard class="p-6 shadow-2">
+      <h2 class="text-primary mb-4">标题</h2>
+      <BaseButton variant="primary" class="btn-interactive">
+        提交
+      </BaseButton>
+    </BaseCard>
+  </div>
+</template>
+
+<style scoped>
+.page-container {
+  max-width: var(--layout-content-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-6);
+}
+</style>
+```
+
+---
+
 ## 开源协议
 
 本项目采用 **MIT 开源许可证**（MIT License）。
@@ -742,4 +903,4 @@ httpx 发送请求至 Ollama (deepseek-r1:7b)
 
 ---
 
-> 最后更新时间：2026-06-01
+> 最后更新时间：2026-06-15

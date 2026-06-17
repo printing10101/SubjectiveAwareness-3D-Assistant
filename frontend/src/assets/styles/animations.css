@@ -1,0 +1,355 @@
+/* =====================================================================
+ * 动效系统 — 苹果设计语言规范
+ *
+ * 统一动画变量、过渡效果、keyframes 和可访问性适配
+ * 基础持续时间: 250ms, 缓动函数: ease-out
+ * ===================================================================== */
+
+/* ------------------------------------------------------------------
+ * 1. 页面切换过渡效果
+ *    淡入 (opacity: 0→1) + 上滑 (translateY(8px)→0)
+ *    250ms, ease-out
+ * ------------------------------------------------------------------ */
+.page-enter-active {
+  transition: opacity var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.page-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* ------------------------------------------------------------------
+ * 2. 卡片悬停反馈
+ *    垂直位移 translateY(-2px) + 阴影增强
+ *    200ms, ease-out
+ * ------------------------------------------------------------------ */
+.card-hover {
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px -2px rgba(0, 0, 0, 0.1),
+              0 3px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-hover:active {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------
+ * 3. 按钮交互效果
+ *    颜色加深 + translateY(-1px), 150ms
+ *    按下: translateY(0) + 颜色进一步加深
+ * ------------------------------------------------------------------ */
+.btn-interactive {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-interactive:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.1) brightness(0.95);
+}
+
+.btn-interactive:active:not(:disabled) {
+  transform: translateY(0);
+  filter: saturate(1.2) brightness(0.9);
+}
+
+/* ------------------------------------------------------------------
+ * 4. 输入框聚焦状态
+ *    暖色环形高亮 (#FF9500 系列), 200ms
+ * ------------------------------------------------------------------ */
+.input-focus-ring {
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.input-focus-ring:focus,
+.input-focus-ring:focus-within {
+  border-color: #FF9500;
+  box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.15);
+}
+
+/* ------------------------------------------------------------------
+ * 5. 模态框过渡
+ *    缩放 scale(0.95→1) + 透明度 0→1
+ *    背景遮罩 opacity 0→0.5
+ *    250ms, ease-out
+ * ------------------------------------------------------------------ */
+.modal-enter-active {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.modal-enter-active .modal-content {
+  transition: opacity var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.modal-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.modal-leave-active .modal-content {
+  transition: opacity var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.modal-enter-from {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-content {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-leave-to .modal-content {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* ------------------------------------------------------------------
+ * 6. 抽屉组件动画
+ *    平滑滑入, 300ms, ease-out
+ *    背景遮罩同步淡入
+ * ------------------------------------------------------------------ */
+.drawer-enter-active {
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.drawer-enter-active .drawer-panel {
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.drawer-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.drawer-leave-active .drawer-panel {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.drawer-enter-from {
+  opacity: 0;
+}
+
+.drawer-enter-from .drawer-panel {
+  transform: translateX(-100%);
+}
+
+.drawer-leave-to {
+  opacity: 0;
+}
+
+.drawer-leave-to .drawer-panel {
+  transform: translateX(-100%);
+}
+
+/* 右侧抽屉 */
+.drawer-right-enter-from .drawer-panel {
+  transform: translateX(100%);
+}
+
+.drawer-right-leave-to .drawer-panel {
+  transform: translateX(100%);
+}
+
+/* 底部抽屉 */
+.drawer-bottom-enter-from .drawer-panel {
+  transform: translateY(100%);
+}
+
+.drawer-bottom-leave-to .drawer-panel {
+  transform: translateY(100%);
+}
+
+/* ------------------------------------------------------------------
+ * 7. Toast 提示动画
+ *    滑入 translateY(20px→0) + 淡入 opacity 0→1
+ *    250ms, ease-out
+ *    退出: 相反动画
+ * ------------------------------------------------------------------ */
+.toast-enter-active {
+  transition: opacity var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.toast-leave-active {
+  transition: opacity var(--duration-fast) var(--ease-in),
+              transform var(--duration-fast) var(--ease-in);
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* 移动动画 */
+.toast-move {
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+/* ------------------------------------------------------------------
+ * 8. 进度条动画
+ *    宽度 0% → 目标百分比, 400ms, ease-out
+ * ------------------------------------------------------------------ */
+.progress-bar {
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+/* ------------------------------------------------------------------
+ * 9. 三维度矩阵动画
+ *    逐个点亮, 每档间隔 80ms
+ * ------------------------------------------------------------------ */
+.matrix-cell-animate {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: matrix-cell-activate var(--duration-base) var(--ease-out) forwards;
+}
+
+@keyframes matrix-cell-activate {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: brightness(1.2);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+    filter: brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* ------------------------------------------------------------------
+ * 10. 骨架屏动画
+ *    扫描式渐变, 1.5s, 无限循环
+ * ------------------------------------------------------------------ */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-border-subtle, #e8e3d9) 25%,
+    var(--color-bg-secondary, #faf8f4) 50%,
+    var(--color-border-subtle, #e8e3d9) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep var(--duration-skeleton) ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * 11. 通用淡入淡出
+ * ------------------------------------------------------------------ */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 淡入 + 缩放 */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: opacity var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* ------------------------------------------------------------------
+ * 12. 可访问性适配 — prefers-reduced-motion
+ *     当用户系统设置为"减少动效"时，禁用所有非必要动画
+ *     保留必要的状态变化反馈，但移除平滑过渡效果
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .page-enter-from,
+  .page-leave-to {
+    transform: none;
+  }
+
+  .card-hover:hover {
+    transform: none;
+  }
+
+  .btn-interactive:hover:not(:disabled),
+  .btn-interactive:active:not(:disabled) {
+    transform: none;
+  }
+
+  .modal-enter-from .modal-content,
+  .modal-leave-to .modal-content {
+    transform: none;
+  }
+
+  .drawer-enter-from .drawer-panel,
+  .drawer-leave-to .drawer-panel {
+    transform: none;
+  }
+
+  .toast-enter-from,
+  .toast-leave-to {
+    transform: none;
+  }
+
+  .matrix-cell-animate {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .skeleton-shimmer {
+    animation: none;
+    background: var(--color-border-subtle, #e8e3d9);
+  }
+}
