@@ -11,32 +11,21 @@
 - sc_on/off: 量刑计算启用/禁用
 """
 
-# 导入模块: from __future__
 from __future__ import annotations
 
-# 导入模块: argparse
 import argparse
-# 导入模块: asyncio
 import asyncio
-# 导入模块: json
 import json
-# 导入模块: sys
 import sys
-# 导入模块: time
 import time
-# 导入模块: from dataclasses
 from dataclasses import dataclass
-# 导入模块: from datetime
 from datetime import UTC, datetime
-# 导入模块: from pathlib
 from pathlib import Path
-# 导入模块: from typing
 from typing import Any
 
 
 # 确保 backend 在 sys.path 中
 _BACKEND_DIR = Path(__file__).resolve().parent.parent
-# 条件判断：处理业务逻辑
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
@@ -57,9 +46,7 @@ _ABLATION_REPORT_PATH = _REPORTS_DIR / "ablation_v1.0.json"
 # ---------------------------------------------------------------------------
 
 
-# 应用装饰器: dataclass
 @dataclass
-# 定义 ComponentConfig 类
 class ComponentConfig:
     """系统组件配置."""
 
@@ -71,7 +58,6 @@ class ComponentConfig:
 
     def to_dict(self) -> dict[str, Any]:
         """转换为字典."""
-        # 返回处理结果
         return {
             "rules_on": self.rules_on,
             "tags_on": self.tags_on,
@@ -80,21 +66,14 @@ class ComponentConfig:
             "sc_on": self.sc_on,
         }
 
-    # 应用装饰器: staticmethod
     @staticmethod
     def from_dict(d: dict[str, Any]) -> ComponentConfig:
         """从字典创建配置."""
-        # 返回处理结果
         return ComponentConfig(
-            # 初始化变量 rules_on
             rules_on=d.get("rules_on", True),
-            # 初始化变量 tags_on
             tags_on=d.get("tags_on", True),
-            # 初始化变量 conflicts_on
             conflicts_on=d.get("conflicts_on", True),
-            # 初始化变量 multi_dimension
             multi_dimension=d.get("multi_dimension", True),
-            # 初始化变量 sc_on
             sc_on=d.get("sc_on", True),
         )
 
@@ -122,21 +101,15 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
     Returns:
         包含 (组合名称, 组件配置) 的列表
     """
-    # 返回处理结果
     return [
         # 1. 完整系统
         (
             "full_system",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -144,15 +117,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "no_rules",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=False,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -160,15 +128,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "no_tags",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=False,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -176,15 +139,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "no_conflicts",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=False,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -192,15 +150,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "single_dimension",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=False,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -208,15 +161,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "no_sc",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=False,
             ),
         ),
@@ -224,15 +172,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "rules_tags_only",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=True,
-                # 初始化变量 tags_on
                 tags_on=True,
-                # 初始化变量 conflicts_on
                 conflicts_on=False,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=False,
             ),
         ),
@@ -240,15 +183,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "multi_dim_only",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=False,
-                # 初始化变量 tags_on
                 tags_on=False,
-                # 初始化变量 conflicts_on
                 conflicts_on=False,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -256,15 +194,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "minimal",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=False,
-                # 初始化变量 tags_on
                 tags_on=False,
-                # 初始化变量 conflicts_on
                 conflicts_on=False,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -272,15 +205,10 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
         (
             "no_rules_tags",
             ComponentConfig(
-                # 初始化变量 rules_on
                 rules_on=False,
-                # 初始化变量 tags_on
                 tags_on=False,
-                # 初始化变量 conflicts_on
                 conflicts_on=True,
-                # 初始化变量 multi_dimension
                 multi_dimension=True,
-                # 初始化变量 sc_on
                 sc_on=True,
             ),
         ),
@@ -293,7 +221,6 @@ def get_ablation_combinations() -> list[tuple[str, ComponentConfig]]:
 
 
 async def run_pipeline_with_config(
-    # 函数 run_pipeline_with_config 的初始化逻辑
     case_text: str,
     config: ComponentConfig,
 ) -> dict[str, Any]:
@@ -306,7 +233,6 @@ async def run_pipeline_with_config(
     Returns:
         pipeline 执行结果
     """
-    # 导入模块: from app.services.pipeline
     from app.services.pipeline import analyze_pipeline_v2
 
     # 运行完整 pipeline
@@ -315,16 +241,11 @@ async def run_pipeline_with_config(
     # 根据配置调整结果
     adjusted_result = _adjust_result_by_config(result, config)
 
-    # 返回处理结果
     return adjusted_result
 
 
 def _adjust_result_by_config(
-    # 函数 _adjust_result_by_config 的初始化逻辑
     result: dict[str, Any],
-
-
-    # 执行 _adjust_result_by_config 函数的核心逻辑
     config: ComponentConfig,
 ) -> dict[str, Any]:
     """根据组件配置调整 pipeline 结果.
@@ -337,7 +258,6 @@ def _adjust_result_by_config(
     - sc_on=False: 使用默认量刑区间
     """
 
-    # 初始化变量 adjusted
     adjusted = result.copy()
 
     # 禁用规则引擎
@@ -345,16 +265,11 @@ def _adjust_result_by_config(
         adjusted["triggered_rule_ids"] = []
         # 重新计算档级（无规则影响）
         dim1 = adjusted.get("dimension1", {}).get("tier", "T2")
-        # 初始化变量 dim2
         dim2 = adjusted.get("dimension2", {}).get("tier", "T2")
-        # 初始化变量 dim3
         dim3 = adjusted.get("dimension3", {}).get("tier", "T2")
-        # 异常处理：处理业务逻辑
         try:
-            # 初始化变量 verdict
             verdict = combine_tiers(dim1, dim2, dim3, rule_hits=[])
             adjusted["final_verdict"] = verdict
-        # 捕获异常：处理业务逻辑
         except Exception:
             pass
 
@@ -366,35 +281,24 @@ def _adjust_result_by_config(
     if not config.conflicts_on:
         adjusted["conflicts"] = []
 
-    # 单维度模式（简    # 条件判断：处理业务逻辑
-化处理：仅使用维度1结果）
-    # 条件判断: 检查 not config.multi_dimension
+    # 单维度模式（简化处理：仅使用维度1结果）
     if not config.multi_dimension:
-        # 初始化变量 dim1_tier
         dim1_tier = adjusted.get("dimension1", {}).get("tier", "T2")
         # 将三个维度都设置为维度1的结果
         adjusted["dimension2"] = adjusted.get("dimension1", {}).copy()
-        adjusted["dimension3"] = adjusted.get("dimension1", {}).co        # 异常处理：处理业务逻辑
-py()
+        adjusted["dimension3"] = adjusted.get("dimension1", {}).copy()
         # 重新计算档级
         try:
-            # 初始化变量 verdict
             verdict = combine_tiers(dim1_tier, dim1_tier, dim1_tier, rule_hits=[])
-            adjusted["fina        # 捕获异常：处理业务逻辑
-l_verdict"] = verdict
-        # 捕获并处理异常
+            adjusted["final_verdict"] = verdict
         except Exception:
             pass
 
-    #         # 条件判断：处理业务逻辑
-禁用量刑计算
-    # 条件判断: 检查 not config.sc_on
+    # 禁用量刑计算
     if not config.sc_on:
-        # 条件判断: 检查 "final_verdict" in adjusted
         if "final_verdict" in adjusted:
             adjusted["final_verdict"]["sentence_band"] = "待定"
 
-    # 返回处理结果
     return adjusted
 
 
@@ -404,7 +308,6 @@ l_verdict"] = verdict
 
 
 async def run_ablation_experiment(
-    # 函数 run_ablation_experiment 的初始化逻辑
     gold_standard_path: Path = _GOLD_STANDARD_PATH,
     report_path: Path = _ABLATION_REPORT_PATH,
 ) -> dict[str, Any]:
@@ -424,12 +327,9 @@ async def run_ablation_experiment(
     )
 
     print(f"[ablation_runner] 加载测试集: {gold_standard_path}")
-    # 使用上下文管理器管理资源
     with open(gold_standard_path, encoding="utf-8") as f:
-        # 初始化变量 test_cases
         test_cases = json.load(f)
 
-    # 初始化变量 total
     total = len(test_cases)
     print(f"[ablation_runner] 测试案例数: {total}")
 
@@ -440,41 +340,27 @@ async def run_ablation_experiment(
     # 存储每个组合的结果
     combination_results: list[dict[str, Any]] = []
 
-    # 遍历: for combo_name, config in combinations:
     for combo_name, config in combinations:
         print(f"\n[ablation_runner] 运行组合: {combo_name}")
         print(f"  配置: {config.to_dict()}")
 
         # 运行所有测试案例
         case_results: list[dict[str, Any]] = []
-        # 循环遍历：处理业务逻辑
         for i, case in enumerate(test_cases):
-            # 初始化变量 case_id
             case_id = case["case_id"]
             print(f"  ({i + 1}/{total}) 评估 {case_id} ...")
 
-            # 初始化变量 case_text
             case_text = _load_case_text(case_id)
 
-            # 使用配置运行 pipel            # 异常处理：处理业务逻辑
-ine
-            # 初始化变量 start
+            # 使用配置运行 pipeline
             start = time.perf_counter()
-            # 尝试执行可能抛出异常的代码
             try:
-                # 初始化变量 result
-                result = await run_pipeline_with_config(case_text,            # 捕获异常：处理业务逻辑
- config)
-                # 初始化变量 status
+                result = await run_pipeline_with_config(case_text, config)
                 status = "success"
-            # 捕获并处理异常
             except Exception as exc:
-                # 初始化变量 result
                 result = None
-                # 初始化变量 status
                 status = f"error: {exc}"
 
-            # 初始化变量 duration_ms
             duration_ms = round((time.perf_counter() - start) * 1000, 2)
 
             # 构建案例结果（与 eval_runner 格式一致）
@@ -484,34 +370,23 @@ ine
                 _infer_final_tier_from_dims,
             )
 
-            # 导入模块: from app.types.analysis_v2
             from app.types.analysis_v2 import TierEnum
 
-            # 初始化变量 pred
             pred = _extract_predictions(result)
-            # 初始化变量 ground_truth
             ground_truth = case["ground_truth"]
 
-            # 初始化变量 gt_d1_rank
             gt_d1_rank = _cn_tier_to_rank(ground_truth["d1_tier"])
-            # 初始化变量 gt_d2_rank
             gt_d2_rank = _cn_tier_to_rank(ground_truth["d2_tier"])
-            # 初始化变量 gt_d3_rank
             gt_d3_rank = _cn_tier_to_rank(ground_truth["d3_tier"])
-            # 初始化变量 gt_verdict
             gt_verdict = ground_truth["verdict"]
 
-            # 初始化变量 gt_final_rank
             gt_final_rank = _cn_tier_to_rank(
                 _infer_final_tier_from_dims(gt_d1_rank, gt_d2_rank, gt_d3_rank)
             )
-            # 初始化变量 gt_sentence_band
             gt_sentence_band = TierEnum(f"T{gt_final_rank}").sentence_band
 
-            # 初始化变量 has_conflict
             has_conflict = case.get("agreement_kappa", 1.0) < 0.75
 
-            # 初始化变量 case_result
             case_result = {
                 "case_id": case_id,
                 "status": status,
@@ -554,14 +429,12 @@ ine
 
     # 写入报告
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    # 使用上下文管理器管理资源
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
     print(f"\n[ablation_runner] 消融实验报告已生成: {report_path}")
     _print_ablation_summary(report)
 
-    # 返回处理结果
     return report
 
 
@@ -576,27 +449,17 @@ def _print_ablation_summary(report: dict[str, Any]) -> None:
 
     # 表头
     header = f"{'组合名称':<20} {'verdict准确率':<12} {'D1精确':<10} {'D1容忍':<10} {'标签F1':<10} {'冲突召回':<10}"
-    print(header
-    # 循环遍历：处理业务逻辑
-)
+    print(header)
     print("-" * 80)
 
-    # 遍历: for combo in report["combinations"]:
     for combo in report["combinations"]:
-        # 初始化变量 name
         name = combo["combination_name"]
-        # 初始化变量 metrics
         metrics = combo["metrics"]
 
-        # 初始化变量 verdict_acc
         verdict_acc = metrics.get("verdict_accuracy", {}).get("accuracy", 0.0)
-        # 初始化变量 d1_exact
         d1_exact = metrics.get("dimension1_accuracy", {}).get("exact_match", 0.0)
-        # 初始化变量 d1_tol
         d1_tol = metrics.get("dimension1_accuracy", {}).get("tolerance_match", 0.0)
-        # 初始化变量 tag_f1
         tag_f1 = metrics.get("tag_extraction_f1", {}).get("f1", 0.0)
-        # 初始化变量 conflict_recall
         conflict_recall = metrics.get("conflict_detection_recall", {}).get("recall", 0.0)
 
         row = (
@@ -619,35 +482,23 @@ def _print_ablation_summary(report: dict[str, Any]) -> None:
 
 def main() -> None:
     """命令行入口."""
-    # 初始化变量 parser
     parser = argparse.ArgumentParser(description="消融实验运行器")
     parser.add_argument(
         "--gold-standard",
-        # 初始化变量 type
         type=Path,
-        # 初始化变量 default
         default=_GOLD_STANDARD_PATH,
-        # 初始化变量 help
         help="金标准测试集路径",
     )
     parser.add_argument(
         "--report",
-        # 初始化变量 type
         type=Path,
-        # 初始化变量 default
         default=_ABLATION_REPORT_PATH,
-        # 初始化变量 help
         help="消融实验报告输出路径",
     )
-    # 初始化变量 args
     args = parser.parse_args()
 
-    asyncio.run(run_
-
-# 条件判断：处理业务逻辑
-ablation_experiment(args.gold_standard, args.report))
+    asyncio.run(run_ablation_experiment(args.gold_standard, args.report))
 
 
-# 条件判断: 检查 __name__ == "__main__"
 if __name__ == "__main__":
     main()

@@ -17,7 +17,6 @@
 # 应用装饰器: version 1.0.0
 @version 1.0.0
 """
-
 # 导入模块: from pathlib
 from pathlib import Path
 
@@ -35,8 +34,6 @@ from pydantic import model_validator
 # 导入模块: from pydantic_settings
 from pydantic_settings import BaseSettings
 
-
-# 初始化变量 logger
 logger = logging.getLogger(__name__)
 
 _MIN_ENCRYPTION_KEY_LENGTH = 32
@@ -397,9 +394,7 @@ class Settings(BaseSettings):
             if h.strip()
         ]
 
-    # 初始化变量 model_config
-    model_config = {
-        "env_file": str(Path(__file__).parent.parent / ".env"),
+    model_config = {"env_file": str(Path(__file__).parent.parent / ".env"),
         "case_sensitive": True
     }
 
@@ -562,7 +557,4 @@ class Settings(BaseSettings):
             '"import secrets; print(secrets.token_urlsafe(32))"\n'
             + "=" * 60
         )
-
-
-# 初始化变量 settings
 settings = Settings()

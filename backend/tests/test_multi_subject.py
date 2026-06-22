@@ -13,8 +13,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from app.models.case import Case, CaseStatus
-from app.services.report_generator import generate_report
-from app.services.report_exporter import export_pdf, export_docx
+from app.services.report import generate_report, export_pdf, export_docx
 
 
 def create_multi_subject_case():

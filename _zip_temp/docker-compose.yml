@@ -1,0 +1,137 @@
+name: legal-analysis
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legal-analysis-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    environment:
+      # Override database to use PostgreSQL in container environment
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-legal_user}:${POSTGRES_PASSWORD:-legal_pass}@db:5432/${POSTGRES_DB:-legal_analysis}
+      - ASYNC_DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-legal_user}:${POSTGRES_PASSWORD:-legal_pass}@db:5432/${POSTGRES_DB:-legal_analysis}
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_DIR=/app/logs
+      - APP_ENV=production
+      - DEBUG=false
+      - DB_POOL_SIZE=10
+      - DB_MAX_OVERFLOW=15
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - api_logs:/app/logs
+      - api_cache:/app/app/utils/.cache
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "4G"
+        reservations:
+          cpus: "0.5"
+          memory: "1G"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: legal-analysis-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+        reservations:
+          cpus: "0.1"
+          memory: "64M"
+
+  db:
+    image: postgres:16-alpine
+    container_name: legal-analysis-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-legal_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-legal_pass}
+      - POSTGRES_DB=${POSTGRES_DB:-legal_analysis}
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-legal_user} -d ${POSTGRES_DB:-legal_analysis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1G"
+        reservations:
+          cpus: "0.25"
+          memory: "256M"
+
+  redis:
+    image: redis:7-alpine
+    container_name: legal-analysis-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512M"
+        reservations:
+          cpus: "0.1"
+          memory: "128M"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  api_logs:
+    driver: local
+  api_cache:
+    driver: local

@@ -20,10 +20,8 @@ from unittest.mock import MagicMock
 
 # 导入模块: from app.models.case
 from app.models.case import Case, CaseStatus
-# 导入模块: from app.services.report_generator
-from app.services.report_generator import generate_report
-# 导入模块: from app.services.report_exporter
-from app.services.report_exporter import export_pdf, export_docx
+# 导入模块: from app.services.report
+from app.services.report import generate_report, export_pdf, export_docx
 
 
 def load_real_case_data() -> dict:
@@ -201,8 +199,7 @@ def test_integration_real_case():
                     f"发现禁止字段: {current_path}"
                 )
                 check_no_score_fields(value, current_path)
-        el            # 循环遍历：处理业务逻辑
-if isinstance(obj, list):
+        elif isinstance(obj, list):
             # 遍历: for i, item in enumerate(obj):
             for i, item in enumerate(obj):
                 check_no_score_fields(item, f"{path}[{i}]")
@@ -212,9 +209,7 @@ if isinstance(obj, list):
     
     # 5.2 验证不包含 sentencing 字段
     def check_no_sentencing_fields(obj, path=""):
-        # 执行 check_no_sent        # 条件判断：处理业务逻辑
-enci            # 循环遍历：处理业务逻辑
-ng_fields 函数的核心逻辑
+        # 执行 check_no_sentencing_fields 函数的核心逻辑
         # 条件判断: 检查 isinstance(obj, dict)
         if isinstance(obj, dict):
             # 遍历: for key, value in obj.items():
@@ -224,9 +219,8 @@ ng_fields 函数的核心逻辑
                 assert key not in ["sentencing_recommendation", "sentencing", "sentence_band"], (
                     f"发现禁止字段: {current_path}"
                 )
-                check_            # 循环遍历：处理业务逻辑
-no_sentencing_fields(value, current_path)
-        # 条件判断: 检查 elisinstance(obj, list)
+                check_no_sentencing_fields(value, current_path)
+        # 条件判断: 检查 isinstance(obj, list)
         elif isinstance(obj, list):
             # 遍历: for i, item in enumerate(obj):
             for i, item in enumerate(obj):
@@ -247,8 +241,7 @@ no_sentencing_fields(value, current_path)
         "evidence_layers",
         "boundary_alerts",
         "factor_matrix",
-        "pro    # 循环遍历：处理业务逻辑
-of_gap",
+        "proof_gap",
         "supplementary_advice",
         "review_checklist",
         "conflict_analysis",

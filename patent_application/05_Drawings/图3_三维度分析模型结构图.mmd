@@ -1,0 +1,56 @@
+graph TB
+    subgraph Input[输入]
+        I[结构化案件事实 + 证据强度矩阵]
+    end
+
+    I --> D1
+    I --> D2
+    I --> D3
+
+    subgraph D1[D1: 客观行为异常度]
+        D1a[D1-1: 交易价格异常]
+        D1b[D1-2: 交易频率异常]
+        D1c[D1-3: 对接对象异常]
+        D1d[D1-4: 行为规避特征]
+        D1a --> D1s[加权汇总 → D1 评分]
+        D1b --> D1s
+        D1c --> D1s
+        D1d --> D1s
+    end
+
+    subgraph D2[D2: 认知能力匹配度]
+        D2a[D2-1: 年龄匹配]
+        D2b[D2-2: 职业背景]
+        D2c[D2-3: 学历水平]
+        D2d[D2-4: 相关从业经验]
+        D2e[D2-5: 类案作案模式匹配]
+        D2a --> D2s[加权汇总 → D2 评分]
+        D2b --> D2s
+        D2c --> D2s
+        D2d --> D2s
+        D2e --> D2s
+    end
+
+    subgraph D3[D3: 辩解合理性]
+        D3a[D3-1: 语义一致性]
+        D3b[D3-2: 客观证据一致性]
+        D3c[D3-3: 内部逻辑一致性]
+        D3a --> D3s[加权汇总 → D3 评分]
+        D3b --> D3s
+        D3c --> D3s
+    end
+
+    D1s --> Out
+    D2s --> Out
+    D3s --> Out
+
+    subgraph Out[输出]
+        O1[评分: 0-10 分]
+        O2[推理过程文本]
+        O3[关键依据列表]
+    end
+
+    style D1 fill:#e1f5fe
+    style D2 fill:#e8f5e9
+    style D3 fill:#fff3e0
+    style Out fill:#f3e5f5

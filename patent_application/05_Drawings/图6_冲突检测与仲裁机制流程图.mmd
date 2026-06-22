@@ -1,0 +1,38 @@
+graph TB
+    Start([进入冲突检测模块]) --> CD[冲突检测器]
+
+    CD --> C1{维度间矛盾?<br/>D1 vs D2 vs D3}
+
+    C1 -->|是<br/>如: D1高分<br/>vs D3高分| A1[一级仲裁:<br/>证据强度优先]
+    A1 --> A1R{检查证据强度矩阵}
+    A1R -->|证据强| A1Y[采纳客观证据维度]
+    A1R -->|证据弱| A1N[标记为边缘案例]
+
+    C1 -->|否| C2{知识图谱<br/>多路径冲突?}
+
+    C2 -->|是| A2[二级仲裁:<br/>规则权威性]
+    A2 --> A2R{匹配推定规则?}
+    A2R -->|是| A2Y[采纳《帮信解释》<br/>第十一条权威规则]
+    A2R -->|否| A3
+
+    C2 -->|否| A3[三级仲裁:<br/>路径可解释性]
+    A3 --> A3R{多路径权重比较}
+    A3R -->|权重相当| A3Y[选择可解释性<br/>更强的路径]
+    A3R -->|权重不等| A3N[选择高权重路径]
+
+    A1Y --> FIN[生成最终推理路径]
+    A1N --> FIN
+    A2Y --> FIN
+    A3Y --> FIN
+    A3N --> FIN
+
+    FIN --> LOG[写入冲突日志]
+    LOG --> RPT[嵌入分析报告]
+    RPT --> End([输出: 冲突说明 + 最终路径])
+
+    style CD fill:#fff3e0
+    style A1 fill:#ffcdd2
+    style A2 fill:#ffe0b2
+    style A3 fill:#c8e6c9
+    style FIN fill:#e1f5fe
+    style RPT fill:#f3e5f5

@@ -13,7 +13,7 @@ from app.models.entry_relation import EntryRelation, RelationType
 from app.models.knowledge_entry import EntryCategory, EntryStatus, KnowledgeEntry
 from app.models.legal_rule import LegalRule
 from app.services.ollama_client import OllamaClient, get_client
-from app.services.prompts import KNOWLEDGE_QA_PROMPT, SUGGEST_RELATED_ENTRIES_PROMPT
+from app.services.prompt import KNOWLEDGE_QA_PROMPT, SUGGEST_RELATED_ENTRIES_PROMPT
 from app.utils.cache import get_unified_cache
 
 ALLOWED_RULE_FIELDS = {"rule_id", "name", "description", "source_law", "article", "conditions", "conclusion", "evidence_types", "weight"}

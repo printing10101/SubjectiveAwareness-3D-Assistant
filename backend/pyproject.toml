@@ -21,7 +21,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "legal-judgment-analysis"
-version = "1.1.0"
+version = "1.2.0"
 description = "帮信罪主观明知智能分析系统"
 requires-python = ">=3.11"
 dependencies = [

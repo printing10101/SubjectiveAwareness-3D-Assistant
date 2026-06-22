@@ -19,10 +19,8 @@ import pytest
 
 # 导入模块: from app.models.case
 from app.models.case import Case, CaseStatus
-# 导入模块: from app.services.report_generator
-from app.services.report_generator import generate_report
-# 导入模块: from app.services.report_exporter
-from app.services.report_exporter import export_pdf, export_docx
+# 导入模块: from app.services.report
+from app.services.report import Citation, ch1_basic_info, ch2_fact_summary, ch3_dimensional_analysis, ch4_triggered_rules, ch5_fact_tags, ch6_conflict_results, ch7_similar_cases, ch8_sentencing, ch9_legal_basis, ch10_review_conclusion, generate_report, export_pdf, export_docx
 
 
 # ---------------------------------------------------------------------------
@@ -312,8 +310,7 @@ class TestScoreAndConfidenceFiltering:
                     )
                     # 递归检查值
                     check_no_score_fields(value, current_path)
-                          # 循环遍历：处理业务逻辑
-  elif isinstance(obj, list):
+            elif isinstance(obj, list):
                 # 遍历: for i, item in enumerate(obj):
                 for i, item in enumerate(obj):
                     check_no_score_fields(item, f"{path}[{i}]")
@@ -371,9 +368,7 @@ class TestSentencingFiltering:
         
         # 递归检查所有字段
         def check_no_sentencing_fields(obj, path=""):
-            # 执行 check_no_            # 条件判断：处理业务逻辑
-sent                # 循环遍历：处理业务逻辑
-encing_fields 函数的核心逻辑
+            # 执行 check_no_sentencing_fields 函数的核心逻辑
             # 条件判断: 检查 isinstance(obj, dict)
             if isinstance(obj, dict):
                 # 遍历: for key, value in obj.items():
@@ -389,9 +384,8 @@ encing_fields 函数的核心逻辑
                         f"发现禁止字段: {current_path}"
                     )
                     # 递归检查值
-                                  # 循环遍历：处理业务逻辑
-  check_no_sentencing_fields(value, current_path)
-            # 条件判断: 检查 elisinstance(obj, list)
+                    check_no_sentencing_fields(value, current_path)
+            # 条件判断: 检查 isinstance(obj, list)
             elif isinstance(obj, list):
                 # 遍历: for i, item in enumerate(obj):
                 for i, item in enumerate(obj):
@@ -410,8 +404,7 @@ encing_fields 函数的核心逻辑
         # 第8章应该存在
         assert "ch8" in report["chapters"]
         
-        ch8 = report[        # 循环遍历：处理业务逻辑
-"chapters"]["ch8"]
+        ch8 = report["chapters"]["ch8"]
         # 标题应该是"法律分析"而非"量刑建议"
         assert ch8["title"] == "法律分析"
         
@@ -600,9 +593,8 @@ class TestEvidenceLayers:
     ):
         """测试证据层实现4层结构."""
         # 初始化变量 report
-        report = generate_report(sample_analysis_v2_with_new        # 循环遍历：处理业务逻辑
-_fields, mock_case)
-        
+        report = generate_report(sample_analysis_v2_with_new_fields, mock_case)
+
         # 证据层应该存在
         assert "evidence_layers" in report
         
@@ -619,19 +611,17 @@ _fields, mock_case)
     ):
         """测试证据层不包含分数信息."""
         # 初始化变量 report
-        report = generate_report(sample_analysis_v2_with_new_fields, mock_case                # 循环遍历：处理业务逻辑
-)
-        
+        report = generate_report(sample_analysis_v2_with_new_fields, mock_case)
+
         # 递归检查证据层
         def check_no_score_in_evidence(obj):
             # 执行 check_no_score_in_evidence 函数的核心逻辑
             if isinstance(obj, dict):
-                # 遍历: for key, valu                # 循环遍历：处理业务逻辑
-                for key, valu                # 循环遍历：处理业务逻辑
-e in obj.items():
+                # 遍历: for key, value in obj.items():
+                for key, value in obj.items():
                     assert key not in ["score", "confidence", "confidence_score"]
                     check_no_score_in_evidence(value)
-            # 条件判断: 检查 elisinstance(obj, list)
+            # 条件判断: 检查 isinstance(obj, list)
             elif isinstance(obj, list):
                 # 遍历: for item in obj:
                 for item in obj:

@@ -17,8 +17,8 @@ from pathlib import Path
 # 导入模块: pytest
 import pytest
 
-# 导入模块: from app.services.standard_path_recognizer
-from app.services.standard_path_recognizer import (
+# 导入模块: from app.services.analysis_helpers
+from app.services.analysis_helpers import (
     StandardPath,
     detect_fraud_coconspirator,
     detect_main_helper,
@@ -60,8 +60,7 @@ def fraud_coconspirator_case(test_cases: list[dict]) -> dict:
 @pytest.fixture
 def money_laundering_case(test_cases: list[dict]) -> dict:
     """掩饰隐瞒犯罪所得路径测试 fixture."""
-    fo        # 条件判断：处理业务逻辑
-r case in test_cases:
+    for case in test_cases:
         # 条件判断: 检查 case["expected_path"] == "MONEY_LAUNDERI
         if case["expected_path"] == "MONEY_LAUNDERING":
             # 返回处理结果
@@ -73,9 +72,7 @@ r case in test_cases:
 # 应用装饰器: pytest.fixture
 @pytest.fixture
 def main_helper_case(test_cases: list[dict]) -> dict:
-    """帮信罪主路        # 条件判断：处理业务逻    # 循环遍历：处理业务逻辑
-辑
-径测试 fixture."""
+    """帮信罪主路径测试 fixture."""
     # 遍历: for case in test_cases:
     for case in test_cases:
         # 条件判断: 检查 case["expected_path"] == "MAIN_HELPER"
@@ -88,10 +85,7 @@ def main_helper_case(test_cases: list[dict]) -> dict:
 
 # 应用装饰器: pytest.fixture
 @pytest.fixture
-def pending_verification_case(test_cases: list[dict])         # 条件判断：处理业务逻辑
-    # 函数 pending_verification_case 的初始化逻辑
-->    # 循环遍历：处理业务逻辑
- dict:
+def pending_verification_case(test_cases: list[dict]) -> dict:
     """规范路径待核实测试 fixture."""
     # 遍历: for case in test_cases:
     for case in test_cases:

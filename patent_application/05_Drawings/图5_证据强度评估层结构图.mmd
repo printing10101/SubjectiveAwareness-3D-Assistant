@@ -1,0 +1,42 @@
+graph TB
+    Input[结构化案件事实] --> SA[证据项分解器]
+
+    SA --> E1[证据项1:<br/>聊天记录]
+    SA --> E2[证据项2:<br/>转账记录]
+    SA --> E3[证据项3:<br/>价格异常]
+    SA --> E4[证据项4:<br/>证人证言]
+
+    E1 --> SS1[直接证据强度<br/>评分 0-10]
+    E2 --> SS1
+    E3 --> SS2[间接证据强度<br/>评分 0-10]
+    E4 --> SS2
+
+    E1 --> SS3[证据链完整性<br/>评分 0-10]
+    E2 --> SS3
+    E3 --> SS3
+    E4 --> SS3
+
+    E1 --> SS4[证据矛盾度<br/>评分 0-10]
+    E2 --> SS4
+    E3 --> SS4
+    E4 --> SS4
+
+    SS1 --> MT[证据强度评估矩阵]
+    SS2 --> MT
+    SS3 --> MT
+    SS4 --> MT
+
+    MT --> TG[证据强度标签生成器]
+
+    TG --> T1[强: 评分 ≥ 8]
+    TG --> T2[中: 评分 5-7]
+    TG --> T3[弱: 评分 1-4]
+    TG --> T4[缺位: 评分 = 0]
+
+    style Input fill:#e1f5fe
+    style MT fill:#fff3e0
+    style TG fill:#e8f5e9
+    style T1 fill:#c8e6c9
+    style T2 fill:#fff9c4
+    style T3 fill:#ffccbc
+    style T4 fill:#cfd8dc

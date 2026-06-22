@@ -16,8 +16,8 @@ _BACKEND_DIR = Path(__file__).resolve().parent.parent
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
-# 导入模块: from app.services.standard_path_recognizer
-from app.services.standard_path_recognizer import (
+# 导入模块: from app.services.analysis_helpers
+from app.services.analysis_helpers import (
     StandardPath,
     recognize_standard_path_with_reason,
 )

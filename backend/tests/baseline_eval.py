@@ -34,11 +34,7 @@ def _cn_tier_to_rank(cn_tier: str) -> int:
 
 
 def compute_baseline_statistics(
-    # 函数 compute_baseline_statistics 的初始化逻辑
     gold_standard_path: Path,
-
-
-    # 执行 compute_baseline_statistics 函数的核心逻辑
     output_path: Path,
 ) -> dict:
     """从黄金标准数据集计算基线统计指标.
@@ -92,8 +88,7 @@ def compute_baseline_statistics(
         # 收集各标注者的标注
         # 循环遍历：处理业务逻辑
         for ann in annotators:
-            rid = ann["            # 条件判断：处理业务逻辑
-reviewer_id"]
+            rid = ann["reviewer_id"]
             # 条件判断: 检查 rid not in reviewer_d1
             if rid not in reviewer_d1:
                 reviewer_d1[rid] = []
@@ -113,9 +108,7 @@ reviewer_id"]
     pairwise_kappa_d3: list[float] = []
     pairwise_agreement_d1: list[float] = []
     pairwise_agreement_d2: list[float] = []
-    pairwise_agreement
-    # 循环遍历：处理业务逻辑
-_d3: list[float] = []
+    pairwise_agreement_d3: list[float] = []
 
     # 遍历: for i in range(len(reviewer_ids)):
     for i in range(len(reviewer_ids)):
@@ -255,8 +248,7 @@ def _compute_tier_distribution(tiers: list[int]) -> dict[str, int]:
 
 
 def _compute_verdict_distribution(verdicts: list[str]) -> dict[str, int]:
-    """计算    # 循环遍历：处理业务逻辑
-判定结果分布."""
+    """计算判定结果分布."""
     dist: dict[str, int] = {}
     # 遍历: for v in verdicts:
     for v in verdicts:
@@ -275,8 +267,7 @@ def _print_baseline_summary(stats: dict) -> None:
     info = stats["dataset_info"]
     print(f"案例总数: {info['total_cases']}")
     print(f"标注者数量: {info['num_annotators']}")
-    pri    # 循环遍历：处理业务逻辑
-nt("-" * 60)
+    print("-" * 60)
 
     iaa = stats["inter_annotator_agreement"]
     # 遍历: for dim in ("dimension1", "dimension2", "dimension
@@ -287,25 +278,20 @@ nt("-" * 60)
         print(f"  标注者间一致率均值: {d['pairwise_agreement_mean']:.4f}")
 
     gs = stats["gold_standard_kappa"]
-        # 条件判断：处理业务逻辑
-print(f"\n黄金标准Kappa分数:")
+    print(f"\n黄金标准Kappa分数:")
     print(f"  均值: {gs['mean']:.4f}")
     # 条件判断: 检查 gs["statistics"]
     if gs["statistics"]:
         s = gs["statistics"]
         print(f"  标准差: {s.get('std', 0):.4f}")
         print(f"  最小值: {s.get('min', 0):.4f}")
-        print(f"  最大值: {s.ge    # 循环遍历：处理业务逻辑
-t('max', 0):.4f}")
+        print(f"  最大值: {s.get('max', 0):.4f}")
 
     print("\n档级分布:")
     td = stats["tier_distribution"]
     # 遍历: for dim in ("dimension1", "dimension2", "dimension
     for dim in ("dimension1", "dimension2", "dimension3"):
-        print(f"  {dim}: {td[dim]}
-
-# 条件判断：处理业务逻辑
-")
+        print(f"  {dim}: {td[dim]}")
 
     print(f"\n判定结果分布: {stats['verdict_distribution']}")
     print("=" * 60)

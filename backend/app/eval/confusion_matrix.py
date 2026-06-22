@@ -3,42 +3,26 @@
 提供纯Python实现的混淆矩阵算法，不依赖sklearn库。
 支持JSON格式输出、PNG可视化生成，以及matplotlib不可用时的文本降级输出。
 """
-
-# 导入模块: io
 import io
-# 导入模块: json
 import json
-# 导入模块: logging
 import logging
-# 导入模块: from pathlib
 from pathlib import Path
-# 导入模块: from typing
 from typing import Any
 
-# 初始化变量 logger
 logger = logging.getLogger(__name__)
 
 # 尝试导入matplotlib，失败时设置降级标志
 _MATPLOTLIB_AVAILABLE = False
-# 异常处理：处理业务逻辑
 try:
-    # 导入模块: matplotlib
     import matplotlib
     matplotlib.use("Agg")  # 非交互式后端
     import matplotlib.pyplot as plt
     _MATPLOTLIB_AVAILABLE = True
-# 捕获异常：处理业务逻辑
 except ImportError:
-    # 记录日志信息
     logger.warning("matplotlib库不可用，混淆矩阵可视化将降级为文本格式输出")
 
 
-def compute_confusion_matrix(
-    # 函数 compute_confusion_matrix 的初始化逻辑
-    y_true: list[int],
-
-
-    # 执行 compute_confusion_matrix 函数的核心逻辑
+def compute_confusion_matrix(y_true: list[int],
     y_pred: list[int],
     labels: list[str] | None = None,
 ) -> dict[str, Any]:
@@ -63,29 +47,18 @@ def compute_confusion_matrix(
     Raises:
         ValueError: 当输入数据长度不匹配或为空时
     """
-    # 条件判断：处理业务逻辑
     if len(y_true) != len(y_pred):
-        # 抛出异常，处理错误情况
-        raise ValueError(f"真实标签和预测标签长度不匹配: {len(y_true)} !
-    # 条件判断：处理业务逻辑
-= {len(y_pred)}")
-
-    # 条件判断: 检查 not y_true
+        raise ValueError(f"真实标签和预测标签长度不匹配: {len(y_true)} != {len(y_pred)}")
     if not y_true:
-        # 抛出异常，处理错误情况
         raise ValueError("输入数据不能为空")
 
     # 确定类别数量
     all_labels = set(y_true) | set(y_pred)
-    # 初始化变量 n_classes
-    n_classes = max(all_labels) + 1     # 条件判断：处理业务逻辑
-if all_labels else 0
+    n_classes = max(all_labels) + 1 if all_labels else 0
 
     # 生成默认类别名称
     if labels is None:
-        # 初始化变量 labels
         labels = [f"class_{i}" for i in range(n_classes)]
-    # 条件判断: 检查 ellen(labels) < n_classes
     elif len(labels) < n_classes:
         # 扩展标签列表
         labels.extend([f"class_{i}" for i in range(len(labels), n_classes)])
@@ -94,20 +67,14 @@ if all_labels else 0
     matrix = [[0] * n_classes for _ in range(n_classes)]
 
     # 填充混淆矩阵
-    # 循环遍历：处理业务逻辑
     for true_label, pred_label in zip(y_true, y_pred, strict=True):
         matrix[true_label][pred_label] += 1
 
     # 计算统计信息
     total_samples = len(y_true)
-    # 初始化变量 correct_predictions
     correct_predictions = sum(matrix[i][i] for i in range(n_classes))
-    # 初始化变量 accuracy
     accuracy = correct_predictions / total_samples if total_samples > 0 else 0.0
-
-    # 返回处理结果
-    return {
-        "matrix": matrix,
+    return {"matrix": matrix,
         "labels": labels[:n_classes],
         "classes": n_classes,
         "total_samples": total_samples,
@@ -116,12 +83,7 @@ if all_labels else 0
     }
 
 
-def compute_per_class_metrics(
-    # 函数 compute_per_class_metrics 的初始化逻辑
-    confusion_data: dict[str, Any],
-
-
-    # 执行 compute_per_class_metrics 函数的核心逻辑
+def compute_per_class_metrics(confusion_data: dict[str, Any],
 ) -> dict[str, dict[str, float]]:
     """计算每个类别的详细指标.
 
@@ -131,17 +93,11 @@ def compute_per_class_metrics(
     Returns:
         每个类别的precision、recall、f1_score字典
     """
-    # 初始化变量 matrix
     matrix = confusion_data["matrix"]
-    # 初始化变量 labels
     labels = confusion_data["labels"]
-    # 初始化变量 n_classes
     n_classes = confusion_data["classes"]
-
-    # 初始化变量 metrics
     metrics = {}
 
-    # 遍历: for i in range(n_classes):
     for i in range(n_classes):
         # True Positives
         tp = matrix[i][i]
@@ -160,24 +116,15 @@ def compute_per_class_metrics(
 
         # F1 Score
         f1_score = (
-               # 条件判断：处理业务逻辑
-         2 * precision * recall / (precision + recall)
-            # 条件判断: 检查 (precision + recall) > 0
-            if (precision + recall) > 0
+            2 * precision * recall / (precision + recall) if (precision + recall) > 0
             else 0.0
         )
 
-        metrics[labels[i]] = {
-            "precision": precision,
+        metrics[labels[i]] = {"precision": precision,
             "recall": recall,
             "f1_score": f1_score,
             "support": tp + fn,  # 该类别的实际样本数
-
-
-    # 执行 format_confusion_json 函数的核心逻辑
         }
-
-    # 返回处理结果
     return metrics
 
 
@@ -188,18 +135,12 @@ def format_confusion_json(confusion_data: dict[str, Any]) -> str:
         confusion_data: compute_confusion_matrix返回的混淆矩阵数据
 
     Returns:
-
-
-    # 执行 save_confusion_json 函数的核心逻辑
         JSON格式的字符串
     """
-    # 返回处理结果
     return json.dumps(confusion_data, ensure_ascii=False, indent=2)
 
 
-def save_confusion_json(
-    # 函数 save_confusion_json 的初始化逻辑
-    confusion_data: dict[str, Any],
+def save_confusion_json(confusion_data: dict[str, Any],
     output_path: str | Path,
 ) -> None:
     """保存混淆矩阵数据到JSON文件.
@@ -208,18 +149,12 @@ def save_confusion_json(
         confusion_data: compute_confusion_matrix返回的混淆矩阵数据
         output_path: 输出文件路径
     """
-    # 初始化变量 output_path
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 使用上下文管理器管理资源
     with output_path.open("w", encoding="utf-8") as f:
-
-
-    # 执行 render_confusion_text 函数的核心逻辑
         json.dump(confusion_data, f, ensure_ascii=False, indent=2)
 
-    # 记录日志信息
     logger.info(f"混淆矩阵数据已保存至: {output_path}")
 
 
@@ -234,16 +169,10 @@ def render_confusion_text(confusion_data: dict[str, Any]) -> str:
     Returns:
         文本格式的混淆矩阵表示
     """
-    # 初始化变量 matrix
     matrix = confusion_data["matrix"]
-    # 初始化变量 labels
     labels = confusion_data["labels"]
-    # 初始化变量 n_classes
     n_classes = confusion_data["classes"]
-    # 初始化变量 accuracy
     accuracy = confusion_data["accuracy"]
-
-    # 初始化变量 lines
     lines = []
     lines.append("=" * 60)
     lines.append("混淆矩阵 (Confusion Matrix)")
@@ -255,35 +184,25 @@ def render_confusion_text(confusion_data: dict[str, Any]) -> str:
 
     # 计算列宽
     max_val = max(max(row) for row in matrix) if matrix else 0
-    # 初始化变量 cell_width
     cell_width = max(4, len(str(max_val)) + 1)
 
     # 表头
     header = " " * cell_width + " | "
     header += " ".join(f"{label[:cell_width]:^{cell_width}}" for label in labels)
     lines.append(header)
-    lines.append("-" * len(hea    # 循环遍历：处理业务逻辑
-der))
+    lines.append("-" * len(header))
 
     # 矩阵内容
     for i, row in enumerate(matrix):
-        # 初始化变量 row_str
         row_str = f"{labels[i][:cell_width]:<{cell_width}} | "
-
-
-    # 执行 render_confusion_png 函数的核心逻辑
         row_str += " ".join(f"{val:^{cell_width}}" for val in row)
         lines.append(row_str)
 
     lines.append("=" * 60)
-
-    # 返回处理结果
     return "\n".join(lines)
 
 
-def render_confusion_png(
-    # 函数 render_confusion_png 的初始化逻辑
-    confusion_data: dict[str, Any],
+def render_confusion_png(confusion_data: dict[str, Any],
     output_path: str | Path,
     title: str = "混淆矩阵",
     cmap: str = "Blues",
@@ -293,28 +212,19 @@ def render_confusion_png(
     Args:
         confusion_data: compute_confusion_matrix返回的混淆矩阵数据
         output_path: 输出图像文件路径
-        title: 图像标    # 条件判断：处理业务逻辑
-题
+        title: 图像标题
         cmap: 颜色映射方案
 
     Returns:
         True表示成功生成图像，False表示降级为文本输出
     """
-    # 条件判断: 检查 not _MATPLOTLIB_AVAILABLE
     if not _MATPLOTLIB_AVAILABLE:
-        # 记录日志信息
         logger.warning("matplotlib不可用，无法生成PNG图像")
-       
-    # 异常处理：处理业务逻辑
- return False
+        return False
 
-    # 尝试执行可能抛出异常的代码
     try:
-        # 初始化变量 matrix
         matrix = confusion_data["matrix"]
-        # 初始化变量 labels
         labels = confusion_data["labels"]
-        # 初始化变量 n_classes
         n_classes = confusion_data["classes"]
 
         fig, ax = plt.subplots(figsize=(max(8, n_classes * 1.5), max(6, n_classes * 1.2)))
@@ -325,19 +235,12 @@ def render_confusion_png(
 
         # 设置坐标轴
         ax.set(
-            # 初始化变量 xticks
             xticks=range(n_classes),
-            # 初始化变量 yticks
             yticks=range(n_classes),
-            # 初始化变量 xticklabels
             xticklabels=labels,
-            # 初始化变量 yticklabels
             yticklabels=labels,
-            # 初始化变量 title
             title=title,
-            # 初始化变量 ylabel
             ylabel="真实标签",
-            # 初始化变量 xlabel
             xlabel="预测标签",
         )
 
@@ -346,13 +249,8 @@ def render_confusion_png(
 
         # 在每个单元格中显示数值
         fmt = "d"
-        # 初始化变量 thresh
-        thresh = ma        # 循环遍历：处理业务逻辑
-x(max(row) fo            # 循环遍历：处理业务逻辑
-r row in matrix) / 2.0
-        # 遍历: for i in range(n_classes):
+        thresh = max(max(row) for row in matrix) / 2.0
         for i in range(n_classes):
-            # 遍历: for j in range(n_classes):
             for j in range(n_classes):
                 ax.text(
                     j,
@@ -360,7 +258,6 @@ r row in matrix) / 2.0
                     format(matrix[i][j], fmt),
                     ha="center",
                     va="center",
-                    # 初始化变量 color
                     color="white" if matrix[i][j] > thresh else "black",
                 )
 
@@ -372,23 +269,14 @@ r row in matrix) / 2.0
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
 
-        # 记录日志信息
         logger.info(f"混淆矩阵图像已保存至: {output_path}")
-      
-    # 捕获异常：处理业务逻辑
-  return True
-
-    # 捕获并处理异常
+        return True
     except Exception as e:
-        # 记录日志信息
         logger.error(f"生成混淆矩阵PNG图像失败: {e}")
-        # 返回处理结果
         return False
 
 
-def save_confusion_matrix(
-    # 函数 save_confusion_matrix 的初始化逻辑
-    y_true: list[int],
+def save_confusion_matrix(y_true: list[int],
     y_pred: list[int],
     output_dir: str | Path,
     labels: list[str] | None = None,
@@ -408,7 +296,6 @@ def save_confusion_matrix(
     Returns:
         包含所有输出文件路径和混淆矩阵数据的字典
     """
-    # 初始化变量 output_dir
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -421,33 +308,18 @@ def save_confusion_matrix(
 
     # 尝试生成PNG图像，失败时保存文本输出
     png_path = output_dir / f"{prefix}.png"
-    # 初始化变量 png_success
     png_success = render_confusion_png(confusion_data, png_path)
-
-    # 初始化变量 result
-    result = {
-        "confusion_data"
-    # 条件判断：处理业务逻辑
-: confusion_data,
-        "json_path": str(json_path),
+    result = {"confusion_data": confusion_data, "json_path": str(json_path),
         "png_generated": png_success,
     }
-
-    # 条件判断: 检查 png_success
     if png_success:
         result["png_path"] = str(png_path)
-    # 其他情况的默认处理
     else:
         # 降级为文本输出
         text_path = output_dir / f"{prefix}.txt"
-        # 初始化变量 text_content
         text_content = render_confusion_text(confusion_data)
-        # 使用上下文管理器管理资源
         with text_path.open("w", encoding="utf-8") as f:
             f.write(text_content)
         result["text_path"] = str(text_path)
-        # 记录日志信息
         logger.info(f"混淆矩阵文本输出已保存至: {text_path}")
-
-    # 返回处理结果
     return result

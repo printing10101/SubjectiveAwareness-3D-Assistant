@@ -1,0 +1,63 @@
+graph TB
+    subgraph 展示层[展示层 - Presentation Layer]
+        A1[Vue 3 SPA]
+        A2[Pinia 状态管理]
+        A3[Vue Router 路由]
+        A4[Axios HTTP Client]
+    end
+
+    subgraph 接入层[接入层 - API Gateway Layer]
+        B1[Nginx 反向代理]
+        B2[CORS 跨域中间件]
+        B3[JWT 鉴权中间件]
+        B4[请求日志中间件]
+        B5[速率限制中间件]
+    end
+
+    subgraph 业务服务层[业务服务层 - Service Layer]
+        C1[案件管理服务]
+        C2[分析推理服务]
+        C3[文档处理服务]
+        C4[类案检索服务]
+        C5[量刑辅助服务]
+        C6[知识图谱服务]
+        C7[实验数据服务]
+        C8[用户/权限/日志服务]
+    end
+
+    subgraph AI推理层[AI 推理层 - Inference Layer]
+        D1[两阶段推理管线]
+        D2[事实抽取模块]
+        D3[三维度分析模块]
+        D4[证据强度评估层]
+        D5[冲突检测与仲裁模块]
+        D6[证据溯源模块]
+        D7[Prompt 工程系统]
+        D8[分析缓存模块]
+        D9[Ollama 本地推理引擎]
+    end
+
+    subgraph 数据存储层[数据存储层 - Data Layer]
+        E1[(SQLite / PostgreSQL)]
+        E2[(Neo4j 图数据库)]
+        E3[(文件缓存系统)]
+        E4[(JSON 数据集)]
+        E5[(模型权重文件)]
+    end
+
+    展示层 -->|HTTP REST API| 接入层
+    接入层 -->|JWT 验证| 业务服务层
+    业务服务层 -->|ORM 查询| 数据存储层
+    业务服务层 -->|调用| AI推理层
+    AI推理层 -->|HTTP| D9
+    D9 -->|加载| E5
+    AI推理层 -->|缓存读写| E3
+    业务服务层 -->|图查询| E2
+    业务服务层 -->|读写| E1
+    业务服务层 -->|加载| E4
+
+    style 展示层 fill:#e1f5fe,stroke:#0288d1
+    style 接入层 fill:#f3e5f5,stroke:#7b1fa2
+    style 业务服务层 fill:#e8f5e9,stroke:#388e3c
+    style AI推理层 fill:#fff3e0,stroke:#f57c00
+    style 数据存储层 fill:#fce4ec,stroke:#c62828

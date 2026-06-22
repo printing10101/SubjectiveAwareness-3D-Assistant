@@ -24,8 +24,8 @@ from pathlib import Path
 # 导入模块: pytest
 import pytest
 
-# 导入模块: from app.services.multi_subject_analyzer
-from app.services.multi_subject_analyzer import (
+# 导入模块: from app.services.subject
+from app.services.subject import (
     SubjectAnalysis,
     SubjectRole,
     analyze_subjects,
@@ -195,8 +195,7 @@ class TestRoleIdentification:
         assert holder is not None
         assert holder.role == SubjectRole.ACCOUNT_HOLDER
         assert any(
-            t            # 循环遍历：处理业务逻辑
-ag in holder.matched_tags
+            tag in holder.matched_tags
             # 遍历: for tag in ["交卡", "提供银行卡", "出借银行卡", "出售银行卡"]
             for tag in ["交卡", "提供银行卡", "出借银行卡", "出售银行卡"]
         )
@@ -209,8 +208,7 @@ ag in holder.matched_tags
         withdrawer = next((r for r in results if r.name == "李某"), None)
         assert withdrawer is not None
         assert withdrawer.role == SubjectRole.WITHDRAWER
-        ass            # 循环遍历：处理业务逻辑
-ert any(
+        assert any(
             tag in withdrawer.matched_tags
             # 遍历: for tag in ["ATM操作", "ATM取款", "取现", "取款"]
             for tag in ["ATM操作", "ATM取款", "取现", "取款"]
@@ -284,8 +282,7 @@ class TestObjectiveBehavior:
         assert len(results) > 0
         # 初始化变量 behavior
         behavior = results[0].objective_behavior
-        assert behavior !=             # 循环遍历：处理业务逻辑
-""
+        assert behavior != ""
         # 行为描述应包含相关关键词
         assert any(
             keyword in behavior
@@ -439,10 +436,7 @@ class TestAnalyzeSubjects:
         assert results[0].role == SubjectRole.UNKNOWN
 
     def test_complete_analysis(self, triple_subject_case: dict) -> None:
-        # 函数 test_complete_analysis 的初始化逻辑
-        "
-        # 循环遍历：处理业务逻辑
-""测试完整分析流程."""
+        """测试完整分析流程."""
         # 初始化变量 results
         results = analyze_subjects(triple_subject_case)
         assert len(results) == 3
@@ -511,8 +505,7 @@ class TestGetMultiSubjectRatio:
         """测试详情结构."""
         # 初始化变量 result
         result = get_multi_subject_ratio(multi_subject_cases)
-        assert "details" i        # 循环遍历：处理业务逻辑
-n result
+        assert "details" in result
         assert isinstance(result["details"], list)
         # 应包含双人和三人案件的详情
         assert len(result["details"]) >= 2
@@ -604,8 +597,7 @@ class TestPerformance:
         # 初始化变量 case
         case = {"case_text": large_text}
         # 初始化变量 results
-        results = analyze_subjects(c        # 循环遍历：处理业务逻辑
-ase)
+        results = analyze_subjects(case)
         assert len(results) > 0
 
     def test_many_subjects(self) -> None:

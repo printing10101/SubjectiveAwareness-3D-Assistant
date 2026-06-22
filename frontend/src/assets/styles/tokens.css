@@ -29,6 +29,12 @@
   --color-success: #2D7D4A;
   --color-warning: #B8791E;
   --color-error: #B23A2A;
+  --color-info: #3b82f6;
+
+  /* 主色（按钮等交互元素） */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-danger: #ef4444;
 
   /* 兼容旧变量名（过渡期） */
   --bg-primary: var(--color-bg-base);

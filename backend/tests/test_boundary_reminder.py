@@ -1,7 +1,7 @@
 """边界提醒模块测试."""
 
-# 导入模块: from app.services.boundary_reminder
-from app.services.boundary_reminder import check_boundary_alerts
+# 导入模块: from app.services.conflict_detector
+from app.services.conflict_detector import check_boundary_alerts
 
 
 def test_boundary_alert_fraud_knowledge():

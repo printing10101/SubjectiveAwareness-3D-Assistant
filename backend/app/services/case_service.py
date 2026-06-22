@@ -4,25 +4,18 @@
 所有数据库操作均使用异步 API。
 """
 
-# 导入模块: from __future__
 from __future__ import annotations
 
-# 导入模块: from fastapi
 from fastapi import HTTPException, status
-# 导入模块: from loguru
 from loguru import logger
-# 导入模块: from sqlalchemy
 from sqlalchemy import func, select
-# 导入模块: from sqlalchemy.ext.asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
-# 导入模块: from sqlalchemy.orm
 from sqlalchemy.orm import selectinload
 
-# 导入模块: from app.models.case
+from app.models.analysis import Analysis
 from app.models.case import Case, CaseStatus
-# 导入模块: from app.models.user
+from app.models.system_log import SystemLog
 from app.models.user import User, UserRole
-# 导入模块: from app.schemas.case
 from app.schemas.case import CaseCreate, CaseUpdate, PaginatedResponse
 
 
@@ -35,11 +28,7 @@ _DEFAULT_PAGE_SIZE: int = 20
 
 
 def _validate_pagination_params(
-    # 函数 _validate_pagination_params 的初始化逻辑
     page: int,
-
-
-    # 执行 _validate_pagination_params 函数的核心逻辑
     page_size: int,
     sort_by: str,
     sort_order: str,
@@ -55,43 +44,24 @@ def _validate_pagination_params(
     Raises:
         HTTPException 422: 参数无效
     """
-    # 条件判断：处理业务逻辑
     if page < 1:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            # 初始化变量 detail
-            detail="页码必须    # 条件判断：处理业务逻辑
-大于等于1",
+            detail="页码必须大于等于1",
         )
-    # 条件判断: 检查 page_size < 1 or page_size > _MAX_PAGE_S
     if page_size < 1 or page_size > _MAX_PAGE_SIZE:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            # 初始化变量 detail
-            detail=f"每页条数    # 条件判断：处理业务逻辑
-必须在1到{_MAX_PAGE_SIZE}之间",
+            detail=f"每页条数必须在1到{_MAX_PAGE_SIZE}之间",
         )
-    # 条件判断: 检查 sort_by not in _SORTABLE_FIELDS
     if sort_by not in _SORTABLE_FIELDS:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            # 初始化变量 detail
-            detail=f"无效的排序字段'{so    # 条件判断：处理业务逻辑
-rt_by}'，允许的字段: {sorted(_SORTABLE_FIELDS)}",
+            detail=f"无效的排序字段'{sort_by}'，允许的字段: {sorted(_SORTABLE_FIELDS)}",
         )
-    # 条件判断: 检查 sort_order not in _VALID_SORT_ORDERS
     if sort_order not in _VALID_SORT_ORDERS:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            # 初始化变量 detail
             detail=f"无效的排序方向'{sort_order}'，仅支持'asc'和'desc'",
         )
 
@@ -106,14 +76,11 @@ def _build_sort_column(sort_by: str, sort_order: str):  # noqa: ANN202
     Returns:
         排序表达式
     """
-    # 初始化变量 column
     column = getattr(Case, sort_by)
-    # 返回处理结果
     return column.desc() if sort_order == "desc" else column.asc()
 
 
 async def get_cases(  # noqa: PLR0913
-    # 函数 get_cases 的初始化逻辑
     db: AsyncSession,
     page: int = 1,
     page_size: int = _DEFAULT_PAGE_SIZE,
@@ -141,7 +108,6 @@ async def get_cases(  # noqa: PLR0913
         HTTPException 422: 分页/排序参数无效
 
     Example:
-        # 异步等待操作完成
         >>> result = await get_cases(db, page=1, page_size=10,
         ...                          sort_by="created_at", sort_order="desc")
         >>> len(result.items)
@@ -149,41 +115,26 @@ async def get_cases(  # noqa: PLR0913
         >>> result.total_pages
         5
     """
-    _validate_pagination_params(page, page_size, sort_by, sort_o    # 条件判断：处理业务逻辑
-rder)
+    _validate_pagination_params(page, page_size, sort_by, sort_order)
 
-    # 初始化变量 base_stmt
     base_stmt = select(Case).options(selectinload(Case.creator))
-    # 条件判断: 检查 status_filter
     if status_filter:
-        # 初始化变量 base_stmt
         base_stmt = base_stmt.where(Case.status == status_filter)
 
-    # 初始化变量 count_stmt
     count_stmt = select(func.count()).select_from(base_stmt.subquery())
-    # 初始化变量 count_result
     count_result = await db.execute(count_stmt)
     total: int = count_result.scalar_one()
 
-    # 初始化变量 sort_expr
     sort_expr = _build_sort_column(sort_by, sort_order)
-    # 初始化变量 offset
     offset = (page - 1) * page_size
-    # 初始化变量 items_stmt
     items_stmt = base_stmt.order_by(sort_expr).offset(offset).limit(page_size)
-    # 初始化变量 items_result
     items_result = await db.execute(items_stmt)
     items: list[Case] = list(items_result.scalars().all())
 
-    # 返回处理结果
     return PaginatedResponse(
-        # 初始化变量 items
         items=items,
-        # 初始化变量 total
         total=total,
-        # 初始化变量 page
         page=page,
-        # 初始化变量 page_size
         page_size=page_size,
     )
 
@@ -198,16 +149,13 @@ async def get_case(db: AsyncSession, case_id: int) -> Case | None:
     Returns:
         Case | None: 案件记录，不存在返回 None
     """
-    # 初始化变量 result
     result = await db.execute(
         select(Case).options(selectinload(Case.creator)).where(Case.id == case_id)
     )
-    # 返回处理结果
     return result.scalar_one_or_none()
 
 
 async def create_case(
-    # 函数 create_case 的初始化逻辑
     db: AsyncSession,
     case_data: CaseCreate,
     user: User | None = None,
@@ -227,54 +175,35 @@ async def create_case(
     Raises:
         HTTPException 500: 数据库操作失败
     """
-    # 初始化变量 db_case
     db_case = Case(
-        # 初始化变量 title
         title=case_data.title,
-        # 初始化变量 description
         description=case_data.description,
-        # 初始化变量 case_text
         case_text=case_data.case_text,
-        # 初始化变量 status
         status=case_data.status or CaseStatus.pending,
-        # 初始化变量 created_by
         created_by=user.id if user else None,
     )
-    # 异常处理：处理业务逻辑
     try:
         db.add(db_case)
-        # 异步等待操作完成
         await db.commit()
-        # 异步等待操作完成
         await db.refresh(db_case)
-        # 初始化变量 user_id
         user_id = user.id if user else "anonymous"
-        # 记录日志信息
         logger.info(
             "Case created: id={}, title={}, user={}",
             db_case.id,
             db_case.title,
             user_id,
         )
-        # 返回处理结果
         return db_case
-    # 捕获异常：处理业务逻辑
     except Exception as e:
-        # 异步等待操作完成
         await db.rollback()
-        # 记录日志信息
         logger.error(f"Failed to create case: error={e}")
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            # 初始化变量 detail
             detail="创建案件失败，请稍后重试",
         ) from e
 
 
 async def update_case(
-    # 函数 update_case 的初始化逻辑
     db: AsyncSession,
     case_id: int,
     case_data: CaseUpdate,
@@ -297,89 +226,55 @@ async def update_case(
         HTTPException 401: 未登录
         HTTPException 403: 无权限
         HTTPException 404: 案件不存在
-            # 条件判断：处理业务逻辑
-HTTPException 500: 数据库操作失败
+        HTTPException 500: 数据库操作失败
     """
-    # 异步等待操作完成
     db_case: Case | None = await get_case(db, case_id)
-    # 条件判断: 检查 not db_case
     if not db_case:
-        ra    # 条件判断：处理业务逻辑
-ise HTTPException(
-            # 初始化变量 status_code
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            # 初始化变量 detail
             detail="案件不存在",
-               # 条件判断：处理业务逻辑
- )
-    # 条件判断: 检查 user
+        )
     if user:
         is_creator: bool = db_case.created_by == user.id
         is_admin: bool = user.role == UserRole.admin
-        # 条件判断: 检查 not is_creator and not is_admin
         if not is_creator and not is_admin:
-            # 记录日志信息
             logger.warning(
                 "权限不足: user={} 尝试更新 case={}",
                 user.id,
                 case_id,
             )
-            # 抛出异常，处理错误情况
             raise HTTPException(
-                # 初始化变量 status_code
                 status_code=status.HTTP_403_FORBIDDEN,
-                # 初始化变量 detail
                 detail="无权限更新此案件，仅案件创建者或管理员可以更新",
             )
-    # 其他情况的默认处理
     else:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            stat    # 条件判断：处理业务逻辑
-us_code=status.HTTP_401_UNAUTHORIZED,
-            # 初始化变量 detail
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="需要登录后才能更新案件",
         )
 
     update_data: dict = case_data.model_dump(exclude_unset=True)
-    # 条件判断: 检查 not update_data
     if not update_data:
-        # 记录日志信息
         logger.info(f"案件更新无变化: id={case_id}")
-     
-    # 异常处理：处理业务逻辑
-   return db_case
+        return db_case
 
-    # 尝试执行可能抛出异常的代码
     try:
-        # 循环遍历：处理业务逻辑
         for key, value in update_data.items():
             setattr(db_case, key, value)
-        # 异步等待操作完成
         await db.commit()
-        # 异步等待操作完成
         await db.refresh(db_case)
-        # 记录日志信息
         logger.info(f"案件已更新: id={db_case.id}, user={user.id}")
-         # 捕获异常：处理业务逻辑
-   return db_case
-    # 捕获并处理异常
+        return db_case
     except Exception as e:
-        # 异步等待操作完成
         await db.rollback()
-        # 记录日志信息
         logger.error(f"更新案件失败: id={case_id}, error={e}")
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            # 初始化变量 detail
             detail="更新案件失败，请稍后重试",
         ) from e
 
 
 async def delete_case(
-    # 函数 delete_case 的初始化逻辑
     db: AsyncSession,
     case_id: int,
     user: User | None = None,
@@ -397,78 +292,106 @@ async def delete_case(
         bool: 删除成功返回 True
 
     Raises:
-        HTTPException 401:     # 条件判断：处理业务逻辑
-未登录
+        HTTPException 401: 未登录
         HTTPException 403: 无权限
         HTTPException 404: 案件不存在
         HTTPException 500: 数据库操作失败
     """
-    db_ca
-    # 条件判断：处理业务逻辑
-se: Case | None = await get_case(db, case_id)
-    # 条件判断: 检查 not db_case
+    db_case: Case | None = await get_case(db, case_id)
     if not db_case:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-                  # 条件判断：处理业务逻辑
-  status_code=status.HTTP_404_NOT_FOUND,
-            # 初始化变量 detail
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="案件不存在",
         )
 
-    # 条件判断: 检查 user
     if user:
         is_creator: bool = db_case.created_by == user.id
         is_admin: bool = user.role == UserRole.admin
-        # 条件判断: 检查 not is_creator and not is_admin
         if not is_creator and not is_admin:
-            # 记录日志信息
             logger.warning(
                 "权限不足: user={} 尝试删除 case={}",
                 user.id,
                 case_id,
             )
-            # 抛出异常，处理错误情况
             raise HTTPException(
-                # 初始化变量 status_code
                 status_code=status.HTTP_403_FORBIDDEN,
-                # 初始化变量 detail
                 detail="无权限删除此案件，仅案件创建者或管理员可以删除",
             )
-    # 其他情况的默认处理
     else:
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_401_UNAUTHORIZED,
-       
-    # 异常处理：处理业务逻辑
-     detail="需要登录后才能删除案件",
+            detail="需要登录后才能删除案件",
         )
 
-    # 尝试执行可能抛出异常的代码
     try:
-        # 异步等待操作完成
         await db.delete(db_case)
-        # 异步等待操作完成
         await db.commit()
-        # 初始化变量 user_id
         user_id = user.id if user else "anonymous"
-        # 记录日志信息
-        logger.info(f"案件已删除: id={case_id}, u    # 捕获异常：处理业务逻辑
-ser={user_id}")
-        # 返回处理结果
+        logger.info(f"案件已删除: id={case_id}, user={user_id}")
         return True
-    # 捕获并处理异常
     except Exception as e:
-        # 异步等待操作完成
         await db.rollback()
-        # 记录日志信息
         logger.error(f"删除案件失败: id={case_id}, error={e}")
-        # 抛出异常，处理错误情况
         raise HTTPException(
-            # 初始化变量 status_code
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            # 初始化变量 detail
             detail="删除案件失败，请稍后重试",
         ) from e
+
+
+# ---------------------------------------------------------------------------
+# 系统管理服务（原 system_service.py，已合并至此）
+# ---------------------------------------------------------------------------
+
+
+async def get_system_logs_service(
+    db: AsyncSession,
+    level: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> list[SystemLog]:
+    """获取系统日志列表.
+
+    Args:
+        db: 数据库会话
+        level: 日志级别筛选（可选）
+        skip: 分页偏移量
+        limit: 每页数量
+
+    Returns:
+        list[SystemLog]: 日志记录列表
+    """
+    stmt = select(SystemLog)
+    if level:
+        stmt = stmt.where(SystemLog.log_level == level)
+    stmt = stmt.order_by(SystemLog.created_at.desc())
+    result = await db.execute(stmt.offset(skip).limit(limit))
+    return list(result.scalars().all())
+
+
+async def get_system_stats_service(db: AsyncSession) -> dict[str, int]:
+    """获取系统统计信息.
+
+    通过一条 SQL 查询获取案件数、分析数和用户数。
+
+    Args:
+        db: 数据库会话
+
+    Returns:
+        dict[str, int]: 统计信息字典
+    """
+    result = await db.execute(
+        select(
+            func.count(Case.id).label("total_cases"),
+            func.count(Analysis.id).label("total_analyses"),
+            func.count(User.id).label("total_users"),
+        )
+    )
+    row = result.first()
+    if row is None:
+        return {"total_cases": 0, "total_analyses": 0, "total_users": 0}
+    return {
+        "total_cases": row.total_cases,
+        "total_analyses": row.total_analyses,
+        "total_users": row.total_users,
+    }
+

@@ -4,15 +4,11 @@
 实现严格的输入验证、内容安全检查和恶意内容检测。
 """
 
-# 导入模块: re
 import re
 
-# 导入模块: from pydantic
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-# 导入模块: from app.config
 from app.config import AnalysisConfig
-# 导入模块: from app.models.analysis
 from app.models.analysis import AnalysisMode
 
 
@@ -80,20 +76,13 @@ def _sanitize_text(text: str) -> str:
     Returns:
         清洗后的安全文本
     """
-    # 循环遍历：处理业务逻辑
     for char, replacement in _SANITIZE_MAP.items():
-        # 初始化变量 text
         text = text.replace(char, replacement)
-    # 返回处理结果
     return text
 
 
 def _check_patterns(
-    # 函数 _check_patterns 的初始化逻辑
     text: str,
-
-
-    # 执行 _check_patterns 函数的核心逻辑
     patterns: list[tuple[str, str]],
     category: str,
 ) -> list[str]:
@@ -108,18 +97,13 @@ def _check_patterns(
     Returns:
         违规描述列表，无违规时返回空列表
     """
-    violation    # 循环遍历：处理业务逻辑
-s: list[str] = []
-    # 遍历: for pattern, description in patterns:
+    violations: list[str] = []
     for pattern, description in patterns:
-        # 条件判断：处理业务逻辑
         if re.search(pattern, text, re.IGNORECASE):
             violations.append(f"[{category}] {description}")
-    # 返回处理结果
     return violations
 
 
-# 定义 AnalyzeRequest 类
 class AnalyzeRequest(BaseModel):
     """分析请求模型，含严格输入验证.
 
@@ -136,17 +120,13 @@ class AnalyzeRequest(BaseModel):
 
     case_text: str = Field(
         ...,
-        # 初始化变量 min_length
         min_length=AnalysisConfig.MIN_CASE_TEXT_LENGTH,
-        # 初始化变量 max_length
         max_length=AnalysisConfig.MAX_CASE_TEXT_LENGTH,
     )
     mode: AnalysisMode = Field(default=AnalysisMode.auto)
     case_id: int | None = Field(default=None, ge=1)
 
-    # 应用装饰器: field_validator
     @field_validator("case_text")
-    # 应用装饰器: classmethod
     @classmethod
     def validate_case_text_safety(cls, v: str) -> str:
         """验证案件文本安全性.
@@ -162,18 +142,14 @@ class AnalyzeRequest(BaseModel):
         Raises:
             ValueError: 包含高危恶意内容时抛出详细错误
         """
-   
-        # 条件判断：处理业务逻辑
-     text = v.strip()
+        text = v.strip()
 
-        # 条件判断: 检查 len(text) < AnalysisConfig.MIN_CASE_TEXT
         if len(text) < AnalysisConfig.MIN_CASE_TEXT_LENGTH:
             msg = (
                 f"案件事实文本不能少于"
                 f"{AnalysisConfig.MIN_CASE_TEXT_LENGTH}个字符，"
                 f"当前{len(text)}个字符"
             )
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
 
         all_violations: list[str] = []
@@ -187,19 +163,13 @@ class AnalyzeRequest(BaseModel):
         )
         all_violations.extend(
             _check_patterns(
-                text, _PATH_TRAVER
-        # 条件判断：处理业务逻辑
-SAL_PATTERNS, "路径遍历"
+                text, _PATH_TRAVERSAL_PATTERNS, "路径遍历"
             )
         )
 
-        # 条件判断: 检查 all_violations
         if all_violations:
-            # 初始化变量 detail
             detail = "; ".join(all_violations)
             msg = f"输入内容包含安全风险：{detail}"
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
 
-        # 返回处理结果
         return _sanitize_text(text)

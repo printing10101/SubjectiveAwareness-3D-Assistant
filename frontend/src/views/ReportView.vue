@@ -11,6 +11,12 @@ import MultiSubjectPanel from '../components/analysis/MultiSubjectPanel.vue'
 import EvidenceLayerPanel from '../components/analysis/EvidenceLayerPanel.vue'
 import BoundaryAlertBanner from '../components/analysis/BoundaryAlertBanner.vue'
 
+// 导入拆分后的组件
+import ReportHeader from '../components/report/ReportHeader.vue'
+import ReportChapterNav from '../components/report/ReportChapterNav.vue'
+import ReportReviewChecklist from '../components/report/ReportReviewChecklist.vue'
+import ReportChapterSection from '../components/report/ReportChapterSection.vue'
+
 // 4. 组合式函数
 const router = useRouter()
 const store = useAnalysisStore()
@@ -516,103 +522,35 @@ onMounted(() => {
       class="report-layout"
     >
       <!-- 顶部操作栏 -->
-      <div class="report-header">
-        <div class="header-left">
-          <h1 class="report-title">帮信罪辅助裁定分析报告</h1>
-          <span class="report-version">V1.1.0</span>
-        </div>
-        <div class="header-actions">
-          <button
-            class="btn btn-primary"
-            :disabled="isDownloadingPdf"
-            @click="handleDownloadPdf"
-          >
-            <span v-if="isDownloadingPdf">下载中...</span>
-            <span v-else>📕 下载 PDF</span>
-          </button>
-          <button
-            class="btn btn-secondary"
-            :disabled="isDownloadingDocx"
-            @click="handleDownloadDocx"
-          >
-            <span v-if="isDownloadingDocx">下载中...</span>
-            <span v-else>📘 下载 DOCX</span>
-          </button>
-          <button
-            class="btn btn-outline"
-            @click="handleGoBack"
-          >
-            ← 返回
-          </button>
-        </div>
-      </div>
+      <ReportHeader
+        :is-downloading-pdf="isDownloadingPdf"
+        :is-downloading-docx="isDownloadingDocx"
+        @download-pdf="handleDownloadPdf"
+        @download-docx="handleDownloadDocx"
+        @go-back="handleGoBack"
+      />
 
       <!-- 主内容区 -->
       <div class="report-main">
         <!-- 左侧导航 -->
         <aside class="report-sidebar">
-          <nav class="chapter-nav">
-            <h3 class="nav-title">报告目录</h3>
-            <ul class="chapter-list">
-              <li
-                v-for="chapter in chapterConfig"
-                :key="chapter.id"
-                class="chapter-item"
-                :class="{ active: activeChapter === chapter.id }"
-                @click="handleChapterClick(chapter.id)"
-              >
-                <span class="chapter-icon">{{ chapter.icon }}</span>
-                <span class="chapter-name">{{ chapter.title }}</span>
-                <span
-                  v-if="isMarked(chapter.id)"
-                  class="mark-badge"
-                >✓</span>
-              </li>
-            </ul>
-          </nav>
+          <ReportChapterNav
+            :chapters="chapterConfig"
+            :active-chapter="activeChapter"
+            :marked-sections="markedSections"
+            @chapter-click="handleChapterClick"
+          />
 
           <!-- 审查清单 -->
-          <div class="review-section">
-            <div class="review-header">
-              <h3 class="review-title">人工审查清单</h3>
-              <button
-                class="btn-toggle-all"
-                @click="handleToggleAll"
-              >
-                {{ isAllSelected ? '取消全选' : '全选' }}
-              </button>
-            </div>
-            <div class="review-progress">
-              <div
-                class="progress-bar"
-                :style="{ width: `${progressPercent}%` }"
-              ></div>
-            </div>
-            <span class="progress-text">{{ progressPercent }}% 完成</span>
-            <ul class="review-list">
-              <li
-                v-for="chapter in chapterConfig"
-                :key="chapter.id"
-                class="review-item"
-              >
-                <label class="review-label">
-                  <input
-                    v-model="reviewItems[chapter.id]"
-                    type="checkbox"
-                    class="review-checkbox"
-                    @change="saveReviewStateToStorage"
-                  >
-                  <span class="review-text">{{ chapter.title }}</span>
-                </label>
-              </li>
-            </ul>
-            <button
-              class="btn btn-save"
-              @click="handleSaveReview"
-            >
-              保存审查结果
-            </button>
-          </div>
+          <ReportReviewChecklist
+            :chapters="chapterConfig"
+            :review-items="reviewItems"
+            :is-all-selected="isAllSelected"
+            :progress-percent="progressPercent"
+            @toggle-all="handleToggleAll"
+            @toggle-review="handleToggleReview"
+            @save-review="handleSaveReview"
+          />
         </aside>
 
         <!-- 右侧内容区 -->
@@ -665,105 +603,14 @@ onMounted(() => {
           </div>
 
           <!-- 章节内容 -->
-          <div
+          <ReportChapterSection
             v-for="chapter in chapterConfig"
-            :id="`chapter-${chapter.id}`"
             :key="chapter.id"
-            class="chapter-section"
-          >
-            <div class="chapter-header">
-              <h2 class="chapter-title">
-                <span class="title-icon">{{ chapter.icon }}</span>
-                {{ chapters[chapter.id]?.title || chapter.title }}
-              </h2>
-              <button
-                class="btn-mark"
-                :class="{ marked: isMarked(chapter.id) }"
-                @click="handleMarkSection(chapter.id)"
-              >
-                {{ isMarked(chapter.id) ? '✓ 已标记' : '📌 标记' }}
-              </button>
-            </div>
-
-            <div class="chapter-body">
-              <template v-if="chapters[chapter.id]?.sections">
-                <div
-                  v-for="(section, idx) in chapters[chapter.id].sections"
-                  :key="idx"
-                  class="section-block"
-                >
-                  <h4
-                    v-if="section.heading"
-                    class="section-heading"
-                  >
-                    {{ section.heading }}
-                  </h4>
-                  <p
-                    v-if="section.content"
-                    class="section-content"
-                  >
-                    {{ section.content }}
-                  </p>
-
-                  <!-- 特殊字段展示 -->
-                  <div
-                    v-if="section.tier_label"
-                    class="tier-badge"
-                  >
-                    档级: {{ section.tier_label }}
-                  </div>
-
-                  <div
-                    v-if="section.sentence_band"
-                    class="sentence-badge"
-                  >
-                    量刑区间: {{ section.sentence_band }}
-                  </div>
-
-                  <div
-                    v-if="section.conclusion"
-                    class="conclusion-badge"
-                  >
-                    结论: {{ section.conclusion }}
-                  </div>
-
-                  <!-- 标签展示 -->
-                  <div
-                    v-if="section.tags"
-                    class="tags-container"
-                  >
-                    <span
-                      v-for="tag in section.tags"
-                      :key="tag"
-                      class="tag-item"
-                    >{{ tag }}</span>
-                  </div>
-
-                  <!-- 法律依据 -->
-                  <div
-                    v-if="section.laws"
-                    class="laws-container"
-                  >
-                    <div
-                      v-for="law in section.laws"
-                      :key="law.article"
-                      class="law-item"
-                    >
-                      <strong>{{ law.law }} {{ law.article }}:</strong>
-                      {{ law.content }}
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <div
-                v-else
-                class="empty-section"
-              >
-                暂无内容
-              </div>
-            </div>
-          </div>
+            :chapter="chapter"
+            :chapter-data="chapters[chapter.id]"
+            :is-marked="isMarked(chapter.id)"
+            @mark-section="handleMarkSection"
+          />
         </main>
       </div>
 
@@ -807,87 +654,6 @@ onMounted(() => {
   min-height: 100vh;
 }
 
-.report-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: white;
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.report-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.report-version {
-  padding: 0.25rem 0.5rem;
-  background: var(--bg-tertiary);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border: none;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #4338ca;
-}
-
-.btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--border-color);
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-outline:hover {
-  background: var(--bg-tertiary);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .report-main {
   display: flex;
   flex: 1;
@@ -902,135 +668,6 @@ onMounted(() => {
   top: 64px;
   height: calc(100vh - 64px);
   overflow-y: auto;
-}
-
-.nav-title,
-.review-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.chapter-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
-}
-
-.chapter-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 0.875rem;
-  color: var(--text-primary);
-}
-
-.chapter-item:hover {
-  background: var(--bg-tertiary);
-}
-
-.chapter-item.active {
-  background: rgba(79, 70, 229, 0.1);
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.chapter-icon {
-  font-size: 1rem;
-}
-
-.chapter-name {
-  flex: 1;
-}
-
-.mark-badge {
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 50%;
-  font-size: 0.625rem;
-}
-
-.review-section {
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.review-progress {
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-primary), #22c55e);
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.review-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem;
-}
-
-.review-item {
-  margin-bottom: 0.5rem;
-}
-
-.review-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.review-checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.review-text {
-  color: var(--text-primary);
-}
-
-.btn-save {
-  width: 100%;
-  padding: 0.625rem;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.btn-save:hover {
-  background: #4338ca;
 }
 
 .report-content {
@@ -1087,163 +724,28 @@ onMounted(() => {
   text-align: center;
 }
 
-.chapter-section {
+.citation-tooltip {
+  position: absolute;
+  z-index: 1000;
   background: white;
-  border-radius: var(--border-radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.chapter-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.chapter-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.title-icon {
-  font-size: 1.25rem;
-}
-
-.btn-mark {
-  padding: 0.375rem 0.75rem;
-  background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-mark:hover {
-  background: var(--border-color);
-}
-
-.btn-mark.marked {
-  background: rgba(79, 70, 229, 0.1);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.chapter-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.section-block {
   padding: 1rem;
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
 }
 
-.section-heading {
-  font-size: 0.9rem;
-  font-weight: 600;
+.citation-content strong {
+  display: block;
+  margin-bottom: 0.5rem;
   color: var(--text-primary);
-  margin: 0 0 0.5rem;
 }
 
-.section-content {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--text-primary);
+.citation-content p {
   margin: 0;
-  white-space: pre-wrap;
-}
-
-.score-badge,
-.tier-badge,
-.sentence-badge,
-.conclusion-badge,
-.confidence-badge {
-  display: inline-block;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-.score-badge {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.tier-badge {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.sentence-badge {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.conclusion-badge {
-  background: #f3e8ff;
-  color: #6b21a8;
-}
-
-.confidence-badge {
-  background: #fce7f3;
-  color: #9f1239;
-}
-
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-top: 0.5rem;
-}
-
-.tag-item {
-  padding: 0.25rem 0.5rem;
-  background: var(--bg-tertiary);
-  border-radius: 12px;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.laws-container {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background: #f0f9ff;
-  border-radius: var(--border-radius);
-  border-left: 3px solid #0ea5e9;
-}
-
-.law-item {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--text-primary);
-  margin-bottom: 0.375rem;
-}
-
-.law-item:last-child {
-  margin-bottom: 0;
-}
-
-.empty-section {
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-tertiary);
   font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1024px) {
@@ -1261,17 +763,6 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .report-header {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: center;
-  }
-
   .report-main {
     flex-direction: column;
   }
@@ -1291,12 +782,6 @@ onMounted(() => {
 
   .matrix-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chapter-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
   }
 }
 </style>

@@ -13,21 +13,16 @@
 - 兜底行为：空规则、未知输入不崩溃
 """
 
-# 导入模块: from __future__
 from __future__ import annotations
 
-# 导入模块: pytest
 import pytest
 
-# 导入模块: from app.services.rule_engine
 from app.services.rule_engine import Rule
-# 导入模块: from app.services.tier_combiner
-from app.services.tier_combiner import (
+from app.services.analysis_helpers import (
     _BASE_COMBINATION,
     all_combinations,
     combine_tiers,
 )
-# 导入模块: from app.types.analysis_v2
 from app.types.analysis_v2 import TierEnum
 
 
@@ -36,11 +31,9 @@ from app.types.analysis_v2 import TierEnum
 # ---------------------------------------------------------------------------
 
 
-# 应用装饰器: pytest.fixture
 @pytest.fixture
 def base_rule_template() -> dict:
     """单条规则的基础模板."""
-    # 返回处理结果
     return {
         "rule_id": "R001",
         "name": "测试规则",
@@ -57,9 +50,7 @@ def base_rule_template() -> dict:
 
 def _mk_rule(template: dict, **overrides) -> Rule:
     """从模板构造 Rule."""
-    # 初始化变量 payload
     payload = {**template, **overrides}
-    # 返回处理结果
     return Rule(**payload)
 
 
@@ -68,7 +59,6 @@ def _mk_rule(template: dict, **overrides) -> Rule:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestBaseCombinationTable 类
 class TestBaseCombinationTable:
     """验证 _BASE_COMBINATION 表的完整性与正确性."""
 
@@ -78,31 +68,21 @@ class TestBaseCombinationTable:
 
     def test_all_keys_in_range(self) -> None:
         """所有 (d1, d2, d3) 都应在 [1, 4] 范围内."""
-        # 循环遍历：处理业务逻辑
         for d1, d2, d3 in _BASE_COMBINATION.keys():
             assert d1 in (1, 2, 3, 4)
             assert d2 in (1, 2, 3, 4)
             assert d3 in (1, 2, 3, 4)
 
     def test_all_values_in_range(self) -> None:
-        """所有 final_ti        # 循环遍历：处理业务逻辑
-er 都应在 [1, 4] 范围内."""
-        # 遍历: for rank, _rule_id in _BASE_COMBINATION.values():
+        """所有 final_tier 都应在 [1, 4] 范围内."""
         for rank, _rule_id in _BASE_COMBINATION.values():
             assert rank in (1, 2, 3, 4)
 
     def test_combine_tiers_returns_all_64(self) -> None:
-        """对所        # 循环遍历：处理业务逻辑
-有 64 种组合调            # 循环遍历：处理业务逻辑
-用 combine                # 循环遍历：处理业务逻辑
-_tiers，都应得到合法 verdict."""
-        # 遍历: for d1 in range(1, 5):
+        """对所有 64 种组合调用 combine_tiers，都应得到合法 verdict."""
         for d1 in range(1, 5):
-            # 遍历: for d2 in range(1, 5):
             for d2 in range(1, 5):
-                # 遍历: for d3 in range(1, 5):
                 for d3 in range(1, 5):
-                    # 初始化变量 verdict
                     verdict = combine_tiers(d1, d2, d3, rule_hits=[])
                     assert verdict["final_tier"] in ("T1", "T2", "T3", "T4")
                     assert verdict["severity_score"] in (1, 2, 3, 4)
@@ -131,38 +111,28 @@ _tiers，都应得到合法 verdict."""
         assert v2["final_tier"] in ("T1", "T2", "T3", "T4")
 
 
-# 定义 TestExhaustiveCombinations 类
 class TestExhaustiveCombinations:
     """参数化 64 种组合，验证 final_tier 属于 [1, 4]."""
 
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d1", [1, 2, 3, 4])
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d2", [1, 2, 3, 4])
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d3", [1, 2, 3, 4])
     def test_combination_in_range(self, d1, d2, d3) -> None:
-        # 执行 test_combination_in_range 函数的核心逻辑
         v = combine_tiers(d1, d2, d3)
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
         assert v["severity_score"] in (1, 2, 3, 4)
         assert 0.0 <= v["confidence"] <= 1.0
 
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d1", [1, 2, 3, 4])
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d2", [1, 2, 3, 4])
-    # 应用装饰器: pytest.mark.parametrize
     @pytest.mark.parametrize("d3", [1, 2, 3, 4])
     def test_combination_id_matches_pattern(self, d1, d2, d3) -> None:
-        # 执行 test_combination_id_matches_pattern 函数的核心逻辑
         v = combine_tiers(d1, d2, d3)
         # combination_rule 形如 BASE_x_y_z 或 DOWNGRADE_DEFENSE_BASE_x_y_z
         # 但必须包含可追溯的 BASE_<d1>_<d2>_<d3> 段
         assert "BASE_" in v["combination_rule"]
         # 至少要包含三个数字（BASE_d1_d2_d3）
         base_segment = v["combination_rule"].split("BASE_")[-1]
-        # 初始化变量 parts
         parts = base_segment.split("_")
         assert len(parts) >= 3
         assert int(parts[0]) == d1
@@ -175,49 +145,37 @@ class TestExhaustiveCombinations:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestInputNormalization 类
 class TestInputNormalization:
     """combine_tiers 必须能接受多种输入格式."""
 
     def test_accepts_tier_enum(self) -> None:
-        # 函数 test_accepts_tier_enum 的初始化逻辑
         v = combine_tiers(TierEnum.T2, TierEnum.T2, TierEnum.T2)
         assert v["final_tier"] == "T2"
 
     def test_accepts_string(self) -> None:
-
-        # 执行 test_accepts_string 函数的核心逻辑
         v = combine_tiers("T3", "T3", "T3")
         assert v["final_tier"] == "T3"
 
     def test_accepts_int(self) -> None:
-
-        # 执行 test_accepts_int 函数的核心逻辑
         v = combine_tiers(2, 2, 2)
         assert v["final_tier"] == "T2"
 
     def test_accepts_chinese_label(self) -> None:
-        # 函数 test_accepts_chinese_label 的初始化逻辑
         v = combine_tiers("一档", "一档", "一档")
         assert v["final_tier"] == "T1"
         v2 = combine_tiers("四档", "四档", "四档")
         assert v2["final_tier"] == "T4"
 
     def test_accepts_none_falls_back_to_t2(self) -> None:
-
-        # 执行 test_accepts_none_falls_back_to_t2 函数的核心逻辑
         v = combine_tiers(None, None, None)
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
         # 至少不应崩溃
 
     def test_accepts_garbage_falls_back_to_t2(self) -> None:
-
-        # 执行 test_mixed_types 函数的核心逻辑
         v = combine_tiers("garbage", 999, "???")
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
 
     def test_mixed_types(self) -> None:
-        # 函数 test_mixed_types 的初始化逻辑
         v = combine_tiers(TierEnum.T1, "2", 3)
         # 不应崩溃，应给出合法 tier
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
@@ -228,12 +186,10 @@ class TestInputNormalization:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestFinalVerdictStructure 类
 class TestFinalVerdictStructure:
     """FinalVerdict 字典必须包含 6 个字段."""
 
     def test_has_all_required_fields(self) -> None:
-        # 函数 test_has_all_required_fields 的初始化逻辑
         v = combine_tiers("T2", "T2", "T2")
         assert "final_tier" in v
         assert "final_label" in v
@@ -249,15 +205,11 @@ class TestFinalVerdictStructure:
         assert "罚金" in v["sentence_band"]
 
     def test_confidence_clamped(self) -> None:
-
-        # 执行 test_severity_score_matches_tier 函数的核心逻辑
         v = combine_tiers("T2", "T2", "T2", rule_hits=[])
-        assert 0.0 <= v["con        # 循环遍历：处理业务逻辑
-fidence"] <= 1.0
+        assert 0.0 <= v["confidence"] <= 1.0
 
     def test_severity_score_matches_tier(self) -> None:
         """severity_score 应等于 final_tier 数值."""
-        # 遍历: for tier in ("T1", "T2", "T3", "T4"):
         for tier in ("T1", "T2", "T3", "T4"):
             v = combine_tiers(tier, tier, tier)
             assert v["severity_score"] == int(tier[1])
@@ -268,7 +220,6 @@ fidence"] <= 1.0
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestDefenseDowngrade 类
 class TestDefenseDowngrade:
     """d3 显著低于 d1 和 d2 时，final_tier 应比基础档下调一档."""
 
@@ -307,23 +258,17 @@ class TestDefenseDowngrade:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestEscalation 类
 class TestEscalation:
     """规则命中 T4 信号 + 高/极高权重应触发升级."""
 
     def test_t4_signal_with_very_high_weight_escalates_to_t4(self, base_rule_template) -> None:
         """T4 关键词 + weight>=0.9 → 直接升 T4."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(
                 base_rule_template,
-                # 初始化变量 rule_id
                 rule_id="R_T4_CRITICAL",
-                # 初始化变量 name
                 name="组织者/主犯",
-                # 初始化变量 conclusion
                 conclusion="电信网络诈骗上游",
-                # 初始化变量 weight
                 weight=0.95,
             ),
         ]
@@ -334,17 +279,12 @@ class TestEscalation:
 
     def test_t4_signal_with_high_weight_escalates_to_t3(self, base_rule_template) -> None:
         """T4 关键词 + weight>=0.8 → 升 T3."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(
                 base_rule_template,
-                # 初始化变量 rule_id
                 rule_id="R_T4_HEAVY",
-                # 初始化变量 name
                 name="跨境帮信",
-                # 初始化变量 conclusion
                 conclusion="跨境",
-                # 初始化变量 weight
                 weight=0.85,
             ),
         ]
@@ -355,19 +295,13 @@ class TestEscalation:
 
     def test_high_weight_only_escalates_to_t3(self, base_rule_template) -> None:
         """无 T4 关键词但 weight>=0.8 → 升 T3."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(
                 base_rule_template,
-                # 初始化变量 rule_id
                 rule_id="R_HEAVY_NO_T4",
-                # 初始化变量 name
                 name="普通高权重",
-                # 初始化变量 conclusion
                 conclusion="无 T4 关键词",
-                # 初始化变量 conditions
                 conditions="无升级信号",
-                # 初始化变量 weight
                 weight=0.85,
             ),
         ]
@@ -377,17 +311,12 @@ class TestEscalation:
 
     def test_no_escalation_with_low_weight(self, base_rule_template) -> None:
         """weight<0.8 时不应触发升级."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(
                 base_rule_template,
-                # 初始化变量 rule_id
                 rule_id="R_LIGHT",
-                # 初始化变量 name
                 name="轻量规则",
-                # 初始化变量 conclusion
                 conclusion="无",
-                # 初始化变量 weight
                 weight=0.5,
             ),
         ]
@@ -403,17 +332,12 @@ class TestEscalation:
 
     def test_escalation_takes_max_with_base(self, base_rule_template) -> None:
         """升级时 final_rank = max(base_rank, target)."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(
                 base_rule_template,
-                # 初始化变量 rule_id
                 rule_id="R_T4_S",
-                # 初始化变量 name
                 name="数额特别巨大",
-                # 初始化变量 conclusion
                 conclusion="数额特别巨大",
-                # 初始化变量 weight
                 weight=0.85,
             ),
         ]
@@ -428,7 +352,6 @@ class TestEscalation:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestConfidence 类
 class TestConfidence:
     """置信度应在 [0, 1]，且满足一致性启发式."""
 
@@ -443,32 +366,23 @@ class TestConfidence:
         assert v["confidence"] < 0.9
 
     def test_rule_bonus_increases_confidence(self, base_rule_template) -> None:
-        """每命中 1 条            # 循环遍历：处理业务逻辑
-规则 +0.02 置信度（上限 0.20）."""
-        # 初始化变量 rules_no
+        """每命中 1 条规则 +0.02 置信度（上限 0.20）."""
         rules_no = []
-        # 初始化变量 rules_yes
         rules_yes = [
             _mk_rule(base_rule_template, rule_id=f"R{i:03d}", weight=0.5)
-            # 遍历: for i in range(5)
             for i in range(5)
         ]
         # 使用 spread=1 的组合以避免 base_conf 顶到 1.0 上限
         v_no = combine_tiers("T1", "T2", "T1", rule_hits=rules_no)
-        # 初始化变量 v_yes
         v_yes = combine_tiers("T1", "T2", "T1", rule_hits=rules_yes)
         # 5 条规则 → +0.10
         assert v_yes["confidence"] >= v_no["confidence"]
         assert v_yes["confidence"] - v_no["confidence"] >= 0.05
 
-    def test_confidence_c            # 循环遍历：处理业务逻辑
-        # 函数 test_confidence_c 的初始化逻辑
-lamped_to_one(self, base_rule_template) -> None:
+    def test_confidence_clamped_to_one(self, base_rule_template) -> None:
         """置信度超过 1 时应被钳制."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(base_rule_template, rule_id=f"R{i:03d}", weight=0.5)
-            # 遍历: for i in range(20)  # 20 条 → 超过 0.20 上限
             for i in range(20)  # 20 条 → 超过 0.20 上限
         ]
         v = combine_tiers("T2", "T2", "T2", rule_hits=rules)
@@ -480,19 +394,15 @@ lamped_to_one(self, base_rule_template) -> None:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestAllCombinationsHelper 类
 class TestAllCombinationsHelper:
     """all_combinations 返回 64 项有序列表."""
 
     def test_helper_returns_64(self) -> None:
-        # 函数 test_helper_returns_64 的初始化逻辑
         combos = all_combinations()
         assert len(combos) == 64
 
     def test_helper_keys_unique(self) -> None:
-        # 函数 test_helper_keys_unique 的初始化逻辑
         combos = all_combinations()
-        # 初始化变量 keys
         keys = [k for k, _ in combos]
         assert len(set(keys)) == 64
 
@@ -502,31 +412,24 @@ class TestAllCombinationsHelper:
 # ---------------------------------------------------------------------------
 
 
-# 定义 TestRobustness 类
 class TestRobustness:
     """异常输入不应导致系统崩溃."""
 
     def test_none_inputs(self) -> None:
-        # 函数 test_none_inputs 的初始化逻辑
         v = combine_tiers(None, None, None, rule_hits=None)
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
 
     def test_invalid_string_inputs(self) -> None:
-
-        # 执行 test_out_of_range_int_inputs 函数的核心逻辑
         v = combine_tiers("invalid", "garbage", "???", rule_hits=[])
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
 
     def test_out_of_range_int_inputs(self) -> None:
-
-        # 执行 test_with_edge_weight_rule_object 函数的核心逻辑
         v = combine_tiers(99, 100, -1, rule_hits=[])
         # TierEnum.coerce 会把 -1/99 兜底为 T2
         assert v["final_tier"] in ("T1", "T2", "T3", "T4")
 
     def test_with_edge_weight_rule_object(self, base_rule_template) -> None:
         """rule_hits 含有 weight 边界值（0.0 / 1.0）时不应崩溃."""
-        # 初始化变量 rules
         rules = [
             _mk_rule(base_rule_template, rule_id="R_ZERO", weight=0.0),
             _mk_rule(base_rule_template, rule_id="R_ONE", weight=1.0),
@@ -537,7 +440,6 @@ class TestRobustness:
     def test_iterable_rule_hits(self, base_rule_template) -> None:
         """rule_hits 接受生成器/可迭代对象."""
         def gen():
-            # 函数 gen 的初始化逻辑
             yield _mk_rule(base_rule_template, rule_id="R1", weight=0.5)
 
         v = combine_tiers("T1", "T1", "T1", rule_hits=gen())

@@ -1,0 +1,34 @@
+sequenceDiagram
+    autonumber
+    actor User as 用户/检察官
+    participant FE as 展示层<br/>(Vue 3 SPA)
+    participant API as 接入层<br/>(FastAPI 网关)
+    participant SVC as 业务服务层
+    participant LLM as AI 推理层<br/>(Ollama)
+    participant KG as 知识图谱<br/>(Neo4j)
+    participant DB as 关系数据库
+    participant REP as 报告生成器
+
+    User->>FE: 1. 输入案件文本或上传 PDF/DOCX
+    FE->>API: 2. POST /api/cases 或 /api/analyze
+    API->>API: 3. JWT 鉴权 + 速率限制
+    API->>SVC: 4. 路由到分析推理服务
+    SVC->>SVC: 5. 文档解析(若上传文件)
+    SVC->>LLM: 6. S1: 调用 LLM 进行事实抽取
+    LLM-->>SVC: 7. 返回结构化 JSON 事实
+    SVC->>SVC: 8. S2: 证据强度评估(4 子维度)
+    SVC->>LLM: 9. S3: 并行三维度评分(D1/D2/D3)
+    LLM-->>SVC: 10. 返回三维度评分与推理
+    SVC->>KG: 11. S4: 知识图谱类案检索
+    KG-->>SVC: 12. 返回 Top-K 相似案例 + 推定规则
+    SVC->>SVC: 13. S5: 冲突检测与三级仲裁
+    SVC->>SVC: 14. S6: 证据溯源链建立
+    SVC->>DB: 15. 持久化分析记录与审计日志
+    SVC->>REP: 16. 生成 JSON/HTML/PDF 报告
+    REP-->>SVC: 17. 返回报告文件
+    SVC-->>API: 18. 封装响应
+    API-->>FE: 19. 返回分析结果 + 报告链接
+    FE->>User: 20. 可视化展示分析报告
+    User->>FE: 21. 复核/下载/分享报告
+    FE->>API: 22. 下载 PDF 报告
+    API-->>User: 23. PDF 文件下载

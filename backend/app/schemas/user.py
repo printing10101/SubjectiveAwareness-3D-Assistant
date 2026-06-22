@@ -4,15 +4,11 @@
 实现角色枚举约束和用户名格式验证。
 """
 
-# 导入模块: re
 import re
-# 导入模块: from datetime
 from datetime import datetime
 
-# 导入模块: from pydantic
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-# 导入模块: from app.models.user
 from app.models.user import UserRole
 
 
@@ -22,7 +18,6 @@ _MIN_PASSWORD_LENGTH = 10
 _MIN_PASSWORD_CATEGORIES = 3
 
 
-# 定义 UserBase 类
 class UserBase(BaseModel):
     """用户基础模型."""
 
@@ -34,7 +29,6 @@ class UserBase(BaseModel):
     role: UserRole = UserRole.user
 
 
-# 定义 UserCreate 类
 class UserCreate(UserBase):
     """创建用户请求模型，含字段级验证.
 
@@ -49,9 +43,7 @@ class UserCreate(UserBase):
     # 交给 validate_password 可保证中文错误信息能被测试断言。
     password: str = Field(..., max_length=128)
 
-    # 应用装饰器: field_validator
     @field_validator("username")
-    # 应用装饰器: classmethod
     @classmethod
     def validate_username(cls, v: str) -> str:
         """验证用户名格式.
@@ -68,24 +60,16 @@ class UserCreate(UserBase):
         Raises:
             ValueError: 用户名格式不符合要求
         """
-        # 条件判断：处理业务逻辑
         if not v or not v.strip():
             msg = "用户名不能为空"
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
-               # 条件判断：处理业务逻辑
- username = v.strip()
-        # 条件判断: 检查 not _USERNAME_PATTERN.match(username)
+        username = v.strip()
         if not _USERNAME_PATTERN.match(username):
             msg = "用户名只能包含字母、数字和下划线，且长度为3-100个字符。例如：user_admin_123"
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
-        # 返回处理结果
         return username
 
-    # 应用装饰器: field_validator
     @field_validator("password")
-    # 应用装饰器: classmethod
     @classmethod
     def validate_password(cls, v: str) -> str:
         """验证密码复杂度.
@@ -98,33 +82,21 @@ class UserCreate(UserBase):
            - 数字（0-9）
            - 特殊字符（如!@#$%^&*()_+-=等）
         """
-        # 条件判断: 检查 len(v) < _MIN_PASSWORD_LENGTH
         if len(v) < _MIN_PASSWORD_LENGTH:
             msg = (
                 f"密码长度至少为 {_MIN_PASSWORD_LENGTH} 个字符，"
                 "建议使用 10 个以上字符的强密码。"
             )
-            r        # 条件判断：处理业务逻辑
-aise ValueError(msg)
-        # 初始化变量 categories
-        categories =        # 条件判断：处理业务逻辑
- 0
-        # 条件判断: 检查 re.search(r"[a-z]", v)
+            raise ValueError(msg)
+        categories = 0
         if re.search(r"[a-z]", v):
-           # 条件判断：处理业务逻辑
-         categories += 1
-        # 条件判断: 检查 re        # 条件判断：处理业务逻辑
-        if re        # 条件判断：处理业务逻辑
-.search(r"[A-Z]", v):
             categories += 1
-        # 条件判断: 检查 re.search(r"\        # 条件判断：处理业务逻辑
-        if re.search(r"\        # 条件判断：处理业务逻辑
-d", v):
+        if re.search(r"[A-Z]", v):
             categories += 1
-        # 条件判断: 检查 re.search(r"[!@#$%^&*()_+\-=\[\]{};'
+        if re.search(r"\d", v):
+            categories += 1
         if re.search(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]", v):
             categories += 1
-        # 条件判断: 检查 categories < _MIN_PASSWORD_CATEGORIES
         if categories < _MIN_PASSWORD_CATEGORIES:
             msg = (
                 f"密码必须包含以下四类字符中的至少 {_MIN_PASSWORD_CATEGORIES} 类："
@@ -132,13 +104,10 @@ d", v):
                 "特殊字符(如!@#$%^&*()_+-=等)。"
                 f"当前密码仅包含 {categories} 类字符，请重新设置。"
             )
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
-        # 返回处理结果
         return v
 
 
-# 定义 UserUpdate 类
 class UserUpdate(BaseModel):
     """更新用户请求模型，所有字段可选."""
 
@@ -147,90 +116,58 @@ class UserUpdate(BaseModel):
     role: UserRole | None = None
     is_active: bool | None = None
 
-    # 应用装饰器: field_validator
     @field_validator("username")
-    # 应用装饰器: classmethod
     @classmethod
     def validate_username(cls, v: str | None) -> str | None:
         """验证用户名格式（更新时可选）.
 
-              # 条件判断：处理业务逻辑
-  Ar            # 条件判断：处理业务逻辑
-gs:
+        Args:
             v: 用户名字符串或None
 
         Returns:
             str | None: 验证后的用户名或None
 
         Raises:
-                # 条件判断：处理业务逻辑
-        ValueError: 用户名格式不符合要求
+            ValueError: 用户名格式不符合要求
         """
-        # 条件判断: 检查 v is not None
         if v is not None:
-            # 条件判断: 检查 not v.strip()
             if not v.strip():
                 msg = "用户名不能为空"
-                # 抛出异常，处理错误情况
                 raise ValueError(msg)
-            # 初始化变量 username
             username = v.strip()
-            # 条件判断: 检查 not _USERNAME_PATTERN.match(username)
             if not _USERNAME_PATTERN.match(username):
                 msg = "用户名只能包含字母、数字和下划线，且长度为3-100个字符。例如：user_admin_123"
-                # 抛出异常，处理错误情况
                 raise ValueError(msg)
-            # 返回处理结果
             return username
-        # 返回处理结果
         return v
 
-    # 应用装饰器: field_validator
     @field_validator("password")
-    # 应用装饰器: classmethod
     @classmethod
-    def validate_passwo        # 条件判断：处理业务逻辑
-        # 函数 validate_passwo 的初始化逻辑
-rd(cls, v: str | None        # 条件判断：处理业务逻辑
-) -> str | None:
+    def validate_password(cls, v: str | None) -> str | None:
         """验证密码复杂度（更新时可选）.
 
         当 password 为 None 时跳过验证（表示不更新密码）；
         否则要求与 UserCreate 一致：长度至少 10 个字符，
         且至少包含以下四类字符中的三类：
         小写字母(a-z)、大写字母(A-Z)、数字(0-9)、特殊字符。
-                # 条件判断：处理业务逻辑
-"""
-        # 条件判断: 检查 v is None
+        """
         if v is None:
-            ret        # 条件判断：处理业务逻辑
-urn v
-        # 条件判断: 检查 len(v) < _MIN_PASSWORD_L        # 条件判断：处
-        if len(v) < _MIN_PASSWORD_L        # 条件判断：处理业务逻辑
-ENGTH:
+            return v
+        if len(v) < _MIN_PASSWORD_LENGTH:
             msg = (
-                   # 条件判断：处理业务逻辑
-     f"密码长度至少为 {_MIN_PASSWORD_LENGTH} 个字符，"
-                "建议使用 10 个以上字符        # 条件判断：处理业务逻辑
-的强密码。"
+                f"密码长度至少为 {_MIN_PASSWORD_LENGTH} 个字符，"
+                "建议使用 10 个以上字符的强密码。"
             )
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
-        # 初始化变量 categories
         categories = 0
-        # 条件判断: 检查 re.search(r"[a-z]", v)
         if re.search(r"[a-z]", v):
             categories += 1
-        # 条件判断: 检查 re.search(r"[A-Z]", v)
         if re.search(r"[A-Z]", v):
             categories += 1
-        # 条件判断: 检查 re.search(r"\d", v)
         if re.search(r"\d", v):
             categories += 1
-        # 条件判断: 检查 re.search(r"[!@#$%^&*()_+\-=\[\]{};'
         if re.search(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]", v):
             categories += 1
-        # 条件判断: 检查 categories < _MIN_PASSWORD_CATEGORIES
         if categories < _MIN_PASSWORD_CATEGORIES:
             msg = (
                 f"密码必须包含以下四类字符中的至少 {_MIN_PASSWORD_CATEGORIES} 类："
@@ -238,13 +175,10 @@ ENGTH:
                 "特殊字符(如!@#$%^&*()_+-=等)。"
                 f"当前密码仅包含 {categories} 类字符，请重新设置。"
             )
-            # 抛出异常，处理错误情况
             raise ValueError(msg)
-        # 返回处理结果
         return v
 
 
-# 定义 UserResponse 类
 class UserResponse(BaseModel):
     """用户响应模型，用于API返回."""
 
@@ -255,5 +189,4 @@ class UserResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    # 初始化变量 model_config
     model_config = {"from_attributes": True}

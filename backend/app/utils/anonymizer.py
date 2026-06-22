@@ -20,12 +20,9 @@
     - 当事人标识符分配以首次出现顺序为准，并在内部维护映射表
 """
 
-# 导入模块: from __future__
 from __future__ import annotations
 
-# 导入模块: re
 import re
-# 导入模块: from typing
 from typing import Any
 
 
@@ -188,34 +185,24 @@ def _build_party_label(index: int) -> str:
     Returns:
         形如 "当事人A" / "当事人Z" / "当事人AA" 的标识字符串
     """
-    # 条件判断：处理业务逻辑
     if index < 0:
-        # 返回处理结果
-        return "当事人    # 条件判断：处理业务逻辑
-?"
+        return "当事人?"
 
     # 单字母 A-Z
     if index < _ALPHABET_SIZE:
-        # 初始化变量 letter
         letter = chr(ord("A") + index)
-        # 返回处理结果
         return f"当事人{letter}"
 
     # 双字母 AA-AZ, BA-BZ, ...
     first_index = index // _ALPHABET_SIZE - 1
-    # 初始化变量 second_index
     second_index = index % _ALPHABET_SIZE
-    # 初始化变量 first_letter
     first_letter = chr(ord("A") + first_index)
-    # 初始化变量 second_letter
     second_letter = chr(ord("A") + second_index)
-    # 返回处理结果
     return f"当事人{first_letter}{second_letter}"
 
 
 def _mask_id_cards(text: str) -> str:
     """脱敏身份证号: 保留前 6 位与后 4 位，中间替换为 "********"."""
-    # 返回处理结果
     return _ID_CARD_PATTERN.sub(r"\1********\2", text)
 
 
@@ -223,13 +210,9 @@ def _mask_bank_cards(text: str) -> str:
     """脱敏银行卡号: 保留前 4 位与后 4 位，中间替换为 8 个 "*"."""
 
     def _replace(match: re.Match[str]) -> str:
-
-        # 执行 _replace 函数的核心逻辑
         prefix, suffix = match.group(1), match.group(2)
-        # 返回处理结果
         return f"{prefix}********{suffix}"
 
-    # 返回处理结果
     return _BANK_CARD_PATTERN.sub(_replace, text)
 
 
@@ -237,10 +220,8 @@ def _mask_phones(text: str) -> str:
     """脱敏手机号: 保留前 3 位与后 4 位，中间 4 位替换为 "****"."""
 
     def _replace(match: re.Match[str]) -> str:
-        # 函数 _replace 的初始化逻辑
         return f"{match.group(1)}****{match.group(2)}"
 
-    # 返回处理结果
     return _PHONE_PATTERN.sub(_replace, text)
 
 
@@ -259,22 +240,13 @@ def _mask_addresses(text: str) -> str:
     """
 
     def _replace(match: re.Match[str]) -> str:
-
-        # 执行 _replace 函数的核心逻辑
-        municip        # 条件判断：处理业务逻辑
-ality = match.group("municipality")
-        # 条件判断: 检查 municipality
+        municipality = match.group("municipality")
         if municipality:
-            # 返回处理结果
             return municipality
-        # 初始化变量 province
         province = match.group("pc_province") or ""
-        # 初始化变量 city
         city = match.group("pc_city") or ""
-        # 返回处理结果
         return f"{province}{city}"
 
-    # 返回处理结果
     return _ADDRESS_PATTERN.sub(_replace, text)
 
 
@@ -291,26 +263,18 @@ def _anonymize_names(text: str) -> str:
         替换后的文本
     """
     name_to_label: dict[str, str] = {}
-
-        # 执行 _replace 函数的核心逻辑
     next_index = 0
 
     def _replace(match: re.Match[str]) -> str:
-        # 函数 _replace 的初始化逻辑
         nonlocal next_index
-        # 初始化变量 title
         title = match.group("title") or ""
         # 仅使用 "姓氏+某/某某" 作为键，不含称谓，确保 "张某先生" 与 "张某" 共享映射
-        key         # 条件判断：处理业务逻辑
-= f"{match.group('surname')}{match.group('placeholder')}"
-        # 条件判断: 检查 key not in name_to_label
+        key = f"{match.group('surname')}{match.group('placeholder')}"
         if key not in name_to_label:
             name_to_label[key] = _build_party_label(next_index)
             next_index += 1
-        # 返回处理结果
         return f"{name_to_label[key]}{title}"
 
-    # 返回处理结果
     return _NAME_PATTERN.sub(_replace, text)
 
 
@@ -328,13 +292,8 @@ _ZERO_WIDTH_CHARS: tuple[str, ...] = (
 
 def _strip_zero_width(text: str) -> str:
     """移除文本中的零宽字符，避免破坏姓名等中文模式的正则匹配."""
-    # 循环遍历：处理业务逻辑
     for ch in _ZERO_WIDTH_CHARS:
-
-
-    # 执行 anonymize_text 函数的核心逻辑
         text = text.replace(ch, "")
-    # 返回处理结果
     return text
 
 
@@ -350,26 +309,18 @@ def anonymize_text(text: Any) -> Any:
         6. 姓名代称替换（最后执行，避免名称顺序影响其他模式）
 
     Args:
-        text: 原始文本，可接受任意类型    # 条件判断：处理业务逻辑
-以实现"非字符串原样返回"的容错语义
+        text: 原始文本，可接受任意类型以实现"非字符串原样返回"的容错语义
 
     Returns:
         脱敏后的文本。空字符串、None 或非字符串输入将原样返回。
     """
-    # 条件判断: 检查 not text or not isinstance(text, str)
     if not text or not isinstance(text, str):
-        # 返回处理结果
         return text
 
     # 先清理零宽字符，确保中文姓名等模式能正确匹配
     result = _strip_zero_width(text)
-    # 初始化变量 result
     result = _mask_id_cards(result)
-    # 初始化变量 result
     result = _mask_bank_cards(result)
-    # 初始化变量 result
     result = _mask_phones(result)
-    # 初始化变量 result
     result = _mask_addresses(result)
-    # 返回处理结果
     return _anonymize_names(result)

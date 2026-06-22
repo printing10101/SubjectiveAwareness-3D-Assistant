@@ -18,8 +18,8 @@ from pathlib import Path
 # 导入模块: pytest
 import pytest
 
-# 导入模块: from app.services.evidence_strength_layer
-from app.services.evidence_strength_layer import (
+# 导入模块: from app.services.conflict_detector
+from app.services.conflict_detector import (
     EvidenceLayer,
     EvidenceStrengthLayer,
     analyze_evidence_layers,

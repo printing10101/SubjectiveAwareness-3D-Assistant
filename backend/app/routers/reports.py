@@ -1,9 +1,7 @@
 """报告路由模块.
 
 提供分析报告相关的 API 端点，包括报告生成、查询、导出和审查。
-"""
-
-# 导入模块: from fastapi
+"""# 导入模块: from fastapi
 from fastapi import APIRouter, HTTPException, Query
 # 导入模块: from fastapi.responses
 from fastapi.responses import Response
@@ -20,21 +18,17 @@ from app.models.analysis import Analysis
 from app.models.case import Case
 # 导入模块: from app.models.report
 from app.models.report import Report
-# 导入模块: from app.services.report_exporter
-from app.services.report_exporter import export_docx, export_pdf
-# 导入模块: from app.services.report_generator
-from app.services.report_generator import generate_report
-# 导入模块: from app.services.report_service
-from app.services.report_service import list_reports
-# 导入模块: from app.services.review_checklist
-from app.services.review_checklist import (
+# 导入模块: from app.services.report
+from app.services.report import (
     complete_review,
     create_review,
+    export_docx,
+    export_pdf,
+    generate_report,
     get_review_by_report_id,
+    list_reports,
 )
 
-
-# 初始化变量 router
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 
@@ -76,9 +70,7 @@ class ReviewResponse(BaseModel):
 
 # 应用装饰器: router.get
 @router.get("/")
-async def get_reports(
-    # 函数 get_reports 的初始化逻辑
-    page: int = Query(1, ge=1, description="页码"),
+async def get_reports(page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页条数"),
 ) -> dict:
     """分页获取分析报告列表.
@@ -91,15 +83,12 @@ async def get_reports(
         dict: 包含 total、page、page_size、total_pages、reports
     """
     async with get_async_db_session() as db:
-        # 返回处理结果
         return await list_reports(db, page=page, page_size=page_size)
 
 
 # 应用装饰器: router.post
 @router.post("/generate", response_model=GenerateReportResponse)
-async def generate_report_endpoint(
-    # 函数 generate_report_endpoint 的初始化逻辑
-    request: GenerateReportRequest,
+async def generate_report_endpoint(request: GenerateReportRequest,
 ) -> GenerateReportResponse:
     """生成分析报告.
 
@@ -117,20 +106,14 @@ async def generate_report_endpoint(
         result = await db.execute(
             select(Analysis).where(Analysis.id == request.analysis_id)
         )
-        # 初始化变量 analysis
         analysis = result.scalar_one_or_none()
-
-        # 条件判断: 检查 not analysis
         if not analysis:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="分析结果不存在")
 
         # 查询关联案件
         case_result = await db.execute(select(Case).where(Case.id == analysis.case_id))
-        # 初始化变量 case
         case = case_result.scalar_one_or_none()
-
-        # 条件判断: 检查 not case
         if not case:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="关联案件不存在")
@@ -139,47 +122,26 @@ async def generate_report_endpoint(
         try:
             # 生成报告内容
             report_content = generate_report(
-                # 初始化变量 analysis_result
                 analysis_result=analysis.result_data,
-                # 初始化变量 case
-                case=case,
-                # 初始化变量 rule_hits
-                rule_hits=analysis.result_data.get("triggered_rules", []),
-                # 初始化变量 tags
-                tags=analysis.result_data.get("matched_tags", []),
-                # 初始化变量 similar_cases
-                similar_cases=analysis.result_data.get("similar_cases", []),
+                case=case,rule_hits=analysis.result_data.get("triggered_rules", []),tags=analysis.result_data.get("matched_tags", []),similar_cases=analysis.result_data.get("similar_cases", []),
             )
 
             # 创建报告记录
             report = Report(
-                # 初始化变量 case_id
                 case_id=case.id,
-                # 初始化变量 analysis_id
                 analysis_id=analysis.id,
-                # 初始化变量 content_json
-                content_json=report_content,
-                # 初始化变量 version
-                version="1.1.0",
+                content_json=report_content,version="1.2.0",
             )
             db.add(report)
-            # 异步等待操作完成
             await db.commit()
-            # 异步等待操作完成
             await db.refresh(report)
 
             # 更新 report_id 到内容中
             report_content["report_id"] = report.id
             report.content_json = report_content
-            # 异步等待操作完成
             await db.commit()
-
-            # 返回处理结果
             return GenerateReportResponse(
-                # 初始化变量 report_id
-                report_id=report.id,
-                # 初始化变量 message
-                message="报告生成成功",
+                report_id=report.id,message="报告生成成功",
             )
         # 捕获异常：处理业务逻辑
         except Exception as e:
@@ -202,19 +164,12 @@ async def get_report(report_id: int) -> dict:
         HTTPException: 当报告不存在时
     """
     async with get_async_db_session() as db:
-        # 初始化变量 result
         result = await db.execute(select(Report).where(Report.id == report_id))
-        # 初始化变量 report
         report = result.scalar_one_or_none()
-
-        # 条件判断: 检查 not report
         if not report:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="报告不存在")
-
-        # 返回处理结果
-        return {
-            "id": report.id,
+        return {"id": report.id,
             "case_id": report.case_id,
             "analysis_id": report.analysis_id,
             "content": report.content_json,
@@ -238,37 +193,21 @@ async def download_report_pdf(report_id: int) -> Response:
         HTTPException: 当报告不存在或导出失败时
     """
     async with get_async_db_session() as db:
-        # 初始化变量 result
         result = await db.execute(select(Report).where(Report.id == report_id))
-        # 初始化变量 report
         report = result.scalar_one_or_none()
-
-        # 条件判断: 检查 not report
         if not report:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="报告不存在")
 
         # 尝试执行可能抛出异常的代码
         try:
-            # 初始化变量 pdf_bytes
             pdf_bytes = export_pdf(
-                # 初始化变量 report_content
                 report_content=report.content_json,
-                # 初始化变量 case_id
                 case_id=report.case_id,
-                # 初始化变量 generated_at
                 generated_at=report.generated_at,
             )
-
-            # 返回处理结果
             return Response(
-                # 初始化变量 content
-                content=pdf_bytes,
-                # 初始化变量 media_type
-                media_type="application/pdf",
-                # 初始化变量 headers
-                headers={
-                    "Content-Disposition": f'attachment; filename="report_{report_id}.pdf"'
+                content=pdf_bytes,media_type="application/pdf",headers={"Content-Disposition": f'attachment; filename="report_{report_id}.pdf"'
                    # 捕获异常：处理业务逻辑
      },
             )
@@ -293,39 +232,23 @@ async def download_report_docx(report_id: int) -> Response:
         HTTPException: 当报告不存在或导出失败时
     """
     async with get_async_db_session() as db:
-        # 初始化变量 result
         result = await db.execute(select(Report).where(Report.id == report_id))
-        # 初始化变量 report
         report = result.scalar_one_or_none()
-
-        # 条件判断: 检查 not report
         if not report:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="报告不存在")
 
         # 尝试执行可能抛出异常的代码
         try:
-            # 初始化变量 docx_bytes
             docx_bytes = export_docx(
-                # 初始化变量 report_content
                 report_content=report.content_json,
-                # 初始化变量 case_id
                 case_id=report.case_id,
-                # 初始化变量 generated_at
                 generated_at=report.generated_at,
             )
-
-            # 返回处理结果
             return Response(
-                # 初始化变量 content
                 content=docx_bytes,
-                # 初始化变量 media_type
                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                # 初始化变量 headers
-                headers={
-                    "Content-Disposition": f'attachment; filename="report_{report_        # 捕获异常：处理业务逻辑
-id}.docx"'
-                },
+                headers={"Content-Disposition": f'attachment; filename="report_{report_id}.docx"'},
             )
         # 捕获并处理异常
         except Exception as e:
@@ -335,9 +258,7 @@ id}.docx"'
 
 # 应用装饰器: router.post
 @router.post("/{report_id}/review", response_model=ReviewResponse)
-async def submit_review(
-    # 函数 submit_review 的初始化逻辑
-    report_id: int,
+async def submit_review(report_id: int,
     request: ReviewRequest,
 ) -> ReviewResponse:
     """提交报告审查结果.
@@ -355,10 +276,7 @@ async def submit_review(
     async with get_async_db_session() as db:
         # 检查报告是否存在
         result = await db.execute(select(Report).where(Report.id == report_id))
-        # 初始化变量 report
         report = result.scalar_one_or_none()
-
-        # 条件判断: 检查 not report
         if not report:
             # 抛出异常，处理错误情况
             raise HTTPException(status_code=404, detail="报告不存在")
@@ -367,27 +285,18 @@ async def submit_review(
         try:
             # 查询或创建审查记录
             review = await get_review_by_report_id(db, report_id)
-
-            # 条件判断: 检查 not review
             if not review:
-                # 初始化变量 review
                 review = await create_review(db, report_id)
 
             # 更新审查内容
             review = await complete_review(
                 db,
                 review.id,
-                # 初始化变量 items
                 items=request.items,
-                # 初始化变量 comments
                 comments=request.comments,
             )
-
-            # 返回处理结果
             return ReviewResponse(
-                rev        # 捕获异常：处理业务逻辑
-iew_id=review.id,
-                # 初始化变量 message
+                review_id=review.id,
                 message="审查保存成功",
             )
         # 捕获并处理异常

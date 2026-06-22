@@ -11,7 +11,6 @@
 - PIPELINE_FAILURE_COUNTER: 流水线失败计数器（按处理阶段）
 """
 
-# 导入模块: from prometheus_client
 from prometheus_client import Counter, Gauge, Histogram
 
 
@@ -30,7 +29,6 @@ ANALYSIS_COUNTER = Counter(
 ANALYSIS_DURATION = Histogram(
     "analysis_duration_seconds",
     "Duration of analysis operations in seconds",
-    # 初始化变量 buckets
     buckets=[0.1, 0.5, 1, 2, 5, 10, 30, 60],
 )
 
@@ -44,9 +42,7 @@ ANALYSIS_DURATION = Histogram(
 LLM_CALL_DURATION = Histogram(
     "llm_call_duration_seconds",
     "Duration of LLM API calls in seconds, bucketed by prompt type",
-    # 初始化变量 labelnames
     labelnames=["prompt_type"],
-    # 初始化变量 buckets
     buckets=[0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60],
 )
 
@@ -114,7 +110,6 @@ PIPELINE_EXECUTION_COUNTER = Counter(
 PIPELINE_DURATION = Histogram(
     "pipeline_duration_seconds",
     "Duration of complete pipeline execution in seconds",
-    # 初始化变量 buckets
     buckets=[0.5, 1, 2, 5, 10, 30, 60, 120],
 )
 
@@ -141,7 +136,6 @@ HTTP_REQUEST_DURATION = Histogram(
     "http_request_duration_seconds",
     "Duration of HTTP requests in seconds",
     ["method", "endpoint"],
-    # 初始化变量 buckets
     buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10],
 )
 
@@ -161,11 +155,8 @@ def update_cache_hit_ratio(hits: int, misses: int) -> None:
     Example:
         >>> update_cache_hit_ratio(85, 15)  # 命中率 85%
     """
-    # 初始化变量 total
     total = hits + misses
-    # 条件判断：处理业务逻辑
     if total > 0:
-        # 初始化变量 ratio
         ratio = hits / total
         CACHE_HIT_RATIO.set(ratio)
 
@@ -179,7 +170,6 @@ def record_llm_call(prompt_type: str, duration: float, success: bool) -> None:
         success: 是否成功
     """
     LLM_CALL_DURATION.labels(prompt_type=prompt_type).observe(duration)
-    # 初始化变量 status
     status = "success" if success else "failure"
     LLM_CALL_COUNTER.labels(prompt_type=prompt_type, status=status).inc()
 

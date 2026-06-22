@@ -1,7 +1,7 @@
 """多主体分层模块测试."""
 
-# 导入模块: from app.services.subject_stratifier
-from app.services.subject_stratifier import stratify_subjects
+# 导入模块: from app.services.subject
+from app.services.subject import stratify_subjects
 
 
 def test_stratify_single_subject():

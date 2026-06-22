@@ -24,8 +24,8 @@ from unittest.mock import AsyncMock, patch
 # 导入模块: pytest
 import pytest
 
-# 导入模块: from app.services.sentencing
-from app.services.sentencing import get_sentencing_suggestion
+# 导入模块: from app.services.analysis_helpers
+from app.services.analysis_helpers import get_sentencing_suggestion
 
 
 # 定义 TestGetSentencingSuggestion 类
@@ -36,7 +36,7 @@ class TestGetSentencingSuggestion:
     @pytest.fixture(autouse=True)
     def mock_get_client(self):
         # 执行 mock_get_client 函数的核心逻辑
-        with patch("app.services.sentencing.get_client") as mock:
+        with patch("app.services.analysis_helpers.get_client") as mock:
             # 初始化变量 client
             client = AsyncMock()
             mock.return_value = client

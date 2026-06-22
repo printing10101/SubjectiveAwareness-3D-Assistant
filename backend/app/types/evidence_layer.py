@@ -2,23 +2,15 @@
 
 V1.2 法律引擎升级引入的证据强度分层报告结构。
 """
-
-# 导入模块: from dataclasses
 from dataclasses import dataclass, field
-# 导入模块: from typing
 from typing import Literal
 
-# 初始化变量 LegalPath
-LegalPath = Literal[
-    "帮信罪主路径",
+LegalPath = Literal["帮信罪主路径",
     "诈骗罪共同犯罪路径",
     "掩饰隐瞒犯罪所得路径",
-    "规范路径待核实"
-]
+    "规范路径待核实"]
 
-# 初始化变量 EvidenceStrength
-EvidenceStrength = Literal[
-    "直接认知性证据",
+EvidenceStrength = Literal["直接认知性证据",
     "客观异常事实",
     "认知增强因素",
     "辩解检验材料"
@@ -97,7 +89,6 @@ class EvidenceLayerReport:
 
         仅当识别路径为帮信罪主路径时返回True。
         """
-        # 返回处理结果
         return self.identified_path == "帮信罪主路径"
 
     def get_scoring_mode(self) -> Literal["definitive", "reference_only"]:
@@ -106,9 +97,6 @@ class EvidenceLayerReport:
         帮信罪主路径：definitive（决定性）
         其他路径：reference_only（仅参照）
         """
-        # 条件判断：处理业务逻辑
         if self.identified_path == "帮信罪主路径":
-            # 返回处理结果
             return "definitive"
-        # 返回处理结果
         return "reference_only"

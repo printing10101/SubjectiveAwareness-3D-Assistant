@@ -4,8 +4,8 @@ import { createApp } from 'vue'
 import axios from 'axios'
 import { createPinia } from 'pinia'
 
-import './assets/styles/variables.css'
-import './assets/styles/global.css'
+import './assets/styles/tokens.css'
+import './assets/styles/base.css'
 
 import App from './App.vue'
 import router from './router/index.js'

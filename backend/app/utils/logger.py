@@ -5,16 +5,11 @@
 并基于contextvars实现请求级的request_id上下文追踪。
 """
 
-# 导入模块: contextvars
 import contextvars
-# 导入模块: os
 import os
-# 导入模块: from datetime
 from datetime import UTC, datetime
-# 导入模块: from typing
 from typing import Any
 
-# 导入模块: from loguru
 from loguru import logger
 
 
@@ -23,7 +18,6 @@ from loguru import logger
 request_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("request_id", default="")
 
 
-# 定义 RequestIdFilter 类
 class RequestIdFilter:
     """日志过滤器，自动将当前线程/协程的request_id注入日志记录.
 
@@ -34,7 +28,6 @@ class RequestIdFilter:
     def __call__(self, record: dict[str, Any]) -> bool:
         """将当前请求的 request_id 注入日志记录."""
         record["extra"]["request_id"] = request_id_var.get()
-        # 返回处理结果
         return True
 
 
@@ -50,11 +43,8 @@ def console_formatter(record: dict[str, Any]) -> str:
     Returns:
         包含loguru格式占位符的格式字符串
     """
-    # 初始化变量 request_id
     request_id = record["extra"].get("request_id", "")
-    # 初始化变量 request_id_part
     request_id_part = f" [{request_id}]" if request_id else ""
-    # 返回处理结果
     return (
         "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
         "<level>{level: <8}</level> | "
@@ -64,11 +54,7 @@ def console_formatter(record: dict[str, Any]) -> str:
 
 
 def setup_logging(
-    # 函数 setup_logging 的初始化逻辑
     log_level: str = "INFO",
-
-
-    # 执行 setup_logging 函数的核心逻辑
     log_dir: str = "logs",
     json_log_file: str = "app_{time:YYYY-MM-DD}.json",
     json_retention: str = "30 days",
@@ -96,48 +82,31 @@ def setup_logging(
         >>> setup_logging(log_level="DEBUG", log_dir="/var/log/myapp")
         日志系统初始化完成（使用绝对路径）
     """
-    # 记录日志信息
     logger.remove()
 
     os.makedirs(log_dir, exist_ok=True)
 
-    # 初始化变量 request_id_filter
     request_id_filter = RequestIdFilter()
 
-    # 记录日志信息
     logger.add(
-        # 初始化变量 sink
         sink=lambda msg: print(msg, end=""),
-        # 初始化变量 format
         format=console_formatter,  # type: ignore[arg-type]
         level=log_level,
-        # 初始化变量 colorize
         colorize=True,
-        # 初始化变量 filter
         filter=request_id_filter,  # type: ignore[arg-type]
     )
 
-    # 记录日志信息
     logger.add(
-        # 初始化变量 sink
         sink=os.path.join(log_dir, json_log_file),
-        # 初始化变量 format
         format="{message}",
-        # 初始化变量 level
         level=log_level,
-        # 初始化变量 serialize
         serialize=True,
-        # 初始化变量 rotation
         rotation=json_rotation,
-        # 初始化变量 retention
         retention=json_retention,
-        # 初始化变量 compression
         compression=None,
-        # 初始化变量 filter
         filter=request_id_filter,  # type: ignore[arg-type]
     )
 
-    # 记录日志信息
     logger.info(
         "日志系统初始化完成 | 日志级别: {} | JSON日志目录: {}",
         log_level,
@@ -160,7 +129,6 @@ def get_request_id() -> str:
         >>> get_request_id()
         ''  # 非请求上下文
     """
-    # 返回处理结果
     return request_id_var.get()
 
 
@@ -177,8 +145,6 @@ def format_timestamp(dt: datetime | None = None) -> str:
         >>> format_timestamp()
         '2024-01-15T10:30:45.123456+00:00'
     """
-    # 条件判断：处理业务逻辑
     if dt is None:
         dt = datetime.now(UTC)
-    # 返回处理结果
     return dt.isoformat()

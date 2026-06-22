@@ -1,5 +1,7 @@
-"""冲突检测器.
+"""冲突检测器与证据强度分层器.
 
+冲突检测
+--------
 负责在案件分析结果中检测以下 6 类冲突：
 
 - C001 规则冲突
@@ -9,31 +11,29 @@
 - C005 超量刑范围
 - C006 适用法律版本冲突
 
-输入包括：
+证据强度分层
+------------
+根据 V1.2 法律引擎升级说明第二节第4条要求，将证据拆分为4个层级：
+1. DIRECT_COGNITION（直接认知性证据）
+2. OBJECTIVE_ANOMALY（客观异常事实）
+3. COGNITION_ENHANCER（认知增强因素）
+4. DEFENSE_VERIFICATION（辩解检验材料）
 
-- :class:`TagMatch` 列表（来自 :class:`app.services.tag_extractor`）
-- 命中的 :class:`Rule` 列表
-- 维度结果字典（``dimension1/2/3`` -> ``{score, reasoning}``）
-
-输出为 :class:`Conflict` 列表，每项冲突包含冲突类型、严重程度与解决建议。
+边界提醒
+--------
+检测案件是否超出帮信罪评价范围（原 boundary_reminder.py）。
 """
 
-# 导入模块: from __future__
 from __future__ import annotations
 
-# 导入模块: re
 import re
-# 导入模块: from collections.abc
 from collections.abc import Mapping, Sequence
-# 导入模块: from dataclasses
 from dataclasses import dataclass, field
-# 导入模块: from typing
+from enum import Enum
 from typing import Any
 
-# 导入模块: from loguru
 from loguru import logger
 
-# 导入模块: from app.services.rule_engine
 from app.services.rule_engine import (
     ConflictCheck,
     Rule,
@@ -41,8 +41,8 @@ from app.services.rule_engine import (
     load_conflicts,
     load_tags,
 )
-# 导入模块: from app.services.tag_extractor
 from app.services.tag_extractor import TagMatch
+from app.types.evidence_layer import BoundaryAlert
 
 
 # ---------------------------------------------------------------------------
@@ -87,9 +87,7 @@ _DIM_SENTENCING: str = "dimension3"
 # ---------------------------------------------------------------------------
 
 
-# 应用装饰器: dataclass
 @dataclass(slots=True)
-# 定义 Conflict 类
 class Conflict:
     """单条冲突检测结果.
 
@@ -113,9 +111,7 @@ class Conflict:
 
     def to_dict(self) -> dict[str, Any]:
         """转换为可序列化字典."""
-        # 返回处理结果
-        return {
-            "check_id": self.check_id,
+        return {"check_id": self.check_id,
             "name": self.name,
             "severity": self.severity,
             "involved": list(self.involved),
@@ -130,7 +126,6 @@ class Conflict:
 # ---------------------------------------------------------------------------
 
 
-# 定义 ConflictDetector 类
 class ConflictDetector:
     """帮信罪案件冲突检测器.
 
@@ -138,8 +133,6 @@ class ConflictDetector:
     """
 
     def __init__(self, checks: Sequence[ConflictCheck] | None = None) -> None:
-
-        # 执行 __init__ 函数的核心逻辑
         self._checks: list[ConflictCheck] = (
             list(checks) if checks is not None else list(load_conflicts())
         )
@@ -150,11 +143,8 @@ class ConflictDetector:
     # ------------------------------------------------------------------
 
     def detect_conflicts(
-        # 函数 detect_conflicts 的初始化逻辑
         self,
         tags: Sequence[TagMatch],
-
-        # 执行 detect_conflicts 函数的核心逻辑
         rule_hits: Sequence[Rule],
         dimension_results: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> list[Conflict]:
@@ -169,51 +159,28 @@ class ConflictDetector:
             :class:`Conflict` 列表.
         """
         results: list[Conflict] = []
-        # 循环遍历：处理业务逻辑
         for check in self._checks:
-            # 异常处理：处理业务逻辑
             try:
-                # 条件判断：处理业务逻辑
                 if check.check_id == "C001":
-                    # 初始化变量 conflict
                     conflict = self._check_rule_conflict(rule_hits)
-                # 条件判断: 检查 elcheck.check_id == "C002"
                 elif check.check_id == "C002":
-                    # 初始化变量 conflict
                     conflict = self._check_tag_mutex(tags)
-                # 条件判断: 检查 elcheck.check_id == "C003"
                 elif check.check_id == "C003":
-                    # 初始化变量 conflict
                     conflict = self._check_dimension_contradiction(dimension_results)
-                # 条件判断: 检查 elcheck.check_id == "C004"
                 elif check.check_id == "C004":
-                    # 初始化变量 conflict
                     conflict = self._check_evidence_shortage(tags, rule_hits, dimension_results)
-                # 条件判断: 检查 elcheck.check_id == "C005"
                 elif check.check_id == "C005":
-                    # 初始化变量 conflict
                     conflict = self._check_sentence_out_of_range(dimension_results)
-                # 条件判断: 检查 elcheck.check_id == "C006"
                 elif check.check_id == "C006":
-                    # 初始化变量 conflict
                     conflict = self._check_law_version_conflict(rule_hits)
-                # 其他情况的默认处理
                 else:
-                    # 记录日志信息
                     logger.warning(f"未知的冲突检查 ID: {check.check_id}")
                     continue
-            # 捕获并处理异常
             except Exception:  # noqa: BLE001
-                logger.exception(f"冲突检测失败: {check.check_i
-            # 条件判断：处理业务逻辑
-d}")
+                logger.exception(f"冲突检测失败: {check.check_id}")
                 continue
-
-            # 条件判断: 检查 conflict is not None
             if conflict is not None:
                 results.append(conflict)
-
-        # 返回处理结果
         return results
 
     # ------------------------------------------------------------------
@@ -221,48 +188,24 @@ d}")
     # ------------------------------------------------------------------
 
     def _check_rule_conflict(self, rule_hits: Sequence[Rule]) -> Conflict | None:
-
-        # 执行 _check_rule_conflict 函数的核心逻辑
         rule_ids = {r.rule_id for r in rule_hits}
-        confli        # 循环遍历：处理业务逻辑
-cting: list[str] = []
-        # 遍历: for r in                 # 条件判断：处理业务逻辑
-        for r in                 # 条件判断：处理业务逻辑
-rule_hits:
-            # 遍历: for other in r.conflicting_rules:
+        conflicting: list[str] = []
+        for r in rule_hits:
             for other in r.conflicting_rules:
-                                # 条件判断：处理业务逻辑
-    if other in rule_ids:
-                    # 初始化变量 pair
-                    pair = tuple(sort
-        # 条件判断：处理业务逻辑
-ed({r.rule_id, other}))
-                    # 条件判断: 检查 pair not in conflicting
+                if other in rule_ids:
+                    pair = tuple(sorted({r.rule_id, other}))
                     if pair not in conflicting:
-                        conflicting.extend(pair)
-
-        # 条件判断: 检查 not conflicting
+                        conflicting.append(pair)
         if not conflicting:
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C001")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
             check_id=check.check_id,
-            # 初始化变量 name
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_HIGH,
-            # 初始化变量 involved
             involved=conflicting,
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
             raw_payload={"conflicting_pairs": conflicting},
         )
 
@@ -271,215 +214,120 @@ ed({r.rule_id, other}))
     # ------------------------------------------------------------------
 
     def _check_tag_mutex(self, tags: Sequence[TagMatch]) -> Conflict | None:
-
-        # 执行 _check_tag_mutex 函数的核心逻辑
-        tag_ids = {t.t            # 条件判断：处理业务逻辑
-ag_id for t in tags}
-           # 循环遍历：处理业务逻辑
-     violations: list[tuple[str, str]] = []
-        # 遍历: for                # 条件判断：处理业务逻辑
-        for                # 条件判断：处理业务逻辑
- tag in tags:
-            # 初始化变量 meta
+        tag_ids = {t.tag_id for t in tags}
+        violations: list[tuple[str, str]] = []
+        for tag in tags:
             meta = self._tag_index.get(tag.tag_id)
-                        # 条件判断：处理业务逻辑
-        if not meta:
+            if not meta:
                 continue
-            for
-        # 条件判断：处理业务逻辑
- other in meta.mutually_exclusive_with:
-                # 条件判断: 检查 other in tag_ids
+            for other in meta.mutually_exclusive_with:
                 if other in tag_ids:
-                    # 初始化变量 pair
                     pair = tuple(sorted({tag.tag_id, other}))
-                    # 条件判断: 检查 pair not in violations
                     if pair not in violations:
                         violations.append(pair)
-
-        # 条件判断: 检查 not violations
         if not violations:
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C002")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
             check_id=check.check_id,
-            # 初始化变量 name
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_MEDIUM,
-            # 初始化变量 involved
             involved=[tid for pair in violations for tid in pair],
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
             raw_payload={"mutex_pairs": [list(p) for p in violations]},
         )
 
     # ------------------------------------------------------------------
     # C003 维度间结论矛盾
-    # -----------        # 条件判断：处理业务逻辑
--------------------------------------------------------
+    # ------------------------------------------------------------------
 
     def _check_dimension_contradiction(
-        # 函数 _check_dimension_contradiction 的初始化逻辑
         self,
         dimension_results: Mapping[str, Mapping[str, Any]] | None,
-
-        # 执行 _check_dimension_contradiction 函数的核心逻辑
     ) -> Conflict | None:
-        # 条件判断: 检查 not dimension_results
         if not dimension_results:
-            # 返回处理结果
             return None
-
-        # 初始化变量 constitutive
         constitutive = dimension_results.get(_DIM_CONSTITUTIVE) or {}
-        # 初始化变量 circumstance
         circumstance = dimension_results.get(_DIM_CIRCUMSTANCE) or {}
-
-        # 初始化变量 constitutive_text
         constitutive_text = _safe_text(constitutive.get("reasoning", ""))
-        # 初始化变量 circumstance_text
         circumstance_text = _safe_text(circumstance.get("reasoning", ""))
 
         # 情形 1: 文本层面互相矛盾
         constitutive_text_hit = "情节严重" in constitutive_text
-        # 初始化变量 circumstance_text_hit
         circumstance_text_hit = (
             "情节较轻" in circumstance_text
             or "情节显著轻微" in circumstance_text
             or "情节轻微" in circumstance_text
         )
-        # 初始化变量 text_contradiction
         text_contradiction = constitutive_text_hit and circumstance_text_hit
 
         # 情形 2: 分数层面互相矛盾
-        # 构成要件维度分高、情节维
-        #         # 异常处理：处理业务逻辑
-条件判断：处理业务逻辑
-度文字明确说"较轻/轻微"
-        # 尝试执行可能抛出异常的代码
+        # 构成要件维度分高、情节维度文字明确说"较轻/轻微"
         try:
-            # 初始化变量 constitutive_score
             constitutive_score = float(constitutive.get("score", 0))
-        # 捕获异常：处理业务逻辑
         except (TypeError, ValueError):
-            # 初始化变量 constitutive_score
             constitutive_score = 0.0
-        # 初始化变量 score_contradiction
         score_contradiction = (
             constitutive_score >= 7.0 and circumstance_text_hit
         )
-
-        # 条件判断: 检查 not (text_contradiction or score_contrad
         if not (text_contradiction or score_contradiction):
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C003")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
             check_id=check.check_id,
-            # 初始化变量 name
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_HIGH,
-            # 初始化变量 involved
             involved=[_DIM_CONSTITUTIVE, _DIM_CIRCUMSTANCE],
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
-            raw_payload={
-                "constitutive_reasoning": constitutive_text,
+            raw_payload={"constitutive_reasoning": constitutive_text,
                 "constitutive_score": constitutive_score,
                 "circumstance_reasoning": circumstance_text,
                 "trigger": (
-                    "text" if text_contradiction else "score"
-                ),
+                    "text" if text_contradiction else "score"),
             },
         )
 
     # ------------------------------------------------------------------
     # C004 证据不足
-    # -----------------------        # 条件判断：处理业务逻辑
--------------------------------------------
+    # ------------------------------------------------------------------
 
     def _check_evidence_shortage(
-        # 函数 _check_evidence_shortage 的初始化逻辑
         self,
-        # 条件判断：处理业务逻辑
         tags: Sequence[TagMatch],
-
-        # 执行 _check_evidence_shortage 函数        # 条件判断：处理业务逻辑
-的核心逻辑
         rule_hits: Sequence[Rule],
-        dimensio                # 条件判断：处理业务逻辑
-n_results: Mapping[str, Mapping[str, Any]] | None,
+        dimension_results: Mapping[str, Mapping[str, Any]] | None,
     ) -> Conflict | None:
-        # 条件判断: 检查 not rule_hits
         if not rule_hits:
-            # 返回处理结果
             return None
-
-        # 初始化变量 heavy_rules
         heavy_rules = [r for r in rule_hits if r.weight >= 0.8]
-        # 条件判断: 检查 not heavy_rules
         if not heavy_rules:
-            # 返回处理结果
             return None
 
-        evidence_text_parts: l            # 循环遍历：处理业务逻辑
-ist[str] = []
-        # 条件判断: 检查        # 条件判断：处理业务逻辑
-        if        # 条件判断：处理业务逻辑
- dimension_results:
-            # 遍历: for v in dimension_results.values():
+        evidence_text_parts: list[str] = []
+        if dimension_results:
             for v in dimension_results.values():
-                # 条件判断: 检查 isinstance(v, Mapping)
                 if isinstance(v, Mapping):
                     evidence_text_parts.append(_safe_text(v.get("reasoning", "")))
         evidence_text_parts.extend(t.matched_text for t in tags)
-        # 初始化变量 evidence_text
         evidence_text = "\n".join(evidence_text_parts)
 
         hit = sum(1 for kw in _CRITICAL_EVIDENCE_KEYWORDS if kw in evidence_text)
-        # 条件判断: 检查 hit >= _MIN_EVIDENCE_KEYWORD_HITS
         if hit >= _MIN_EVIDENCE_KEYWORD_HITS:
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C004")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
             check_id=check.check_id,
-            # 初始化变量 name
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_MEDIUM,
-            # 初始化变量 involved
             involved=[r.rule_id for r in heavy_rules],
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
             raw_payload={
                 "evidence_hits": hit,
                 "missing_evidence": [
-                    kw for kw in _CRITICAL_EVIDENCE_KEYWORDS if kw not in        # 条件判断：处理业务逻辑
- evidence_text
+                    kw for kw in _CRITICAL_EVIDENCE_KEYWORDS if kw not in evidence_text
                 ],
             },
         )
@@ -489,142 +337,74 @@ ist[str] = []
     # ------------------------------------------------------------------
 
     def _check_sentence_out_of_range(
-        # 函数 _check_sentence_out_of_range 的初始化逻辑
         self,
         dimension_results: Mapping[str, Mapping[str, Any]] | None,
-
-        # 执行 _check_sentence_out_of_range 函数的核心逻辑
-    ) -> Conflict |
-        # 条件判断：处理业务逻辑
- None:
-        # 条件判断: 检查 not dimension_results
+    ) -> Conflict | None:
         if not dimension_results:
-            re        # 条件判断：处理业务逻辑
-turn None
-
-        # 初始化变量 sentencing
+            return None
         sentencing = dimension_results.get(_DIM_SENTENCING) or {}
-        # 初始化变量 circumstance
         circumstance = dimension_results.get(_DIM_CIRCUMSTANCE) or {}
-
-        # 初始化变量 sent_text
         sent_text = _safe_text(sentencing.get("reasoning", ""))
-        # 初始化变量 circum_text
         circum_text = _safe_text(circumstance.get("reasoning", ""))
-
-        # 初始化变量 sent_tier
         sent_tier = _match_highest_tier(sent_text)
-        # 初始化变量 circum_tier
         circum_tier = _match_highest_tier(circum_text)
-
-        # 条件判断: 检查 sent_tier is None or circum_tier is None
         if sent_tier is None or circum_tier is None:
-            # 返回处理结果
             return None
-        # 条件判断: 检查 sent_tier <= circum_tier
         if sent_tier <= circum_tier:
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C005")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
             check_id=check.check_id,
-            # 初始化变量 name
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_HIGH,
-            # 初始化变量 involved
             involved=[_DIM_SENTENCING, _DIM_CIRCUMSTANCE],
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
             raw_payload={
-                # 条件判断：处理业务逻辑
-            "sentencing_tier": sent_tier,
-
-        # 执行 _check_law_versi            # 条件判断：处理业务逻辑
-on_conflict 函数的核心逻辑
+                "sentencing_tier": sent_tier,
                 "circumstance_tier": circum_tier,
-  
-        # 条件判断：处理业务逻辑
-          },
+            },
         )
 
     # ------------------------------------------------------------------
     # C006 适用法律版本冲突
     # ------------------------------------------------------------------
 
-    def _check_law_version_confl        # 循环遍历：处理业务逻辑
-        # 函数 _check_law_version_confl 的初始化逻辑
-ict(self, rule_hits: Sequence[Rule]) -> Conflict | None:
+    def _check_law_version_conflict(self, rule_hits: Sequence[Rule]) -> Conflict | None:
         versions: set[str] = set()
-        # 遍历: for r in rule_hits:
         for r in rule_hits:
-            # 条件判断: 检查 _LAW_VERSION_2025 in r.source_law
             if _LAW_VERSION_2025 in r.source_law:
                 versions.add(_LAW_VERSION_2025)
-            # 条件判断: 检查 _LAW_VERSION_2019 in r.source_law
             if _LAW_VERSION_2019 in r.source_law:
                 versions.add(_LAW_VERSION_2019)
-
-        # 条件判断: 检查 len(versions) < 2
         if len(versions) < 2:
-            # 返回处理结果
             return None
-
-        # 初始化变量 check
         check = self._get_check("C006")
-        # 返回处理结果
         return Conflict(
-            # 初始化变量 check_id
-            check_id=check.check_            # 条件判断：处理业务逻辑
-id,
-            # 初始化变量 name
+            check_id=check.check_id,
             name=check.name,
-            # 初始化变量 severity
             severity=_SEVERITY_CRITICAL,
-            # 初始化变量 involved
             involved=sorted(versions),
-            # 初始化变量 description
             description=check.description,
-            # 初始化变量 resolution_strategy
             resolution_strategy=check.resolution_strategy,
-            # 初始化变量 raw_payload
             raw_payload={"versions": sorted(versions)},
-
-        # 执行 _get_check 函数的核心逻辑
         )
 
     # ------------------------------------------------------------------
     # 工具方法
-    # ------------        # 循环遍历：处理业务逻辑
-------------------------------------------------------
+    # ------------------------------------------------------------------
 
     def _get_check(self, check_id: str) -> ConflictCheck:
-        # 函数 _get_check 的初始化逻辑
         for c in self._checks:
-            # 条件判断: 检查 c.check_id == check_id
             if c.check_id == check_id:
-                # 返回处理结果
                 return c
         # 兜底：返回占位符对象，避免 None 引发 AttributeError
         return ConflictCheck(
-            # 初始化变量 check_id
             check_id=check_id,
-            # 初始化变量 name
             name="未注册",
-            # 初始化变量 rule_a
             rule_a="",
-            # 初始化变量 rule_b
             rule_b="",
-            # 初始化变量 description
             description="",
-            # 初始化变量 resolution_strategy
             resolution_strategy="",
         )
 
@@ -635,52 +415,35 @@ id,
 
 
 def detect_conflicts(
-    # 函数 detect_conflicts 的初始化逻辑
     tags: Sequence[TagMatch],
-
-
-    # 执行 detect_conflicts 函数的核心逻辑
     rule_hits: Sequence[Rule],
-    dimension_results: Mapping[str, Ma    # 条件判断：处理业务逻辑
-pping[str, Any]] | Non    # 条件判断：处理业务逻辑
-e = None,
+    dimension_results: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> list[Conflict]:
     """便捷函数：执行 6 类冲突检查.
 
     Args:
         tags: 标签抽取结果.
-
-
-    # 执行 _safe_text 函数的核心逻辑
         rule_hits: 命中的规则.
         dimension_results: 多维度分析结果.
 
     Returns:
         :class:`Conflict` 列表.
     """
-        # 条件判断：处理业务逻辑
-detector = ConflictDetector()
-    # 返回处理结果
+    detector = ConflictDetector()
     return detector.detect_conflicts(tags, rule_hits, dimension_results)
 
 
-# --------------------------------        # 条件判断：处理业务逻辑
--------------------------------------------
+# ---------------------------------------------------------------------------
 # 内部辅助
 # ---------------------------------------------------------------------------
 
 
 def _safe_text(value: Any) -> str:
     """将任意输入安全地转为字符串."""
-    # 条件判断: 检查 value is None
     if value is None:
-               # 条件判断：处理业务逻辑
- return ""
-    # 条件判断: 检查 isinstance(value, str)
+        return ""
     if isinstance(value, str):
-        # 返回处理结果
         return value
-    # 返回处理结果
     return str(value)
 
 
@@ -688,37 +451,432 @@ def _match_highest_tier(text: str) -> int | None:
     """从文本中匹配最高档位（数字越大档位越高）.
 
     Returns:
-        1（情节较轻/一档    # 循环遍历：处理业务逻辑
-）、2（情节严重/二档）、3（情节特别严重/三档），
+        1（情节较轻/一档）、2（情节严重/二档）、3（情节特别严重/三档），
         文本中无任何档位关键词则返回 ``None``。
     """
-    # 条件判断: 检查 not text
     if not text:
-        # 返回处理结果
         return None
     highest: int | None = None
-    # 遍历: for match in _TIER_KEYWORDS_PATTERN.finditer(text)
     for match in _TIER_KEYWORDS_PATTERN.finditer(text):
-        # 初始化变量 keyword
         keyword = match.group(1)
-        # 条件判断: 检查 keyword in ("一档", "情节较轻", "三年以下")
         if keyword in ("一档", "情节较轻", "三年以下"):
-            # 初始化变量 tier
             tier = 1
-        # 条件判断: 检查 elkeyword in ("二档", "情节严重")
         elif keyword in ("二档", "情节严重"):
-            # 初始化变量 tier
             tier = 2
-        # 条件判断: 检查 elkeyword in ("三档", "情节特别严重", "三年以上", "七
         elif keyword in ("三档", "情节特别严重", "三年以上", "七年以下"):
-            # 初始化变量 tier
             tier = 3
-        # 其他情况的默认处理
         else:
             continue
-        # 条件判断: 检查 highest is None or tier > highest
         if highest is None or tier > highest:
-            # 初始化变量 highest
             highest = tier
-    # 返回处理结果
     return highest
+
+
+# ===========================================================================
+# 证据强度分层功能 (原 evidence_strength_layer.py)
+# ===========================================================================
+
+
+# ---------------------------------------------------------------------------
+# 证据层级枚举
+# ---------------------------------------------------------------------------
+
+
+class EvidenceLayer(str, Enum):
+    """证据强度4层分级.
+
+    层级定义基于 V1.2 法律引擎升级说明第二节第4条。
+    """
+    DIRECT_COGNITION = "direct_cognition"  # 直接认知性证据
+    OBJECTIVE_ANOMALY = "objective_anomaly"  # 客观异常事实
+    COGNITION_ENHANCER = "cognition_enhancer"  # 认知增强因素
+    DEFENSE_VERIFICATION = "defense_verification"  # 辩解检验材料
+
+
+# ---------------------------------------------------------------------------
+# 标签到证据层级的映射
+# ---------------------------------------------------------------------------
+
+# 标签ID到证据层级的映射关系
+# 基于 tag_extractor.py 中的标签定义，将标签分类到4个证据层级
+_TAG_TO_LAYER_MAP: dict[str, EvidenceLayer] = {
+    # 直接认知性证据（自述明知）
+    "F003": EvidenceLayer.DIRECT_COGNITION,  # 自述知道是洗黑钱
+    "F004": EvidenceLayer.DIRECT_COGNITION,  # 承认知道资金异常
+    "F005": EvidenceLayer.DIRECT_COGNITION,  # 明知他人从事违法活动
+
+    # 客观异常事实
+    "F001": EvidenceLayer.OBJECTIVE_ANOMALY,  # 跨省取款
+    "F002": EvidenceLayer.OBJECTIVE_ANOMALY,  # 夜间大额交易
+    "F009": EvidenceLayer.OBJECTIVE_ANOMALY,  # 虚拟币折现
+    "F010": EvidenceLayer.OBJECTIVE_ANOMALY,  # 频繁转账
+
+    # 认知增强因素
+    "F006": EvidenceLayer.COGNITION_ENHANCER,  # 异常报酬比例
+    "F007": EvidenceLayer.COGNITION_ENHANCER,  # 规避监管行为
+    "F008": EvidenceLayer.COGNITION_ENHANCER,  # 规避身份验证
+
+    # 辩解检验材料
+    "F011": EvidenceLayer.DEFENSE_VERIFICATION,  # 辩解与客观事实冲突
+    "F012": EvidenceLayer.DEFENSE_VERIFICATION,  # 辩解无法验证
+}
+
+
+# ---------------------------------------------------------------------------
+# 证据层级数据结构
+# ---------------------------------------------------------------------------
+
+
+@dataclass(slots=True)
+class LayerEvidence:
+    """单个证据层级的评估结果.
+
+    Attributes:
+        layer: 证据层级.
+        evidences: 该层级的证据列表（TagMatch对象）.
+        strength_score: 强度评分（0-10分，仅用于内部计算）.
+    """
+
+    layer: EvidenceLayer
+    evidences: list[TagMatch] = field(default_factory=list)
+    strength_score: float = 0.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """转换为可序列化的字典."""
+        return {"layer": self.layer.value,
+            "layer_name": self._get_layer_name(),
+            "evidence_count": len(self.evidences),
+            "strength_score": round(self.strength_score, 2),
+            "evidences": [e.to_dict() for e in self.evidences],
+        }
+
+    def _get_layer_name(self) -> str:
+        """获取层级的中文名称."""
+        names = {
+            EvidenceLayer.DIRECT_COGNITION: "直接认知性证据",
+            EvidenceLayer.OBJECTIVE_ANOMALY: "客观异常事实",
+            EvidenceLayer.COGNITION_ENHANCER: "认知增强因素",
+            EvidenceLayer.DEFENSE_VERIFICATION: "辩解检验材料",
+        }
+        return names.get(self.layer, "未知层级")
+
+
+@dataclass(slots=True)
+class EvidenceLayerReport:
+    """证据层级评估报告.
+
+    Attributes:
+        layer_results: 4个层级的评估结果.
+        cognition_tier: 认知匹配度档级（1-3档，1为最高）.
+        has_direct_cognition: 是否存在直接认知性证据.
+        has_objective_anomaly: 是否存在客观异常事实.
+        downgrade_applied: 是否应用了降档防护.
+    """
+
+    layer_results: dict[EvidenceLayer, LayerEvidence] = field(default_factory=dict)
+    cognition_tier: int = 3  # 默认最低档
+    has_direct_cognition: bool = False
+    has_objective_anomaly: bool = False
+    downgrade_applied: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        """转换为可序列化的字典."""
+        return {"layers": {
+                layer.value: result.to_dict()
+                for layer, result in self.layer_results.items()
+            },
+            "cognition_tier": self.cognition_tier,
+            "has_direct_cognition": self.has_direct_cognition,
+            "has_objective_anomaly": self.has_objective_anomaly,
+            "downgrade_applied": self.downgrade_applied,
+        }
+
+
+# ---------------------------------------------------------------------------
+# 证据强度分级器
+# ---------------------------------------------------------------------------
+
+
+class EvidenceStrengthLayer:
+    """证据强度4层分级器.
+
+    实现证据分层评估与防护逻辑。
+    """
+
+    def __init__(self) -> None:
+        """初始化分级器."""
+        self._tag_to_layer = _TAG_TO_LAYER_MAP
+
+    # ------------------------------------------------------------------
+    # 公开方法
+    # ------------------------------------------------------------------
+
+    def layer_evidences(self, tags: Sequence[TagMatch]) -> EvidenceLayerReport:
+        """为每个层级生成独立证据列表并计算强度评分.
+
+        Args:
+            tags: 标签抽取结果（来自 TagExtractor）.
+
+        Returns:
+            EvidenceLayerReport: 包含4个层级评估结果的报告.
+        """
+        # 初始化4个层级
+        layer_results: dict[EvidenceLayer, LayerEvidence] = {
+            layer: LayerEvidence(layer=layer) for layer in EvidenceLayer
+        }
+
+        # 将标签分类到对应层级
+        for tag_match in tags:
+            layer = self._tag_to_layer.get(tag_match.tag_id)
+            if layer is not None:
+                layer_results[layer].evidences.append(tag_match)
+
+        # 计算每个层级的强度评分
+        for layer_evidence in layer_results.values():
+            layer_evidence.strength_score = self._calculate_layer_score(
+                layer_evidence.evidences,
+                layer_evidence.layer,
+            )
+
+        # 判断是否存在直接认知和客观异常
+        has_direct = len(layer_results[EvidenceLayer.DIRECT_COGNITION].evidences) > 0
+        has_objective = len(layer_results[EvidenceLayer.OBJECTIVE_ANOMALY].evidences) > 0
+
+        # 计算初始认知档级
+        cognition_tier = self._calculate_cognition_tier(layer_results)
+
+        # 应用防护逻辑
+        downgrade_applied = False
+        if has_objective and not has_direct:
+            # 仅有客观异常而无直接认知时，降一档
+            cognition_tier = min(cognition_tier + 1, 3)
+            downgrade_applied = True
+            logger.info("应用降档防护：仅有客观异常而无直接认知，认知档级降为第{}档",
+                cognition_tier,
+            )
+        return EvidenceLayerReport(
+            layer_results=layer_results,
+            cognition_tier=cognition_tier,
+            has_direct_cognition=has_direct,
+            has_objective_anomaly=has_objective,
+            downgrade_applied=downgrade_applied,
+        )
+
+    def guard_against_single_layer_override(self,
+        report: EvidenceLayerReport,
+    ) -> EvidenceLayerReport:
+        """防护逻辑：防止单一客观事实替代主观明知证明.
+
+        当仅有OBJECTIVE_ANOMALY而无DIRECT_COGNITION时，
+        必须将认知匹配度档级降低一档。
+
+        Args:
+            report: 初始评估报告.
+
+        Returns:
+            应用防护逻辑后的报告（若需要降档则修改 cognition_tier 和 downgrade_applied）.
+        """
+        if report.has_objective_anomaly and not report.has_direct_cognition:
+            # 已经应用过降档则不重复处理
+            if not report.downgrade_applied:
+                report.cognition_tier = min(report.cognition_tier + 1, 3)
+                report.downgrade_applied = True
+                logger.info("防护逻辑触发：认知档级降为第{}档",
+                    report.cognition_tier,
+                )
+        return report
+
+    # ------------------------------------------------------------------
+    # 内部：计算层级强度评分
+    # ------------------------------------------------------------------
+
+    def _calculate_layer_score(self,
+        evidences: list[TagMatch],
+        layer: EvidenceLayer,
+    ) -> float:
+        """计算单个层级的强度评分（0-10分）.
+
+        评分规则：
+        - 基础分：每个证据贡献其 confidence * 10
+        - 层级权重：不同层级的权重不同
+        - 最终分数限制在 0-10 范围内
+
+        Args:
+            evidences: 该层级的证据列表.
+            layer: 证据层级.
+
+        Returns:
+            强度评分（0-10分）.
+        """
+        if not evidences:
+            return 0.0
+
+        # 层级权重
+        layer_weights = {
+            EvidenceLayer.DIRECT_COGNITION: 1.0,  # 直接认知权重最高
+            EvidenceLayer.OBJECTIVE_ANOMALY: 0.8,  # 客观异常次之
+            EvidenceLayer.COGNITION_ENHANCER: 0.7,  # 认知增强再次之
+            EvidenceLayer.DEFENSE_VERIFICATION: 0.6,  # 辩解检验最低
+        }
+        weight = layer_weights.get(layer, 0.5)
+
+        # 计算基础分：所有证据的 confidence 之和 * 权重
+        base_score = sum(e.confidence for e in evidences) * 10 * weight
+
+        # 限制在 0-10 范围内
+        return min(max(base_score, 0.0), 10.0)
+
+    # ------------------------------------------------------------------
+    # 内部：计算认知档级
+    # ------------------------------------------------------------------
+
+    def _calculate_cognition_tier(self,
+        layer_results: dict[EvidenceLayer, LayerEvidence],
+    ) -> int:
+        """计算认知档级（1-3档，1为最高）.
+
+        档级判定规则：
+        - 第1档（最高）：DIRECT_COGNITION 评分 >= 6 且 OBJECTIVE_ANOMALY 评分 >= 5
+        - 第2档（中等）：DIRECT_COGNITION 评分 >= 4 或 OBJECTIVE_ANOMALY 评分 >= 6
+        - 第3档（最低）：其他情况
+
+        Args:
+            layer_results: 4个层级的评估结果.
+
+        Returns:
+            认知档级（1-3）.
+        """
+        direct_score = layer_results[EvidenceLayer.DIRECT_COGNITION].strength_score
+        objective_score = layer_results[EvidenceLayer.OBJECTIVE_ANOMALY].strength_score
+        enhancer_score = layer_results[EvidenceLayer.COGNITION_ENHANCER].strength_score
+
+        # 第1档：直接认知强且客观异常强
+        if direct_score >= 6.0 and objective_score >= 5.0:
+            return 1
+
+        # 第2档：直接认知中等或客观异常强
+        if direct_score >= 4.0 or objective_score >= 6.0 or enhancer_score >= 5.0:
+            return 2
+
+        # 第3档：其他情况
+        return 3
+
+
+# ---------------------------------------------------------------------------
+# 证据分层便捷函数
+# ---------------------------------------------------------------------------
+
+
+def analyze_evidence_layers(tags: Sequence[TagMatch]) -> EvidenceLayerReport:
+    """便捷函数：分析证据层级并生成报告.
+
+    Args:
+        tags: 标签抽取结果.
+
+    Returns:
+        EvidenceLayerReport: 证据层级评估报告.
+    """
+    analyzer = EvidenceStrengthLayer()
+    return analyzer.layer_evidences(tags)
+
+
+def apply_single_layer_guard(report: EvidenceLayerReport) -> EvidenceLayerReport:
+    """便捷函数：应用单一层级防护逻辑.
+
+    Args:
+        report: 初始评估报告.
+
+    Returns:
+        应用防护逻辑后的报告.
+    """
+    analyzer = EvidenceStrengthLayer()
+    return analyzer.guard_against_single_layer_override(report)
+
+
+# ---------------------------------------------------------------------------
+# 边界提醒功能 (原 boundary_reminder.py)
+# ---------------------------------------------------------------------------
+
+# 边界提醒规则
+_BOUNDARY_RULES = [
+    {
+        "keywords": ["明确知道系诈骗钱款", "事先知道诈骗"],
+        "alert_type": "超出帮信罪范围",
+        "description": "案件事实显示被告人明确知道系诈骗钱款，可能构成诈骗罪共同犯罪",
+        "severity": "high",
+    },
+    {
+        "keywords": ["长期取现分工", "上线安排"],
+        "alert_type": "分工合作特征",
+        "description": "案件事实显示存在长期取现分工或上线安排，可能构成诈骗罪共同犯罪",
+        "severity": "high",
+    },
+    {
+        "keywords": ["每日验卡", "防止冻结"],
+        "alert_type": "规避监管行为",
+        "description": "案件事实显示存在每日验卡、防止冻结等规避监管行为，可能构成掩饰隐瞒犯罪所得",
+        "severity": "medium",
+    },
+    {
+        "keywords": ["分开装袋", "掩饰隐瞒"],
+        "alert_type": "掩饰隐瞒行为",
+        "description": "案件事实显示存在分开装袋等掩饰隐瞒行为，可能构成掩饰隐瞒犯罪所得罪",
+        "severity": "high",
+    },
+]
+
+
+def check_boundary_alerts(case_text: str) -> list[BoundaryAlert]:
+    """检查案件是否超出帮信罪评价范围.
+
+    当出现以下事实时触发提醒：
+    - 明确知道系诈骗钱款
+    - 长期取现分工
+    - 上线安排
+    - 每日验卡、防止冻结
+    - 分开装袋等掩饰隐瞒行为
+
+    Args:
+        case_text: 案件事实文本
+
+    Returns:
+        list[BoundaryAlert]: 边界提醒列表
+    """
+    logger.info("开始边界提醒检查 (B4)")
+    alerts = []
+    for rule in _BOUNDARY_RULES:
+        for keyword in rule["keywords"]:
+            if keyword in case_text:
+                alert = BoundaryAlert(
+                    alert_type=rule["alert_type"],
+                    description=rule["description"],
+                    severity=rule["severity"],
+                )
+                alerts.append(alert)
+                logger.warning(f"触发边界提醒: {alert.alert_type} - {keyword}")
+                break  # 每个规则只触发一次
+    if not alerts:
+        logger.info("未触发边界提醒")
+    return alerts
+
+
+# ---------------------------------------------------------------------------
+# 导出符号
+# ---------------------------------------------------------------------------
+
+__all__ = [
+    # 冲突检测
+    "Conflict",
+    "ConflictDetector",
+    "detect_conflicts",
+    # 证据分层
+    "EvidenceLayer",
+    "LayerEvidence",
+    "EvidenceLayerReport",
+    "EvidenceStrengthLayer",
+    "analyze_evidence_layers",
+    "apply_single_layer_guard",
+    # 边界提醒
+    "BoundaryAlert",
+    "check_boundary_alerts",
+]
