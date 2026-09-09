@@ -62,7 +62,7 @@
 
 ```powershell
 # 进入工作目录
-cd C:\Users\Lenovo\Desktop
+cd C:\Users\<user>\Desktop
 
 # 项目已在当前目录，如使用 Git 可执行：
 # git clone <仓库地址>

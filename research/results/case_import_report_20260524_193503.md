@@ -1,7 +1,7 @@
 # 实验案例数据导入报告
 
 **生成时间**: 2026-05-24 19:35:03
-**数据来源**: C:\Users\Lenovo\Desktop\微信程序开发\research\cases
+**数据来源**: C:\Users\<user>\Desktop\<project>\research\cases
 
 ## 一、案例分布
 

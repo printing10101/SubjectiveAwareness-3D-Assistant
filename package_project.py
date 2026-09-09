@@ -7,7 +7,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-PROJECT_ROOT = Path(r"C:\Users\Lenovo\Desktop\微信程序开发")
+PROJECT_ROOT = Path(r"C:\Users\<user>\Desktop\<project>")
 OUTPUT_DIR = PROJECT_ROOT
 ZIP_NAME = "legal_judgment_analysis_system.zip"
 SHA256_NAME = ZIP_NAME + ".sha256"

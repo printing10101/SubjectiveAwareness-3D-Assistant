@@ -2,7 +2,7 @@ import zipfile
 import os
 import hashlib
 
-project_dir = r"C:\Users\Lenovo\Desktop\微信程序开发"
+project_dir = r"C:\Users\<user>\Desktop\<project>"
 checksum_suffix = ".zip.sha256"
 zip_path = f"{project_dir}\\legal_judgment_analysis_system.zip"
 checksum_path = zip_path + checksum_suffix
@@ -38,7 +38,7 @@ else:
 
 # Extract to temp dir and verify
 print("\n在临时目录中解压并验证...")
-extract_dir = r"C:\Users\Lenovo\Desktop\微信程序开发\.temp_verify"
+extract_dir = r"C:\Users\<user>\Desktop\<project>\.temp_verify"
 if os.path.exists(extract_dir):
     import shutil
 
