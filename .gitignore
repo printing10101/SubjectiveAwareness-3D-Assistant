@@ -120,3 +120,7 @@ github可用skill/
 _zip_inspect/
 scripts/crawl_judgments.py
 **/crawl_judgments.py
+
+# 真实裁判文书不得入库
+data/real_judgments/
+**/real_judgment*
