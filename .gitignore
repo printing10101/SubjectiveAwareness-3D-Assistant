@@ -114,3 +114,9 @@ unsloth_compiled_cache/
 
 # Cleaned/anonymized data (must not be committed)
 data/cleaned/
+# 敏感/无关内容：禁止再入库
+.trae/
+github可用skill/
+_zip_inspect/
+scripts/crawl_judgments.py
+**/crawl_judgments.py
